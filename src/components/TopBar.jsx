@@ -66,7 +66,7 @@ export default function TopBar({
               right: 6,
               width: 7,
               height: 7,
-              backgroundColor: '#ff4d4f',
+              backgroundColor: 'var(--amber)',
               borderRadius: '50%',
               border: '1.5px solid #ffffff'
             }} />

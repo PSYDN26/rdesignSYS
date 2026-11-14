@@ -1,37 +1,57 @@
 :root {
-  /* Design System Color Tokens */
-  --bg-app: #ffffff;
-  --bg-canvas: #f8f9fa;
-  --bg-subtle: #f3f4f6;
-  --bg-hover: #f1f3f5;
-  --bg-active: #e9ecef;
+  /* ========================================================
+     CLEAN BRAND DESIGN TOKENS (Blue, Amber, White)
+     ======================================================== */
+  --blue: #042A4E;                                             /* Primary brand color */
+  --ink: var(--blue);                                          /* Main text */
+  --focus: var(--blue);                                        /* Default focus outline */
   
-  --text-primary: #11141a;
-  --text-secondary: #4b5262;
-  --text-muted: #8c93a1;
-  --text-inverse: #ffffff;
+  --amber: #F98809;                                           /* Accent, primary buttons, and NAVIS lettering */
+  --amber-highlight: color-mix(in srgb, var(--amber) 82%, white); /* Primary button hover (82% orange mixed with white) */
+  --amber-tint: #FFF1E1;                                      /* Pale orange surface */
+  --amber-ink: #83501F;                                       /* Text on pale orange */
   
-  --border-subtle: #e5e7eb;
-  --border-light: #f0f2f5;
-  --border-dashed: #d1d5db;
+  --muted: #43556E;                                           /* Secondary text */
+  --blue-tint: #E4EEF7;                                       /* Light blue surfaces */
+  --hover: #E8F0F8;                                           /* Light hover surface */
+  --card: #F9FBFEF2;                                          /* Translucent card surface */
+  --control: #F9FBFE;                                         /* Control surface */
   
-  --accent-green: #00c06d;
-  --accent-green-hover: #00ab61;
-  --accent-green-light: #e6f9f0;
+  --line: #CCD8E5;                                            /* Dividers and subtle borders */
+  --control-border: #758BA6;                                  /* Control borders */
+  --field-focus: #4879A3;                                     /* Form field focus */
+
+  /* Semantic System Aliases */
+  --bg-app: #FFFFFF;
+  --bg-canvas: #F0F4F8;                                       /* Clean slate backdrop */
+  --bg-surface: #FFFFFF;
+  --bg-subtle: var(--control);
+  --bg-hover: var(--hover);
+  --bg-active: var(--blue-tint);
   
-  --accent-blue-badge: #eaf1fc;
-  --accent-blue-text: #2f65db;
-  --accent-red: #ff4d4f;
+  --text-primary: var(--ink);
+  --text-secondary: var(--muted);
+  --text-muted: var(--control-border);
+  --text-inverse: #FFFFFF;
   
+  --border-subtle: var(--line);
+  --border-light: var(--blue-tint);
+  --border-dashed: var(--line);
+  
+  --accent-primary: var(--blue);
+  --accent-cta: var(--amber);
+  --accent-cta-hover: var(--amber-highlight);
+  --accent-red: var(--amber);                                 /* Unified accent: no harsh red */
+
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-full: 9999px;
   
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.12);
+  --shadow-sm: 0 1px 3px rgba(4, 42, 78, 0.05);
+  --shadow-md: 0 4px 14px rgba(4, 42, 78, 0.08);
+  --shadow-lg: 0 12px 32px rgba(4, 42, 78, 0.12);
   --header-height: 54px;
   --sidebar-width: 220px;
   --todo-sidebar-width: 310px;
@@ -112,12 +132,12 @@ button:active {
   font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.5px;
-  color: #0b0d11;
+  color: var(--blue);
   text-decoration: none;
 }
 
 .brand-dot {
-  color: var(--accent-green);
+  color: var(--amber);
 }
 
 .header-center-section {
@@ -131,7 +151,7 @@ button:active {
 .capsule-quickbar {
   display: flex;
   align-items: center;
-  background: #f4f5f7;
+  background: var(--bg-subtle);
   padding: 4px 6px 4px 14px;
   border-radius: var(--radius-full);
   gap: 10px;
@@ -139,7 +159,7 @@ button:active {
 }
 
 .capsule-search-btn {
-  color: var(--text-secondary);
+  color: var(--muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -148,12 +168,12 @@ button:active {
 }
 
 .capsule-search-btn:hover {
-  color: var(--text-primary);
-  background: #e5e8ee;
+  color: var(--blue);
+  background: var(--blue-tint);
 }
 
 .live-lesson-badge {
-  background: #000000;
+  background: var(--blue);
   color: #ffffff;
   font-size: 12px;
   font-weight: 600;
@@ -174,7 +194,7 @@ button:active {
 .green-bars span {
   width: 2.5px;
   height: 10px;
-  background-color: var(--accent-green);
+  background-color: var(--amber);
   border-radius: 1px;
 }
 
@@ -364,7 +384,7 @@ button:active {
 }
 
 .btn-primary-action {
-  background: #000000;
+  background: var(--amber);
   color: #ffffff;
   font-size: 13.5px;
   font-weight: 600;
@@ -373,19 +393,19 @@ button:active {
   display: flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(249, 136, 9, 0.28);
   transition: transform 0.15s ease, background 0.15s ease;
 }
 
 .btn-primary-action:hover {
-  background: #23272f;
+  background: var(--amber-highlight);
   transform: translateY(-1px);
 }
 
 /* Empty State Dashed Card */
 .dashed-create-container {
   width: 100%;
-  border: 1.5px dashed var(--border-dashed);
+  border: 1.5px dashed var(--line);
   border-radius: var(--radius-lg);
   min-height: 200px;
   display: flex;
@@ -399,8 +419,8 @@ button:active {
 }
 
 .dashed-create-container:hover {
-  border-color: #9ca3af;
-  background: #fafbfc;
+  border-color: var(--control-border);
+  background: var(--hover);
   transform: translateY(-1px);
 }
 
@@ -408,17 +428,17 @@ button:active {
   width: 48px;
   height: 48px;
   border-radius: var(--radius-full);
-  background: #f1f3f5;
+  background: var(--blue-tint);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #2b303b;
+  color: var(--blue);
   margin-bottom: 12px;
   transition: transform 0.15s ease, background 0.15s ease;
 }
 
 .dashed-create-container:hover .create-icon-bubble {
-  background: #e9ecef;
+  background: var(--blue-tint);
   transform: scale(1.06);
 }
 
@@ -559,22 +579,22 @@ button:active {
   display: flex;
   align-items: center;
   gap: 4px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--line);
   background: #ffffff;
-  color: #475569;
+  color: var(--muted);
   flex-shrink: 0;
   transition: all 0.15s ease;
 }
 .mobile-tab-pill.active {
-  background: #000000;
+  background: var(--blue);
   color: #ffffff;
-  border-color: #000000;
+  border-color: var(--blue);
   font-weight: 700;
 }
 .mobile-tab-pill.completed {
-  color: #00c06d;
-  background: #e6f9f0;
-  border-color: #c7f3de;
+  color: var(--amber-ink);
+  background: var(--amber-tint);
+  border-color: var(--line);
 }
 
 @media (max-width: 768px) {
@@ -772,16 +792,16 @@ button:active {
 }
 
 .status-present-text {
-  color: var(--accent-green);
+  color: var(--amber);
   font-weight: 700;
 }
 
 .status-started-text {
-  color: #94a3b8;
+  color: var(--muted);
 }
 
 .btn-enter-room {
-  background: var(--accent-green);
+  background: var(--amber);
   color: #ffffff;
   font-size: 12.5px;
   font-weight: 700;
@@ -789,12 +809,12 @@ button:active {
   border-radius: var(--radius-full);
   flex-shrink: 0;
   align-self: center;
-  box-shadow: 0 2px 6px rgba(0, 192, 109, 0.25);
+  box-shadow: 0 2px 6px rgba(249, 136, 9, 0.25);
   transition: all 0.15s ease;
 }
 
 .btn-enter-room:hover {
-  background: var(--accent-green-hover);
+  background: var(--amber-highlight);
   transform: translateY(-1px);
 }
 
@@ -862,12 +882,12 @@ button:active {
   }
 
   .mobile-tab-btn.active {
-    color: #0b0d11;
+    color: var(--blue);
     font-weight: 700;
   }
 
   .mobile-tab-btn.active svg {
-    color: #000000;
+    color: var(--blue);
   }
 
   .mobile-badge-pill {
@@ -943,28 +963,30 @@ button:active {
 .form-label {
   font-size: 12.5px;
   font-weight: 600;
-  color: #374151;
+  color: var(--muted);
 }
 
 .form-input, .form-select {
   padding: 10px 14px;
   border-radius: var(--radius-sm);
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--line);
+  background: var(--control);
   font-family: inherit;
   font-size: 14px;
-  color: #111827;
+  color: var(--ink);
   outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .form-input:focus, .form-select:focus {
-  border-color: #000000;
+  border-color: var(--field-focus);
+  box-shadow: 0 0 0 2px rgba(72, 121, 163, 0.2);
 }
 
 .modal-footer {
   padding: 14px 20px;
-  background: #f9fafb;
-  border-top: 1px solid var(--border-subtle);
+  background: var(--control);
+  border-top: 1px solid var(--line);
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -975,12 +997,13 @@ button:active {
   border-radius: var(--radius-full);
   font-size: 13.5px;
   font-weight: 600;
-  color: #4b5563;
-  background: #e5e7eb;
+  color: var(--muted);
+  background: var(--blue-tint);
+  border: 1px solid var(--line);
 }
 
 .btn-secondary:hover {
-  background: #d1d5db;
+  background: var(--hover);
 }
 
 .btn-primary-modal {
@@ -989,11 +1012,12 @@ button:active {
   font-size: 13.5px;
   font-weight: 600;
   color: #ffffff;
-  background: #000000;
+  background: var(--amber);
+  transition: background 0.15s ease;
 }
 
 .btn-primary-modal:hover {
-  background: #22262f;
+  background: var(--amber-highlight);
 }
 
 /* Virtual Classroom Preview Modal */

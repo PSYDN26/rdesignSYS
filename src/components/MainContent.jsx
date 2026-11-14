@@ -65,8 +65,8 @@ export default function MainContent({
                     borderRadius: '6px',
                     fontSize: '13px',
                     fontWeight: opt.id === filter ? 600 : 400,
-                    color: opt.id === filter ? '#111827' : '#4b5563',
-                    background: opt.id === filter ? '#f3f4f6' : 'transparent',
+                    color: opt.id === filter ? 'var(--blue)' : 'var(--muted)',
+                    background: opt.id === filter ? 'var(--blue-tint)' : 'transparent',
                   }}
                   onClick={() => {
                     setFilter(opt.id);
@@ -76,7 +76,7 @@ export default function MainContent({
                   aria-selected={opt.id === filter}
                 >
                   <span>{opt.label}</span>
-                  {opt.id === filter && <Check size={14} />}
+                  {opt.id === filter && <Check size={14} color="var(--amber)" />}
                 </button>
               ))}
             </div>

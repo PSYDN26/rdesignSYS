@@ -173,21 +173,21 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
         <div className="mobile-profile-progress">
           {/* Progress Header Row */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#334155' }}>
-              Progress: <strong style={{ color: '#00c06d' }}>{progressPercent}%</strong>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink)' }}>
+              Progress: <strong style={{ color: 'var(--amber)' }}>{progressPercent}%</strong>
             </span>
-            <span style={{ fontSize: 10, color: '#64748b' }}>
+            <span style={{ fontSize: 10, color: 'var(--muted)' }}>
               {completedSteps.length} of {stepsList.length} sections done
             </span>
           </div>
 
           {/* Linear Progress Fill Bar */}
-          <div style={{ width: '100%', height: 6, background: '#e2e8f0', borderRadius: 9999, overflow: 'hidden' }}>
+          <div style={{ width: '100%', height: 6, background: 'var(--line)', borderRadius: 9999, overflow: 'hidden' }}>
             <div 
               style={{ 
                 width: `${progressPercent}%`, 
                 height: '100%', 
-                background: '#00c06d', 
+                background: 'var(--amber)', 
                 borderRadius: 9999,
                 transition: 'width 0.3s ease'
               }} 
@@ -221,8 +221,8 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               ========================================================================= */}
           {currentStep === 1 && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
-                <h2 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+              <div style={{ background: 'var(--blue-tint)', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid var(--blue)' }}>
+                <h2 style={{ fontSize: 14, fontWeight: 800, color: 'var(--blue)', margin: 0 }}>
                   Personal Information
                 </h2>
               </div>
@@ -390,8 +390,8 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               ========================================================================= */}
           {currentStep === 2 && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
-                <h2 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+              <div style={{ background: 'var(--blue-tint)', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid var(--blue)' }}>
+                <h2 style={{ fontSize: 14, fontWeight: 800, color: 'var(--blue)', margin: 0 }}>
                   Family Background
                 </h2>
               </div>
@@ -451,8 +451,8 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               ========================================================================= */}
           {currentStep === 3 && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
-                <h2 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+              <div style={{ background: 'var(--blue-tint)', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid var(--blue)' }}>
+                <h2 style={{ fontSize: 14, fontWeight: 800, color: 'var(--blue)', margin: 0 }}>
                   Educational Background
                 </h2>
               </div>
@@ -501,8 +501,8 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               ========================================================================= */}
           {currentStep === 4 && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
-                <h2 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+              <div style={{ background: 'var(--blue-tint)', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid var(--blue)' }}>
+                <h2 style={{ fontSize: 14, fontWeight: 800, color: 'var(--blue)', margin: 0 }}>
                   Program &amp; Enrollment
                 </h2>
               </div>
@@ -545,8 +545,8 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               ========================================================================= */}
           {currentStep === 5 && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
-                <h2 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+              <div style={{ background: 'var(--blue-tint)', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid var(--blue)' }}>
+                <h2 style={{ fontSize: 14, fontWeight: 800, color: 'var(--blue)', margin: 0 }}>
                   Photo &amp; Certification
                 </h2>
               </div>
@@ -568,16 +568,16 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                     <img src={photoPreview} alt="2x2 ID" style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 4 }} />
                   ) : (
                     <div style={{ textAlign: 'center' }}>
-                      <Camera size={24} color="#64748b" style={{ margin: '0 auto 6px' }} />
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#0f172a' }}>2x2 ID Photo</div>
-                      <div style={{ fontSize: 9.5, color: '#94a3b8' }}>White background</div>
+                      <Camera size={24} color="var(--control-border)" style={{ margin: '0 auto 6px' }} />
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink)' }}>2x2 ID Photo</div>
+                      <div style={{ fontSize: 9.5, color: 'var(--muted)' }}>White background</div>
                     </div>
                   )}
                 </div>
 
-                <div style={{ flex: 1, minWidth: 240, fontSize: 11.5, color: '#475569', lineHeight: 1.6, background: '#f8fafc', padding: 14, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-                  <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <AlertCircle size={14} color="#00c06d" /> Legal Notice &amp; Compliance:
+                <div style={{ flex: 1, minWidth: 240, fontSize: 11.5, color: 'var(--muted)', lineHeight: 1.6, background: 'var(--control)', padding: 14, borderRadius: 8, border: '1px solid var(--line)' }}>
+                  <div style={{ fontWeight: 700, color: 'var(--ink)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <AlertCircle size={14} color="var(--amber)" /> Legal Notice &amp; Compliance:
                   </div>
                   <p style={{ margin: 0 }}>
                     In accordance with Republic Act No. 10173 (Data Privacy Act of 2012), all personal information provided herein will be held strictly confidential and utilized solely for student verification.
@@ -586,17 +586,17 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               </div>
 
               {/* Digital Signature */}
-              <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 16 }}>
+              <div style={{ borderTop: '1px solid var(--line)', paddingTop: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 14 }}>
                   <input 
                     id="decl-agree"
                     type="checkbox" 
                     checked={formData.declarationAgree}
                     onChange={(e) => handleChange('declarationAgree', e.target.checked)}
-                    style={{ accentColor: '#000000', marginTop: 2 }}
+                    style={{ accentColor: 'var(--amber)', marginTop: 2 }}
                     required
                   />
-                  <label htmlFor="decl-agree" style={{ fontSize: 11.5, color: '#1e293b', cursor: 'pointer' }}>
+                  <label htmlFor="decl-agree" style={{ fontSize: 11.5, color: 'var(--ink)', cursor: 'pointer' }}>
                     I declare under oath that this Student Profile has been accomplished by me personally and that the entries are true, correct, and complete.
                   </label>
                 </div>
@@ -616,8 +616,8 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
           )}
 
           {/* Document Grounded Footer Controls */}
-          <footer style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px solid #0f172a', paddingTop: 16, marginTop: 12 }}>
-            <div style={{ fontSize: 10.5, color: '#64748b', fontVariantNumeric: 'tabular-nums' }}>
+          <footer style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px solid var(--blue)', paddingTop: 16, marginTop: 12 }}>
+            <div style={{ fontSize: 10.5, color: 'var(--muted)', fontVariantNumeric: 'tabular-nums' }}>
               Section {currentStep} of 5
             </div>
 
@@ -648,7 +648,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                 <button
                   type="submit"
                   className="btn-primary-action"
-                  style={{ background: '#00c06d', fontSize: 12, padding: '7px 20px' }}
+                  style={{ fontSize: 12, padding: '7px 20px' }}
                 >
                   <Save size={14} />
                   <span>Submit Profile</span>

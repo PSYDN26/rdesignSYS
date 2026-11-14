@@ -59,7 +59,7 @@ export default function App() {
         />
 
         {/* Column 2: Center Content Area (Bond Paper Form or Class Dashboard) */}
-        <div style={{ flex: 1, overflowY: 'auto', background: activeTab === 'profile' ? '#edf0f5' : '#ffffff', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1, overflowY: 'auto', background: activeTab === 'profile' ? 'var(--bg-canvas)' : '#ffffff', display: 'flex', flexDirection: 'column' }}>
           {activeTab === 'profile' ? (
             <StudentProfileForm 
               currentStep={profileStep}

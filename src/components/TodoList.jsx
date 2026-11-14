@@ -39,7 +39,7 @@ export default function TodoList({ onEnterLesson, lesson = {
           
           <div className="lesson-card-time">
             <span>{lesson.time}</span>
-            <span style={{ display: 'block', color: '#94a3b8', fontSize: '10.5px' }}>{lesson.teacher}</span>
+            <span style={{ display: 'block', color: 'var(--muted)', fontSize: '10.5px' }}>{lesson.teacher}</span>
           </div>
 
           <div className="lesson-card-tag" role="link" tabIndex={0}>
