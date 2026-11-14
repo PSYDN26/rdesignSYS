@@ -251,11 +251,16 @@ button:active {
 }
 
 .header-center-section {
-  flex: 1;
-  max-width: 540px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0;
+  height: var(--header-height);
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 60;
+  pointer-events: auto;
 }
 
 .capsule-quickbar {
