@@ -6,9 +6,10 @@ import TodoList from './components/TodoList';
 import MobileBottomNav from './components/MobileBottomNav';
 import CreateClassModal from './components/CreateClassModal';
 import EnterClassModal from './components/EnterClassModal';
+import StudentProfileForm from './components/StudentProfileForm';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState('profile'); // Default to profile to show immediately
   const [filter, setFilter] = useState('all');
   const [classes, setClasses] = useState([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -40,7 +41,7 @@ export default function App() {
       <TopBar
         lessonCount={1}
         user={{ name: '006a.user...', tier: 'Free', avatar: '01' }}
-        onSearchClick={() => alert('Search classes & resources')}
+        onSearchClick={() => alert('Search classes & profile documents')}
         onCreateClassClick={() => setIsCreateModalOpen(true)}
         unreadCount={1}
       />
@@ -54,19 +55,30 @@ export default function App() {
           todoCount={1}
         />
 
-        {/* Center Main Content (Responsive across all screens) */}
-        <MainContent
-          classes={classes}
-          onCreateClassClick={() => setIsCreateModalOpen(true)}
-          filter={filter}
-          setFilter={setFilter}
-        />
+        {/* Center Workspace Content */}
+        <div style={{ flex: 1, overflowY: 'auto', background: '#ffffff', display: 'flex', flexDirection: 'column' }}>
+          {activeTab === 'profile' ? (
+            <StudentProfileForm 
+              onBack={() => setActiveTab('home')}
+              onSaveSuccess={() => setActiveTab('home')}
+            />
+          ) : (
+            <MainContent
+              classes={classes}
+              onCreateClassClick={() => setIsCreateModalOpen(true)}
+              filter={filter}
+              setFilter={setFilter}
+            />
+          )}
+        </div>
 
         {/* Right Rail: To-do List (Desktop) */}
-        <TodoList
-          lesson={currentLesson}
-          onEnterLesson={handleEnterLesson}
-        />
+        {activeTab === 'home' && (
+          <TodoList
+            lesson={currentLesson}
+            onEnterLesson={handleEnterLesson}
+          />
+        )}
       </div>
 
       {/* 3. Mobile Native Bottom Navigation Bar (< 768px) */}

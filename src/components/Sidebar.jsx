@@ -1,6 +1,7 @@
 import React from 'react';
 import { 
   Home, 
+  UserCheck,
   MessageSquare, 
   CheckSquare, 
   Calendar, 
@@ -14,6 +15,7 @@ import {
 export default function Sidebar({ activeTab, onTabSelect, todoCount = 1 }) {
   const mainNavItems = [
     { id: 'home', label: 'Home', icon: Home },
+    { id: 'profile', label: 'Profile (PDS)', icon: UserCheck },
     { id: 'chat', label: 'Chat', icon: MessageSquare },
     { id: 'todo', label: 'To Do', icon: CheckSquare, badge: todoCount },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
