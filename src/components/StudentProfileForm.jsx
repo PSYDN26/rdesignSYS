@@ -134,36 +134,27 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
       {/* THE PHYSICAL BOND PAPER SHEET (Standard 8.5" x 11" Bounds, Unslop Principles Applied) */}
       <article className="bond-paper-sheet" aria-label="Official Student Profile Form">
         
-        {/* Document Formal Header (Philippine DepEd / CHED / CSC Institutional Header) */}
-        <header className="bond-paper-header">
+        {/* Document Header (Simplified & Clean per Unslop Rules) */}
+        <header className="bond-paper-header" style={{ alignItems: 'center' }}>
           <div>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.8px', textTransform: 'uppercase', color: '#64748b', marginBottom: 2 }}>
-              Republic of the Philippines • CHED / DepEd Institutional Format
-            </div>
-            <h1 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px', margin: 0, textWrap: 'balance' }}>
-              PERSONAL DATA SHEET &amp; STUDENT PROFILE
+            <h1 style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.4px', margin: 0 }}>
+              Student Profile
             </h1>
-            <p style={{ fontSize: 11, color: '#94a3b8', margin: '2px 0 0' }}>
-              CS Form No. 212 / CHED StuFAPs Revised Form • Standard 8.5" × 11" Bond Paper Dimension
-            </p>
           </div>
 
           <div style={{ textAlign: 'right' }}>
             <span style={{ 
-              fontSize: 10.5, 
+              fontSize: 11, 
               fontWeight: 700, 
               background: '#f1f5f9', 
               color: '#334155', 
-              padding: '3px 8px', 
-              borderRadius: 4, 
+              padding: '4px 10px', 
+              borderRadius: 6, 
               display: 'inline-block',
               fontVariantNumeric: 'tabular-nums'
             }}>
               LRN: {formData.lrnNumber}
             </span>
-            <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 4 }}>
-              Status: <span style={{ color: '#00c06d', fontWeight: 700 }}>● Active Submission</span>
-            </div>
           </div>
         </header>
 
@@ -174,9 +165,9 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               ========================================================================= */}
           {currentStep === 1 && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
-                <h2 style={{ fontSize: 12.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#0f172a', margin: 0 }}>
-                  I. Personal Information (as written on PSA Birth Certificate)
+              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
+                <h2 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                  Personal Information
                 </h2>
               </div>
 
@@ -339,13 +330,13 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
           )}
 
           {/* =========================================================================
-              STEP 2: FAMILY & SOCIO-ECONOMIC
+              STEP 2: FAMILY BACKGROUND
               ========================================================================= */}
           {currentStep === 2 && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
-                <h2 style={{ fontSize: 12.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#0f172a', margin: 0 }}>
-                  II. Family &amp; Socio-Economic Background (CHED TDP / TES Criteria)
+              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
+                <h2 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                  Family Background
                 </h2>
               </div>
 
@@ -404,9 +395,9 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               ========================================================================= */}
           {currentStep === 3 && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
-                <h2 style={{ fontSize: 12.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#0f172a', margin: 0 }}>
-                  III. Educational Background &amp; Academic Honors
+              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
+                <h2 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                  Educational Background
                 </h2>
               </div>
 
@@ -454,9 +445,9 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               ========================================================================= */}
           {currentStep === 4 && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
-                <h2 style={{ fontSize: 12.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#0f172a', margin: 0 }}>
-                  IV. Higher Education Program &amp; Enrollment Details
+              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
+                <h2 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                  Program &amp; Enrollment
                 </h2>
               </div>
 
@@ -494,13 +485,13 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
           )}
 
           {/* =========================================================================
-              STEP 5: ATTACHMENTS & CERTIFICATION
+              STEP 5: PHOTO & CERTIFICATION
               ========================================================================= */}
           {currentStep === 5 && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
-                <h2 style={{ fontSize: 12.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#0f172a', margin: 0 }}>
-                  V. Official 2x2 ID Photo &amp; Applicant Certification
+              <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
+                <h2 style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', margin: 0 }}>
+                  Photo &amp; Certification
                 </h2>
               </div>
 
