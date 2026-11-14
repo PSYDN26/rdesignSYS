@@ -464,6 +464,11 @@ button:active {
   font-weight: 600;
 }
 
+.signout-btn:hover {
+  background: #fef2f2 !important;
+  color: #b91c1c !important;
+}
+
 .prod-nav-badge {
   position: absolute;
   right: 12px;

@@ -10,7 +10,8 @@ import {
   Presentation, 
   Cast,
   Settings,
-  HelpCircle
+  HelpCircle,
+  LogOut
 } from 'lucide-react';
 
 export default function Sidebar({ 
@@ -64,7 +65,7 @@ export default function Sidebar({
         </ul>
       </nav>
 
-      {/* Utility Links & User Account Pill at Bottom */}
+      {/* Utility Links & Sign Out Action at Bottom */}
       <div style={{ paddingTop: 12, borderTop: '1px solid var(--border-light)', display: 'flex', flexDirection: 'column', gap: 4 }}>
         <button type="button" className="prod-nav-btn" title="Help & Support">
           <HelpCircle size={17} strokeWidth={2} />
@@ -74,16 +75,20 @@ export default function Sidebar({
           <Settings size={17} strokeWidth={2} />
           <span>Settings</span>
         </button>
-
-        {/* User Account Trigger Pill */}
-        <div className="user-account-badge" style={{ marginTop: 6, width: '100%', justifyContent: 'flex-start' }} title={`Signed in as ${user.name}`}>
-          <div className="avatar-disc">
-            <span>{user.avatar}</span>
-            <span className="avatar-online-dot" />
-          </div>
-          <span className="user-badge-name" style={{ fontSize: '11px', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</span>
-          <span className="user-badge-tier">{user.tier}</span>
-        </div>
+        <button 
+          type="button" 
+          className="prod-nav-btn signout-btn" 
+          title="Sign Out"
+          onClick={() => {
+            if (window.confirm('Are you sure you want to sign out?')) {
+              alert('Signed out successfully.');
+            }
+          }}
+          style={{ color: '#dc2626', marginTop: 2 }}
+        >
+          <LogOut size={17} strokeWidth={2} />
+          <span style={{ fontWeight: 600 }}>Sign Out</span>
+        </button>
       </div>
     </aside>
   );
