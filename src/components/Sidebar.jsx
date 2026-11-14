@@ -1,4 +1,5 @@
 import React from 'react';
+import BrandLogo from './BrandLogo';
 import { 
   Home, 
   UserCheck,
@@ -12,7 +13,12 @@ import {
   HelpCircle
 } from 'lucide-react';
 
-export default function Sidebar({ activeTab, onTabSelect, todoCount = 1 }) {
+export default function Sidebar({ 
+  activeTab, 
+  onTabSelect, 
+  todoCount = 1,
+  user = { name: '006a.user...', tier: 'Free', avatar: '01' }
+}) {
   const mainNavItems = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'profile', label: 'Profile (PDS)', icon: UserCheck },
@@ -26,7 +32,12 @@ export default function Sidebar({ activeTab, onTabSelect, todoCount = 1 }) {
 
   return (
     <aside className="prod-sidebar" aria-label="Main Application Navigation">
-      <nav>
+      {/* SCMBT Maritime Brand Vector Logo */}
+      <div className="sidebar-brand-wrapper">
+        <BrandLogo style={{ height: '44px', width: 'auto' }} />
+      </div>
+
+      <nav style={{ flex: 1, overflowY: 'auto' }}>
         <ul className="prod-nav-list">
           {mainNavItems.map((item) => {
             const Icon = item.icon;
@@ -53,16 +64,26 @@ export default function Sidebar({ activeTab, onTabSelect, todoCount = 1 }) {
         </ul>
       </nav>
 
-      {/* Utility Links at Bottom */}
-      <div style={{ paddingTop: 16, borderTop: '1px solid var(--border-light)', display: 'flex', flexDirection: 'column', gap: 2 }}>
+      {/* Utility Links & User Account Pill at Bottom */}
+      <div style={{ paddingTop: 12, borderTop: '1px solid var(--border-light)', display: 'flex', flexDirection: 'column', gap: 4 }}>
         <button type="button" className="prod-nav-btn" title="Help & Support">
-          <HelpCircle size={18} strokeWidth={2} />
+          <HelpCircle size={17} strokeWidth={2} />
           <span>Support</span>
         </button>
         <button type="button" className="prod-nav-btn" title="Settings">
-          <Settings size={18} strokeWidth={2} />
+          <Settings size={17} strokeWidth={2} />
           <span>Settings</span>
         </button>
+
+        {/* User Account Trigger Pill */}
+        <div className="user-account-badge" style={{ marginTop: 6, width: '100%', justifyContent: 'flex-start' }} title={`Signed in as ${user.name}`}>
+          <div className="avatar-disc">
+            <span>{user.avatar}</span>
+            <span className="avatar-online-dot" />
+          </div>
+          <span className="user-badge-name" style={{ fontSize: '11px', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user.name}</span>
+          <span className="user-badge-tier">{user.tier}</span>
+        </div>
       </div>
     </aside>
   );

@@ -97,15 +97,39 @@ button:active {
 }
 
 /* ========================================================
-   PRODUCTION APP SHELL
+   PRODUCTION APP SHELL (Full-Height Sidebar + Stage)
    ======================================================== */
 .prod-app-shell {
   width: 100vw;
   height: 100vh;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   overflow: hidden;
   background: var(--bg-app);
+}
+
+/* SCMBT Brand Logo Header in Sidebar */
+.sidebar-brand-wrapper {
+  padding: 6px 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.scmbt-brand-logo {
+  height: 44px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Stage Wrapper (Header + 2 Touching Columns) */
+.prod-stage-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* Production Top Navigation Bar */
@@ -116,28 +140,13 @@ button:active {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 24px;
   z-index: 40;
   flex-shrink: 0;
 }
 
-.header-brand-section {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  min-width: 200px;
-}
-
-.brand-title {
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  color: var(--blue);
-  text-decoration: none;
-}
-
-.brand-dot {
-  color: var(--amber);
+.header-left-spacer {
+  min-width: 60px;
 }
 
 .header-center-section {
@@ -280,18 +289,31 @@ button:active {
 }
 
 /* ========================================================
-   MAIN APPLICATION WORKSPACE (3 Columns on Desktop)
+   TOUCHING 3-COLUMN WORKSPACE (All Columns Touch Directly)
    ======================================================== */
-.prod-workspace-layout {
+.prod-workspace-layout,
+.prod-touching-workspace {
   flex: 1;
   display: flex;
   overflow: hidden;
   position: relative;
+  min-height: 0;
 }
 
-/* Left Sidebar Navigation */
+.prod-center-column {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-right: 1px solid var(--border-subtle);
+  background: var(--bg-canvas);
+}
+
+/* Left Sidebar Navigation (Full Height) */
 .prod-sidebar {
   width: var(--sidebar-width);
+  height: 100%;
   border-right: 1px solid var(--border-subtle);
   background: #ffffff;
   display: flex;
@@ -300,6 +322,7 @@ button:active {
   padding: 16px 12px;
   flex-shrink: 0;
   overflow-y: auto;
+  z-index: 50;
 }
 
 .prod-nav-list {
@@ -491,7 +514,7 @@ button:active {
 }
 
 .bond-paper-header {
-  border-bottom: 2px solid #11141a;
+  border-bottom: 1px solid var(--line);
   padding-bottom: 16px;
   margin-bottom: 24px;
   display: flex;

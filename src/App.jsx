@@ -39,72 +39,77 @@ export default function App() {
 
   return (
     <div className="prod-app-shell">
-      {/* 1. Production Web Application Header */}
-      <TopBar
-        lessonCount={1}
+      {/* Column 1: Leftmost Full-Height Navigation Sidebar with SCMBT Logo */}
+      <Sidebar
+        activeTab={activeTab}
+        onTabSelect={setActiveTab}
+        todoCount={1}
         user={{ name: '006a.user...', tier: 'Free', avatar: '01' }}
-        onSearchClick={() => alert('Search classes & documents')}
-        onCreateClassClick={() => setIsCreateModalOpen(true)}
-        unreadCount={1}
       />
 
-      {/* 2. Full-Viewport 3-Column Edge-to-Edge Workspace */}
-      <div className="prod-workspace-layout">
-        
-        {/* Column 1: Left Navigation Sidebar */}
-        <Sidebar
-          activeTab={activeTab}
-          onTabSelect={setActiveTab}
-          todoCount={1}
+      {/* Main Workspace Stage (TopBar + 2 Edge-to-Edge Touching Columns) */}
+      <div className="prod-stage-wrapper">
+        {/* Top Header Bar (Centered search capsule + right profile & notifications) */}
+        <TopBar
+          lessonCount={1}
+          user={{ name: '006a.user...', tier: 'Free', avatar: '01' }}
+          onSearchClick={() => alert('Search classes & documents')}
+          onCreateClassClick={() => setIsCreateModalOpen(true)}
+          unreadCount={1}
         />
 
-        {/* Column 2: Center Content Area (Bond Paper Form or Class Dashboard) */}
-        <div style={{ flex: 1, overflowY: 'auto', background: activeTab === 'profile' ? 'var(--bg-canvas)' : '#ffffff', display: 'flex', flexDirection: 'column' }}>
+        {/* 2 Edge-to-Edge Touching Content Columns */}
+        <div className="prod-touching-workspace">
+          
+          {/* Column 2: Center Content Area (Touching Column 1 and Column 3) */}
+          <div className="prod-center-column">
+            {activeTab === 'profile' ? (
+              <StudentProfileForm 
+                currentStep={profileStep}
+                onStepChange={setProfileStep}
+                onSaveSuccess={() => setActiveTab('home')}
+              />
+            ) : (
+              <MainContent
+                classes={classes}
+                onCreateClassClick={() => setIsCreateModalOpen(true)}
+                filter={filter}
+                setFilter={setFilter}
+              />
+            )}
+          </div>
+
+          {/* Column 3: Right Sidebar (Touching Column 2 with shared 1px hairline border) */}
           {activeTab === 'profile' ? (
-            <StudentProfileForm 
+            <ProfileProgressSidebar
               currentStep={profileStep}
-              onStepChange={setProfileStep}
-              onSaveSuccess={() => setActiveTab('home')}
+              onSelectStep={setProfileStep}
+              completedSteps={[1, 2, 3, 4]}
+              totalSteps={5}
+              lastSaved="Just now"
             />
           ) : (
-            <MainContent
-              classes={classes}
-              onCreateClassClick={() => setIsCreateModalOpen(true)}
-              filter={filter}
-              setFilter={setFilter}
+            <TodoList
+              lesson={currentLesson}
+              onEnterLesson={handleEnterLesson}
             />
           )}
-        </div>
 
-        {/* Column 3: Right Sidebar (Swaps between To-Do List and Profile Progress & Tabs) */}
-        {activeTab === 'profile' ? (
-          <ProfileProgressSidebar
-            currentStep={profileStep}
-            onSelectStep={setProfileStep}
-            completedSteps={[1, 2, 3, 4]}
-            totalSteps={5}
-            lastSaved="Just now"
-          />
-        ) : (
-          <TodoList
-            lesson={currentLesson}
-            onEnterLesson={handleEnterLesson}
-          />
-        )}
+        </div>
       </div>
 
-      {/* 3. Mobile Native Bottom Navigation Bar (< 768px) */}
+      {/* Mobile Native Bottom Navigation Bar (< 768px) */}
       <MobileBottomNav
         activeTab={activeTab}
         onTabSelect={setActiveTab}
         todoBadge={1}
       />
 
-      {/* 4. Interactive Modals */}
+      {/* Dialog Modals */}
       <CreateClassModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        onAddClass={handleAddClass}
+        onCreateClass={handleAddClass}
       />
 
       <EnterClassModal

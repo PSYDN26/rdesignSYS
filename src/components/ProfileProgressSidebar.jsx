@@ -153,20 +153,20 @@ export default function ProfileProgressSidebar({
                 gap: 10,
                 padding: '10px 12px',
                 borderRadius: 10,
-                background: isActive ? 'var(--blue)' : '#ffffff',
-                color: isActive ? '#ffffff' : 'var(--muted)',
-                border: isActive ? '1px solid var(--blue)' : '1px solid var(--line)',
+                background: isActive ? 'var(--blue-tint)' : '#ffffff',
+                color: isActive ? 'var(--blue)' : 'var(--muted)',
+                border: isActive ? '1.5px solid var(--blue)' : '1px solid var(--line)',
                 textAlign: 'left',
                 transition: 'all 0.15s ease',
-                boxShadow: isActive ? '0 2px 8px rgba(4, 42, 78, 0.15)' : 'none'
+                boxShadow: isActive ? '0 2px 6px rgba(4, 42, 78, 0.08)' : 'none'
               }}
             >
               {/* Status Icon */}
               <div style={{ marginTop: 2 }}>
                 {isDone ? (
-                  <CheckCircle2 size={16} color={isActive ? 'var(--amber)' : 'var(--amber)'} strokeWidth={2.4} />
+                  <CheckCircle2 size={16} color="var(--amber)" strokeWidth={2.4} />
                 ) : (
-                  <Circle size={16} color={isActive ? 'var(--line)' : 'var(--line)'} strokeWidth={2} />
+                  <Circle size={16} color={isActive ? 'var(--blue)' : 'var(--line)'} strokeWidth={2} />
                 )}
               </div>
 
@@ -175,7 +175,7 @@ export default function ProfileProgressSidebar({
                 <div style={{ 
                   fontSize: 12.5, 
                   fontWeight: isActive ? 700 : 600, 
-                  color: isActive ? '#ffffff' : 'var(--blue)',
+                  color: isActive ? 'var(--blue)' : 'var(--ink)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between'
@@ -184,8 +184,9 @@ export default function ProfileProgressSidebar({
                 </div>
                 <div style={{ 
                   fontSize: 10.5, 
-                  color: isActive ? 'var(--blue-tint)' : 'var(--muted)', 
+                  color: isActive ? 'var(--blue)' : 'var(--muted)', 
                   marginTop: 1,
+                  opacity: isActive ? 0.8 : 1,
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis'

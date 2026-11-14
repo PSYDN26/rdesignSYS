@@ -227,8 +227,8 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                 </h2>
               </div>
 
-              {/* Name Row - Responsive Grid */}
-              <div className="form-grid-4">
+              {/* Name Row - Proportional Grid */}
+              <div className="form-grid-name">
                 <div className="form-group">
                   <label className="form-label" style={{ fontSize: 11 }}>Surname *</label>
                   <input 
@@ -321,15 +321,15 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                 </div>
               </div>
 
-              {/* Identification & Contact Numbers - Responsive Grid */}
-              <div className="form-grid-3">
+              {/* Identification & Contact Numbers - Proportional Grid */}
+              <div className="form-grid-contact">
                 <div className="form-group">
                   <label className="form-label" style={{ fontSize: 11 }}>Mobile Number *</label>
                   <input 
                     type="tel" 
                     className="form-input" 
                     value={formData.mobileNumber} 
-                    onChange={(e) => handleChange('mobileNumber', e.target.value)}
+                    onChange={(e) => handleChange('mobileNumber', e.target.value)} 
                     required 
                   />
                 </div>
@@ -339,7 +339,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                     type="email" 
                     className="form-input" 
                     value={formData.email} 
-                    onChange={(e) => handleChange('email', e.target.value)}
+                    onChange={(e) => handleChange('email', e.target.value)} 
                     required 
                   />
                 </div>
@@ -350,15 +350,15 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                     className="form-input" 
                     style={{ fontVariantNumeric: 'tabular-nums' }}
                     value={formData.philSysId} 
-                    onChange={(e) => handleChange('philSysId', e.target.value)}
+                    onChange={(e) => handleChange('philSysId', e.target.value)} 
                   />
                 </div>
               </div>
 
-              {/* Complete Address Box - Responsive Grid */}
-              <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: '14px 16px', background: '#fafbfc' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#334155', marginBottom: 8 }}>
-                  Residential Address (House No., Street, Barangay, City, Province, ZIP)
+              {/* Complete Address Box - Structured Layout */}
+              <div style={{ border: '1px solid var(--line)', borderRadius: 8, padding: '14px 16px', background: 'var(--control)' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink)', marginBottom: 8 }}>
+                  Residential Address
                 </div>
                 <div className="form-grid-address">
                   <input type="text" className="form-input" placeholder="House/Lot No." value={formData.resHouseNo} onChange={(e) => handleChange('resHouseNo', e.target.value)} />
@@ -376,9 +376,9 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                   type="checkbox" 
                   checked={sameAsResidential}
                   onChange={(e) => handleSameAddressToggle(e.target.checked)}
-                  style={{ accentColor: '#00c06d' }}
+                  style={{ accentColor: 'var(--amber)' }}
                 />
-                <label htmlFor="same-addr" style={{ fontSize: 11.5, color: '#475569', cursor: 'pointer' }}>
+                <label htmlFor="same-addr" style={{ fontSize: 11.5, color: 'var(--muted)', cursor: 'pointer' }}>
                   Permanent Address is identical to Residential Address
                 </label>
               </div>

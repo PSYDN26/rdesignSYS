@@ -1,23 +1,18 @@
 import React from 'react';
-import { Search, Compass, Bell, Plus, MessageSquare } from 'lucide-react';
+import { Search, Compass, Bell } from 'lucide-react';
 
 export default function TopBar({ 
   lessonCount = 1, 
   user = { name: '006a.user...', tier: 'Free', avatar: '01' },
   onSearchClick,
-  onCreateClassClick,
   unreadCount = 1
 }) {
   return (
     <header className="prod-top-header" role="banner">
-      {/* Brand Section */}
-      <div className="header-brand-section">
-        <a href="/" className="brand-title" aria-label="ClassIn Home">
-          Class<span className="brand-dot">I</span>n
-        </a>
-      </div>
+      {/* Left spacer / status */}
+      <div className="header-left-spacer" />
 
-      {/* Center Capsule Quick Bar */}
+      {/* Center Capsule Quick Bar with Compass */}
       <div className="header-center-section">
         <div className="capsule-quickbar" role="search">
           <button 
