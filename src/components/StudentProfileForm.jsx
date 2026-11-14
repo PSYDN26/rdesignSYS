@@ -1,25 +1,18 @@
 import React, { useState } from 'react';
 import { 
-  User, 
-  Users, 
-  GraduationCap, 
-  BookOpen, 
-  CheckCircle2, 
+  AlertCircle,
+  Camera,
   ChevronRight, 
   ChevronLeft, 
   Save, 
-  AlertCircle,
-  Camera,
-  FileCheck,
-  Printer
+  CheckCircle2
 } from 'lucide-react';
 
-export default function StudentProfileForm({ onBack, onSaveSuccess }) {
-  const [currentStep, setCurrentStep] = useState(1);
+export default function StudentProfileForm({ currentStep = 1, onStepChange, onSaveSuccess }) {
   const [sameAsResidential, setSameAsResidential] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
 
-  // Form State
+  // Form State (Clean Philippine PDS Data)
   const [formData, setFormData] = useState({
     // Step 1: Personal Info
     surname: 'Dela Cruz',
@@ -109,14 +102,6 @@ export default function StudentProfileForm({ onBack, onSaveSuccess }) {
     }
   };
 
-  const steps = [
-    { num: 1, title: 'Personal', icon: User },
-    { num: 2, title: 'Family', icon: Users },
-    { num: 3, title: 'Education', icon: GraduationCap },
-    { num: 4, title: 'Program', icon: BookOpen },
-    { num: 5, title: 'Photo & Sign', icon: FileCheck },
-  ];
-
   const handleSameAddressToggle = (checked) => {
     setSameAsResidential(checked);
     if (checked) {
@@ -136,89 +121,48 @@ export default function StudentProfileForm({ onBack, onSaveSuccess }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.declarationAgree) {
-      alert('Please check the confirmation declaration before submitting.');
+      alert('Please confirm the accuracy declaration before submitting.');
       return;
     }
-    alert('✓ Bond Paper Form Submitted & Verified Successfully!');
+    alert('✓ Student Profile Document Saved & Verified!');
     if (onSaveSuccess) onSaveSuccess(formData);
   };
 
   return (
     <div className="bond-paper-canvas">
       
-      {/* Top Floating Control Bar for Form (Bond Paper Actions) */}
-      <div style={{ width: '100%', maxWidth: 816, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          {steps.map((s) => {
-            const isActive = currentStep === s.num;
-            const isDone = currentStep > s.num;
-            return (
-              <button
-                key={s.num}
-                type="button"
-                onClick={() => setCurrentStep(s.num)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  padding: '6px 14px',
-                  borderRadius: 9999,
-                  background: isActive ? '#000000' : isDone ? '#e6f9f0' : '#ffffff',
-                  color: isActive ? '#ffffff' : isDone ? '#00c06d' : '#64748b',
-                  fontSize: 12,
-                  fontWeight: isActive ? 700 : 600,
-                  border: '1px solid #dcdfe6',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                {isDone ? (
-                  <CheckCircle2 size={13} color="#00c06d" strokeWidth={2.5} />
-                ) : (
-                  <span style={{ fontSize: 11 }}>{s.num}.</span>
-                )}
-                <span>{s.title}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        <button 
-          type="button" 
-          onClick={() => window.print()}
-          className="icon-action-btn"
-          style={{ background: '#ffffff', border: '1px solid #dcdfe6' }}
-          title="Print Bond Paper Form"
-        >
-          <Printer size={15} />
-        </button>
-      </div>
-
-      {/* ========================================================
-          THE PHYSICAL BOND PAPER SHEET (Standard 8.5" x 11" Bounds)
-          ======================================================== */}
+      {/* THE PHYSICAL BOND PAPER SHEET (Standard 8.5" x 11" Bounds, Unslop Principles Applied) */}
       <article className="bond-paper-sheet" aria-label="Official Student Profile Form">
         
         {/* Document Formal Header (Philippine DepEd / CHED / CSC Institutional Header) */}
         <header className="bond-paper-header">
           <div>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.8, textTransform: 'uppercase', color: '#64748b', marginBottom: 2 }}>
-              Republic of the Philippines • CHED / DepEd Institutional Standard
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.8px', textTransform: 'uppercase', color: '#64748b', marginBottom: 2 }}>
+              Republic of the Philippines • CHED / DepEd Institutional Format
             </div>
-            <h1 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', letterSpacing: -0.3, margin: 0 }}>
+            <h1 style={{ fontSize: 18, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px', margin: 0, textWrap: 'balance' }}>
               PERSONAL DATA SHEET &amp; STUDENT PROFILE
             </h1>
             <p style={{ fontSize: 11, color: '#94a3b8', margin: '2px 0 0' }}>
-              CS Form No. 212 / CHED StuFAPs Revised Form • Standard 8.5" × 11" Bond Paper Layout
+              CS Form No. 212 / CHED StuFAPs Revised Form • Standard 8.5" × 11" Bond Paper Dimension
             </p>
           </div>
 
           <div style={{ textAlign: 'right' }}>
-            <span style={{ fontSize: 10, fontWeight: 700, background: '#f1f5f9', color: '#475569', padding: '3px 8px', borderRadius: 4, display: 'inline-block' }}>
+            <span style={{ 
+              fontSize: 10.5, 
+              fontWeight: 700, 
+              background: '#f1f5f9', 
+              color: '#334155', 
+              padding: '3px 8px', 
+              borderRadius: 4, 
+              display: 'inline-block',
+              fontVariantNumeric: 'tabular-nums'
+            }}>
               LRN: {formData.lrnNumber}
             </span>
             <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 4 }}>
-              Status: <span style={{ color: '#00c06d', fontWeight: 700 }}>● Active</span>
+              Status: <span style={{ color: '#00c06d', fontWeight: 700 }}>● Active Submission</span>
             </div>
           </div>
         </header>
@@ -230,8 +174,8 @@ export default function StudentProfileForm({ onBack, onSaveSuccess }) {
               ========================================================================= */}
           {currentStep === 1 && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, borderLeft: '4px solid #11141a' }}>
-                <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5, color: '#0f172a', margin: 0 }}>
+              <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
+                <h2 style={{ fontSize: 12.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#0f172a', margin: 0 }}>
                   I. Personal Information (as written on PSA Birth Certificate)
                 </h2>
               </div>
@@ -268,7 +212,7 @@ export default function StudentProfileForm({ onBack, onSaveSuccess }) {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Name Extension</label>
+                  <label className="form-label" style={{ fontSize: 11 }}>Extension</label>
                   <select 
                     className="form-select"
                     value={formData.nameExtension}
@@ -357,6 +301,7 @@ export default function StudentProfileForm({ onBack, onSaveSuccess }) {
                   <input 
                     type="text" 
                     className="form-input" 
+                    style={{ fontVariantNumeric: 'tabular-nums' }}
                     value={formData.philSysId} 
                     onChange={(e) => handleChange('philSysId', e.target.value)}
                   />
@@ -398,15 +343,15 @@ export default function StudentProfileForm({ onBack, onSaveSuccess }) {
               ========================================================================= */}
           {currentStep === 2 && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, borderLeft: '4px solid #11141a' }}>
-                <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5, color: '#0f172a', margin: 0 }}>
+              <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
+                <h2 style={{ fontSize: 12.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#0f172a', margin: 0 }}>
                   II. Family &amp; Socio-Economic Background (CHED TDP / TES Criteria)
                 </h2>
               </div>
 
               {/* Father's Info */}
               <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 14, background: '#fafbfc' }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a', marginBottom: 10 }}>Father's Information</div>
+                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#0f172a', marginBottom: 10 }}>Father's Details</div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                   <input type="text" className="form-input" placeholder="Father's Full Name *" value={formData.fatherName} onChange={(e) => handleChange('fatherName', e.target.value)} required />
                   <input type="text" className="form-input" placeholder="Occupation" value={formData.fatherOccupation} onChange={(e) => handleChange('fatherOccupation', e.target.value)} />
@@ -416,7 +361,7 @@ export default function StudentProfileForm({ onBack, onSaveSuccess }) {
 
               {/* Mother's Maiden Info */}
               <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 14, background: '#fafbfc' }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#0f172a', marginBottom: 10 }}>Mother's Maiden Name (as registered on PSA)</div>
+                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#0f172a', marginBottom: 10 }}>Mother's Maiden Name (as registered on PSA Birth Certificate)</div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                   <input type="text" className="form-input" placeholder="Mother's Full Maiden Name *" value={formData.motherMaidenName} onChange={(e) => handleChange('motherMaidenName', e.target.value)} required />
                   <input type="text" className="form-input" placeholder="Occupation" value={formData.motherOccupation} onChange={(e) => handleChange('motherOccupation', e.target.value)} />
@@ -459,8 +404,8 @@ export default function StudentProfileForm({ onBack, onSaveSuccess }) {
               ========================================================================= */}
           {currentStep === 3 && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, borderLeft: '4px solid #11141a' }}>
-                <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5, color: '#0f172a', margin: 0 }}>
+              <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
+                <h2 style={{ fontSize: 12.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#0f172a', margin: 0 }}>
                   III. Educational Background &amp; Academic Honors
                 </h2>
               </div>
@@ -482,7 +427,7 @@ export default function StudentProfileForm({ onBack, onSaveSuccess }) {
                 </div>
                 <div className="form-group">
                   <label className="form-label" style={{ fontSize: 11 }}>General Weighted Avg (GWA) *</label>
-                  <input type="text" className="form-input" value={formData.shsGwa} onChange={(e) => handleChange('shsGwa', e.target.value)} required />
+                  <input type="text" className="form-input" style={{ fontVariantNumeric: 'tabular-nums' }} value={formData.shsGwa} onChange={(e) => handleChange('shsGwa', e.target.value)} required />
                 </div>
               </div>
 
@@ -509,8 +454,8 @@ export default function StudentProfileForm({ onBack, onSaveSuccess }) {
               ========================================================================= */}
           {currentStep === 4 && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, borderLeft: '4px solid #11141a' }}>
-                <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5, color: '#0f172a', margin: 0 }}>
+              <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
+                <h2 style={{ fontSize: 12.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#0f172a', margin: 0 }}>
                   IV. Higher Education Program &amp; Enrollment Details
                 </h2>
               </div>
@@ -553,17 +498,17 @@ export default function StudentProfileForm({ onBack, onSaveSuccess }) {
               ========================================================================= */}
           {currentStep === 5 && (
             <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, borderLeft: '4px solid #11141a' }}>
-                <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5, color: '#0f172a', margin: 0 }}>
+              <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: 6, borderLeft: '4px solid #0f172a' }}>
+                <h2 style={{ fontSize: 12.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#0f172a', margin: 0 }}>
                   V. Official 2x2 ID Photo &amp; Applicant Certification
                 </h2>
               </div>
 
-              <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
                 {/* 2x2 Photo Box styled like physical bond paper photo slot */}
                 <div 
                   className="dashed-create-container"
-                  style={{ width: 180, minHeight: 180, padding: 12, position: 'relative', borderRadius: 8 }}
+                  style={{ width: 170, minHeight: 170, padding: 12, position: 'relative', borderRadius: 8 }}
                 >
                   <input 
                     type="file" 
@@ -623,20 +568,21 @@ export default function StudentProfileForm({ onBack, onSaveSuccess }) {
             </section>
           )}
 
-          {/* Document Grounded Footer */}
-          <footer style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px solid #11141a', paddingTop: 16, marginTop: 12 }}>
-            <div style={{ fontSize: 10, color: '#94a3b8' }}>
-              Page {currentStep} of 5 • Philippine Standard Form
+          {/* Document Grounded Footer Controls */}
+          <footer style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px solid #0f172a', paddingTop: 16, marginTop: 12 }}>
+            <div style={{ fontSize: 10.5, color: '#64748b', fontVariantNumeric: 'tabular-nums' }}>
+              Section {currentStep} of 5 • Philippine Standard Form
             </div>
 
             <div style={{ display: 'flex', gap: 8 }}>
               {currentStep > 1 && (
                 <button
                   type="button"
-                  onClick={() => setCurrentStep(prev => prev - 1)}
+                  onClick={() => onStepChange(currentStep - 1)}
                   className="btn-secondary"
-                  style={{ fontSize: 12, padding: '6px 14px' }}
+                  style={{ fontSize: 12, padding: '7px 16px' }}
                 >
+                  <ChevronLeft size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
                   Previous
                 </button>
               )}
@@ -644,11 +590,11 @@ export default function StudentProfileForm({ onBack, onSaveSuccess }) {
               {currentStep < 5 ? (
                 <button
                   type="button"
-                  onClick={() => setCurrentStep(prev => prev + 1)}
+                  onClick={() => onStepChange(currentStep + 1)}
                   className="btn-primary-action"
                   style={{ fontSize: 12, padding: '7px 18px' }}
                 >
-                  <span>Continue</span>
+                  <span>Next Section</span>
                   <ChevronRight size={14} />
                 </button>
               ) : (
@@ -658,7 +604,7 @@ export default function StudentProfileForm({ onBack, onSaveSuccess }) {
                   style={{ background: '#00c06d', fontSize: 12, padding: '7px 20px' }}
                 >
                   <Save size={14} />
-                  <span>Submit Document</span>
+                  <span>Submit Profile</span>
                 </button>
               )}
             </div>
