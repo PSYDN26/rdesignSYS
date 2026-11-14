@@ -50,7 +50,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
     philSysId: '4920-1284-9102-3910',
     tinNumber: 'N/A',
 
-    // Step 2: Family & Socio-Economic
+    // Step 2: Family Background
     fatherName: 'Dela Cruz, Jose Santos',
     fatherOccupation: 'Electrical Technician',
     fatherEducation: 'College Graduate',
@@ -90,6 +90,17 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
     signatureName: 'JUAN SANTOS DELA CRUZ',
     dateAccomplished: new Date().toISOString().split('T')[0],
   });
+
+  const stepsList = [
+    { num: 1, label: '1. Personal' },
+    { num: 2, label: '2. Family' },
+    { num: 3, label: '3. Education' },
+    { num: 4, label: '4. Program' },
+    { num: 5, label: '5. Photo & Sign' },
+  ];
+
+  const completedSteps = [1, 2, 3, 4];
+  const progressPercent = Math.round((completedSteps.length / stepsList.length) * 100);
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -131,10 +142,10 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
   return (
     <div className="bond-paper-canvas">
       
-      {/* THE PHYSICAL BOND PAPER SHEET (Standard 8.5" x 11" Bounds, Unslop Principles Applied) */}
+      {/* THE PHYSICAL BOND PAPER SHEET */}
       <article className="bond-paper-sheet" aria-label="Official Student Profile Form">
         
-        {/* Document Header (Simplified & Clean per Unslop Rules) */}
+        {/* Document Header (Clean & Simplified) */}
         <header className="bond-paper-header" style={{ alignItems: 'center' }}>
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.4px', margin: 0 }}>
@@ -158,6 +169,51 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
           </div>
         </header>
 
+        {/* MOBILE VIEW ONLY: Progress Bar & Section Tabs (Visible < 900px) */}
+        <div className="mobile-profile-progress">
+          {/* Progress Header Row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#334155' }}>
+              Progress: <strong style={{ color: '#00c06d' }}>{progressPercent}%</strong>
+            </span>
+            <span style={{ fontSize: 10, color: '#64748b' }}>
+              {completedSteps.length} of {stepsList.length} sections done
+            </span>
+          </div>
+
+          {/* Linear Progress Fill Bar */}
+          <div style={{ width: '100%', height: 6, background: '#e2e8f0', borderRadius: 9999, overflow: 'hidden' }}>
+            <div 
+              style={{ 
+                width: `${progressPercent}%`, 
+                height: '100%', 
+                background: '#00c06d', 
+                borderRadius: 9999,
+                transition: 'width 0.3s ease'
+              }} 
+            />
+          </div>
+
+          {/* Horizontal Scrollable Tabs */}
+          <div className="mobile-tabs-scroll">
+            {stepsList.map((s) => {
+              const isActive = currentStep === s.num;
+              const isDone = completedSteps.includes(s.num);
+              return (
+                <button
+                  key={s.num}
+                  type="button"
+                  onClick={() => onStepChange(s.num)}
+                  className={`mobile-tab-pill ${isActive ? 'active' : isDone ? 'completed' : ''}`}
+                >
+                  {isDone && <CheckCircle2 size={12} strokeWidth={2.4} />}
+                  <span>{s.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
           {/* =========================================================================
@@ -171,8 +227,8 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                 </h2>
               </div>
 
-              {/* Name Row */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+              {/* Name Row - Responsive Grid */}
+              <div className="form-grid-4">
                 <div className="form-group">
                   <label className="form-label" style={{ fontSize: 11 }}>Surname *</label>
                   <input 
@@ -217,8 +273,8 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                 </div>
               </div>
 
-              {/* Birth & Demographics */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+              {/* Birth & Demographics - Responsive Grid */}
+              <div className="form-grid-4">
                 <div className="form-group">
                   <label className="form-label" style={{ fontSize: 11 }}>Date of Birth *</label>
                   <input 
@@ -265,8 +321,8 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                 </div>
               </div>
 
-              {/* Identification & Contact Numbers */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+              {/* Identification & Contact Numbers - Responsive Grid */}
+              <div className="form-grid-3">
                 <div className="form-group">
                   <label className="form-label" style={{ fontSize: 11 }}>Mobile Number *</label>
                   <input 
@@ -299,12 +355,12 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                 </div>
               </div>
 
-              {/* Complete Address Box */}
+              {/* Complete Address Box - Responsive Grid */}
               <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: '14px 16px', background: '#fafbfc' }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#334155', marginBottom: 8 }}>
                   Residential Address (House No., Street, Barangay, City, Province, ZIP)
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                <div className="form-grid-address">
                   <input type="text" className="form-input" placeholder="House/Lot No." value={formData.resHouseNo} onChange={(e) => handleChange('resHouseNo', e.target.value)} />
                   <input type="text" className="form-input" placeholder="Street / Subd." value={formData.resStreet} onChange={(e) => handleChange('resStreet', e.target.value)} />
                   <input type="text" className="form-input" placeholder="Barangay *" value={formData.resBarangay} onChange={(e) => handleChange('resBarangay', e.target.value)} required />
@@ -343,7 +399,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               {/* Father's Info */}
               <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 14, background: '#fafbfc' }}>
                 <div style={{ fontSize: 11.5, fontWeight: 700, color: '#0f172a', marginBottom: 10 }}>Father's Details</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                <div className="form-grid-3">
                   <input type="text" className="form-input" placeholder="Father's Full Name *" value={formData.fatherName} onChange={(e) => handleChange('fatherName', e.target.value)} required />
                   <input type="text" className="form-input" placeholder="Occupation" value={formData.fatherOccupation} onChange={(e) => handleChange('fatherOccupation', e.target.value)} />
                   <input type="tel" className="form-input" placeholder="Contact Number" value={formData.fatherContact} onChange={(e) => handleChange('fatherContact', e.target.value)} />
@@ -352,8 +408,8 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
 
               {/* Mother's Maiden Info */}
               <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 14, background: '#fafbfc' }}>
-                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#0f172a', marginBottom: 10 }}>Mother's Maiden Name (as registered on PSA Birth Certificate)</div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#0f172a', marginBottom: 10 }}>Mother's Maiden Name</div>
+                <div className="form-grid-3">
                   <input type="text" className="form-input" placeholder="Mother's Full Maiden Name *" value={formData.motherMaidenName} onChange={(e) => handleChange('motherMaidenName', e.target.value)} required />
                   <input type="text" className="form-input" placeholder="Occupation" value={formData.motherOccupation} onChange={(e) => handleChange('motherOccupation', e.target.value)} />
                   <input type="tel" className="form-input" placeholder="Contact Number" value={formData.motherContact} onChange={(e) => handleChange('motherContact', e.target.value)} />
@@ -361,9 +417,9 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               </div>
 
               {/* Income & Guardian */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="form-grid-2">
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Combined Annual Gross Household Income *</label>
+                  <label className="form-label" style={{ fontSize: 11 }}>Annual Gross Household Income *</label>
                   <select 
                     className="form-select"
                     value={formData.annualIncome}
@@ -401,9 +457,9 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                 </h2>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 12 }}>
+              <div className="form-grid-uneven-2-1-1">
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Senior High School (Do not abbreviate) *</label>
+                  <label className="form-label" style={{ fontSize: 11 }}>Senior High School *</label>
                   <input type="text" className="form-input" value={formData.shsSchool} onChange={(e) => handleChange('shsSchool', e.target.value)} required />
                 </div>
                 <div className="form-group">
@@ -417,12 +473,12 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                   </select>
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>General Weighted Avg (GWA) *</label>
+                  <label className="form-label" style={{ fontSize: 11 }}>GWA *</label>
                   <input type="text" className="form-input" style={{ fontVariantNumeric: 'tabular-nums' }} value={formData.shsGwa} onChange={(e) => handleChange('shsGwa', e.target.value)} required />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="form-grid-2">
                 <div className="form-group">
                   <label className="form-label" style={{ fontSize: 11 }}>Junior High School (JHS) *</label>
                   <input type="text" className="form-input" value={formData.jhsSchool} onChange={(e) => handleChange('jhsSchool', e.target.value)} required />
@@ -451,7 +507,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                 </h2>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
+              <div className="form-grid-uneven-2-1">
                 <div className="form-group">
                   <label className="form-label" style={{ fontSize: 11 }}>Higher Education Institution (HEI) *</label>
                   <input type="text" className="form-input" value={formData.heiName} onChange={(e) => handleChange('heiName', e.target.value)} required />
@@ -462,7 +518,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 12 }}>
+              <div className="form-grid-uneven-2-1-1">
                 <div className="form-group">
                   <label className="form-label" style={{ fontSize: 11 }}>Degree Program *</label>
                   <input type="text" className="form-input" value={formData.degreeProgram} onChange={(e) => handleChange('degreeProgram', e.target.value)} required />
@@ -495,11 +551,11 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                 </h2>
               </div>
 
-              <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
                 {/* 2x2 Photo Box styled like physical bond paper photo slot */}
                 <div 
                   className="dashed-create-container"
-                  style={{ width: 170, minHeight: 170, padding: 12, position: 'relative', borderRadius: 8 }}
+                  style={{ width: 160, minHeight: 160, padding: 12, position: 'relative', borderRadius: 8, margin: '0 auto' }}
                 >
                   <input 
                     type="file" 
@@ -509,22 +565,22 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                     title="Upload 2x2 Photo"
                   />
                   {photoPreview ? (
-                    <img src={photoPreview} alt="2x2 ID" style={{ width: 130, height: 130, objectFit: 'cover', borderRadius: 4 }} />
+                    <img src={photoPreview} alt="2x2 ID" style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 4 }} />
                   ) : (
                     <div style={{ textAlign: 'center' }}>
-                      <Camera size={26} color="#64748b" style={{ margin: '0 auto 6px' }} />
+                      <Camera size={24} color="#64748b" style={{ margin: '0 auto 6px' }} />
                       <div style={{ fontSize: 11, fontWeight: 700, color: '#0f172a' }}>2x2 ID Photo</div>
-                      <div style={{ fontSize: 9.5, color: '#94a3b8' }}>White background with name tag</div>
+                      <div style={{ fontSize: 9.5, color: '#94a3b8' }}>White background</div>
                     </div>
                   )}
                 </div>
 
-                <div style={{ flex: 1, fontSize: 11.5, color: '#475569', lineHeight: 1.6, background: '#f8fafc', padding: 14, borderRadius: 8, border: '1px solid #e2e8f0' }}>
+                <div style={{ flex: 1, minWidth: 240, fontSize: 11.5, color: '#475569', lineHeight: 1.6, background: '#f8fafc', padding: 14, borderRadius: 8, border: '1px solid #e2e8f0' }}>
                   <div style={{ fontWeight: 700, color: '#0f172a', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <AlertCircle size={14} color="#00c06d" /> Legal Notice &amp; Compliance:
                   </div>
                   <p style={{ margin: 0 }}>
-                    In accordance with Republic Act No. 10173 (Data Privacy Act of 2012), all personal information provided herein will be held strictly confidential and utilized solely for student verification and scholarship processing.
+                    In accordance with Republic Act No. 10173 (Data Privacy Act of 2012), all personal information provided herein will be held strictly confidential and utilized solely for student verification.
                   </p>
                 </div>
               </div>
@@ -545,7 +601,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                   </label>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12 }}>
+                <div className="form-grid-uneven-2-1">
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: 11 }}>Digital Signature (Full Printed Name) *</label>
                     <input type="text" className="form-input" value={formData.signatureName} onChange={(e) => handleChange('signatureName', e.target.value)} required />
@@ -562,7 +618,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
           {/* Document Grounded Footer Controls */}
           <footer style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px solid #0f172a', paddingTop: 16, marginTop: 12 }}>
             <div style={{ fontSize: 10.5, color: '#64748b', fontVariantNumeric: 'tabular-nums' }}>
-              Section {currentStep} of 5 • Philippine Standard Form
+              Section {currentStep} of 5
             </div>
 
             <div style={{ display: 'flex', gap: 8 }}>
