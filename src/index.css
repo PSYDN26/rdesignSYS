@@ -614,7 +614,7 @@ button:active {
 
 .bond-paper-sheet {
   width: 100%;
-  max-width: 860px;
+  max-width: 740px;
   background: #ffffff;
   border-radius: 0;
   border: none;
@@ -626,31 +626,31 @@ button:active {
 }
 
 .bond-paper-header {
-  border-bottom: 1px solid var(--line);
-  padding-bottom: 16px;
-  margin-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
 }
 
-/* Responsive Form Grids */
+/* Responsive Form Grids - Compact & Proportional */
 .form-grid-4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  gap: 10px;
 }
 
 .form-grid-3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 10px;
 }
 
 .form-grid-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 10px;
 }
 
 .form-grid-uneven-2-1 {
@@ -1103,30 +1103,33 @@ button:active {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .form-label {
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 600;
-  color: var(--muted);
+  color: #374151;
+  letter-spacing: -0.1px;
 }
 
 .form-input, .form-select {
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--line);
-  background: var(--control);
+  padding: 6px 10px;
+  height: 35px;
+  box-sizing: border-box;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
   font-family: inherit;
-  font-size: 14px;
-  color: var(--ink);
+  font-size: 13px;
+  color: #111827;
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .form-input:focus, .form-select:focus {
-  border-color: var(--field-focus);
-  box-shadow: 0 0 0 2px rgba(72, 121, 163, 0.2);
+  border-color: #0f172a;
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.08);
 }
 
 .modal-footer {

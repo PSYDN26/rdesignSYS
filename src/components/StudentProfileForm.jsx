@@ -220,17 +220,18 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               STEP 1: PERSONAL INFORMATION
               ========================================================================= */}
           {currentStep === 1 && (
-            <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: 'var(--blue-tint)', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid var(--blue)' }}>
-                <h2 style={{ fontSize: 14, fontWeight: 800, color: 'var(--blue)', margin: 0 }}>
-                  Personal Information
+            <section style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {/* Monochrome Header Banner */}
+              <div style={{ background: '#f8fafc', padding: '9px 12px', borderRadius: 6, border: '1px solid #e2e8f0', borderLeft: '3px solid #111827' }}>
+                <h2 style={{ fontSize: 13.5, fontWeight: 700, color: '#111827', margin: 0 }}>
+                  Personal Information (Full Name)
                 </h2>
               </div>
 
-              {/* Name Row - Proportional Grid */}
-              <div className="form-grid-name">
+              {/* Line 1: Surname + First Name */}
+              <div className="form-grid-2">
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Surname *</label>
+                  <label className="form-label">Surname *</label>
                   <input 
                     type="text" 
                     className="form-input" 
@@ -240,7 +241,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>First Name *</label>
+                  <label className="form-label">First Name *</label>
                   <input 
                     type="text" 
                     className="form-input" 
@@ -249,8 +250,12 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                     required 
                   />
                 </div>
+              </div>
+
+              {/* Line 2: Middle Name + Extension */}
+              <div className="form-grid-uneven-2-1">
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Middle Name</label>
+                  <label className="form-label">Middle Name</label>
                   <input 
                     type="text" 
                     className="form-input" 
@@ -259,7 +264,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Extension</label>
+                  <label className="form-label">Extension</label>
                   <select 
                     className="form-select"
                     value={formData.nameExtension}
@@ -269,14 +274,15 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                     <option value="Jr.">Jr.</option>
                     <option value="Sr.">Sr.</option>
                     <option value="III">III</option>
+                    <option value="IV">IV</option>
                   </select>
                 </div>
               </div>
 
-              {/* Birth & Demographics - Responsive Grid */}
+              {/* Line 3: Birth & Demographics (4 fields) */}
               <div className="form-grid-4">
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Date of Birth *</label>
+                  <label className="form-label">Date of Birth *</label>
                   <input 
                     type="date" 
                     className="form-input" 
@@ -286,7 +292,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Place of Birth (City) *</label>
+                  <label className="form-label">Place of Birth (City) *</label>
                   <input 
                     type="text" 
                     className="form-input" 
@@ -296,7 +302,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Sex</label>
+                  <label className="form-label">Sex</label>
                   <select 
                     className="form-select"
                     value={formData.sex}
@@ -307,7 +313,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                   </select>
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Blood Type</label>
+                  <label className="form-label">Blood Type</label>
                   <select 
                     className="form-select"
                     value={formData.bloodType}
@@ -321,10 +327,10 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                 </div>
               </div>
 
-              {/* Identification & Contact Numbers - Proportional Grid */}
-              <div className="form-grid-contact">
+              {/* Line 4: Mobile Number + Email + PhilSys */}
+              <div className="form-grid-3">
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Mobile Number *</label>
+                  <label className="form-label">Mobile Number *</label>
                   <input 
                     type="tel" 
                     className="form-input" 
@@ -334,7 +340,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Email Address *</label>
+                  <label className="form-label">Email Address *</label>
                   <input 
                     type="email" 
                     className="form-input" 
@@ -344,7 +350,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>PhilSys / National ID No.</label>
+                  <label className="form-label">PhilSys / National ID No.</label>
                   <input 
                     type="text" 
                     className="form-input" 
@@ -356,8 +362,8 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               </div>
 
               {/* Complete Address Box - Structured Layout */}
-              <div style={{ border: '1px solid var(--line)', borderRadius: 8, padding: '14px 16px', background: 'var(--control)' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink)', marginBottom: 8 }}>
+              <div style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '12px 14px', background: '#fafafa' }}>
+                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#111827', marginBottom: 8 }}>
                   Residential Address
                 </div>
                 <div className="form-grid-address">
@@ -378,7 +384,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                   onChange={(e) => handleSameAddressToggle(e.target.checked)}
                   style={{ accentColor: 'var(--amber)' }}
                 />
-                <label htmlFor="same-addr" style={{ fontSize: 11.5, color: 'var(--muted)', cursor: 'pointer' }}>
+                <label htmlFor="same-addr" style={{ fontSize: 11.5, color: '#475569', cursor: 'pointer' }}>
                   Permanent Address is identical to Residential Address
                 </label>
               </div>
@@ -389,16 +395,16 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               STEP 2: FAMILY BACKGROUND
               ========================================================================= */}
           {currentStep === 2 && (
-            <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: 'var(--blue-tint)', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid var(--blue)' }}>
-                <h2 style={{ fontSize: 14, fontWeight: 800, color: 'var(--blue)', margin: 0 }}>
+            <section style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ background: '#f8fafc', padding: '9px 12px', borderRadius: 6, border: '1px solid #e2e8f0', borderLeft: '3px solid #111827' }}>
+                <h2 style={{ fontSize: 13.5, fontWeight: 700, color: '#111827', margin: 0 }}>
                   Family Background
                 </h2>
               </div>
 
               {/* Father's Info */}
-              <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 14, background: '#fafbfc' }}>
-                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#0f172a', marginBottom: 10 }}>Father's Details</div>
+              <div style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: 12, background: '#fafafa' }}>
+                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#111827', marginBottom: 8 }}>Father's Details</div>
                 <div className="form-grid-3">
                   <input type="text" className="form-input" placeholder="Father's Full Name *" value={formData.fatherName} onChange={(e) => handleChange('fatherName', e.target.value)} required />
                   <input type="text" className="form-input" placeholder="Occupation" value={formData.fatherOccupation} onChange={(e) => handleChange('fatherOccupation', e.target.value)} />
@@ -407,8 +413,8 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               </div>
 
               {/* Mother's Maiden Info */}
-              <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: 14, background: '#fafbfc' }}>
-                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#0f172a', marginBottom: 10 }}>Mother's Maiden Name</div>
+              <div style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: 12, background: '#fafafa' }}>
+                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#111827', marginBottom: 8 }}>Mother's Maiden Name</div>
                 <div className="form-grid-3">
                   <input type="text" className="form-input" placeholder="Mother's Full Maiden Name *" value={formData.motherMaidenName} onChange={(e) => handleChange('motherMaidenName', e.target.value)} required />
                   <input type="text" className="form-input" placeholder="Occupation" value={formData.motherOccupation} onChange={(e) => handleChange('motherOccupation', e.target.value)} />
@@ -419,7 +425,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               {/* Income & Guardian */}
               <div className="form-grid-2">
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Annual Gross Household Income *</label>
+                  <label className="form-label">Annual Gross Household Income *</label>
                   <select 
                     className="form-select"
                     value={formData.annualIncome}
@@ -433,7 +439,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Legal Guardian / Emergency Contact *</label>
+                  <label className="form-label">Legal Guardian / Emergency Contact *</label>
                   <input 
                     type="text" 
                     className="form-input" 
@@ -450,20 +456,20 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               STEP 3: EDUCATIONAL BACKGROUND
               ========================================================================= */}
           {currentStep === 3 && (
-            <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: 'var(--blue-tint)', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid var(--blue)' }}>
-                <h2 style={{ fontSize: 14, fontWeight: 800, color: 'var(--blue)', margin: 0 }}>
+            <section style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ background: '#f8fafc', padding: '9px 12px', borderRadius: 6, border: '1px solid #e2e8f0', borderLeft: '3px solid #111827' }}>
+                <h2 style={{ fontSize: 13.5, fontWeight: 700, color: '#111827', margin: 0 }}>
                   Educational Background
                 </h2>
               </div>
 
               <div className="form-grid-uneven-2-1-1">
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Senior High School *</label>
+                  <label className="form-label">Senior High School *</label>
                   <input type="text" className="form-input" value={formData.shsSchool} onChange={(e) => handleChange('shsSchool', e.target.value)} required />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>SHS Track / Strand *</label>
+                  <label className="form-label">SHS Track / Strand *</label>
                   <select className="form-select" value={formData.shsTrackStrand} onChange={(e) => handleChange('shsTrackStrand', e.target.value)}>
                     <option value="STEM">Academic: STEM</option>
                     <option value="ABM">Academic: ABM</option>
@@ -473,24 +479,24 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                   </select>
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>GWA *</label>
+                  <label className="form-label">GWA *</label>
                   <input type="text" className="form-input" style={{ fontVariantNumeric: 'tabular-nums' }} value={formData.shsGwa} onChange={(e) => handleChange('shsGwa', e.target.value)} required />
                 </div>
               </div>
 
               <div className="form-grid-2">
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Junior High School (JHS) *</label>
+                  <label className="form-label">Junior High School (JHS) *</label>
                   <input type="text" className="form-input" value={formData.jhsSchool} onChange={(e) => handleChange('jhsSchool', e.target.value)} required />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Elementary School *</label>
+                  <label className="form-label">Elementary School *</label>
                   <input type="text" className="form-input" value={formData.elemSchool} onChange={(e) => handleChange('elemSchool', e.target.value)} required />
                 </div>
               </div>
 
               <div className="form-group">
-                <label className="form-label" style={{ fontSize: 11 }}>Academic Honors / Scholarships Received</label>
+                <label className="form-label">Academic Honors / Scholarships Received</label>
                 <input type="text" className="form-input" value={formData.academicHonors} onChange={(e) => handleChange('academicHonors', e.target.value)} />
               </div>
             </section>
@@ -500,35 +506,49 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               STEP 4: PROGRAM & ENROLLMENT
               ========================================================================= */}
           {currentStep === 4 && (
-            <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: 'var(--blue-tint)', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid var(--blue)' }}>
-                <h2 style={{ fontSize: 14, fontWeight: 800, color: 'var(--blue)', margin: 0 }}>
+            <section style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ background: '#f8fafc', padding: '9px 12px', borderRadius: 6, border: '1px solid #e2e8f0', borderLeft: '3px solid #111827' }}>
+                <h2 style={{ fontSize: 13.5, fontWeight: 700, color: '#111827', margin: 0 }}>
                   Program &amp; Enrollment
                 </h2>
               </div>
 
               <div className="form-grid-uneven-2-1">
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Higher Education Institution (HEI) *</label>
-                  <input type="text" className="form-input" value={formData.heiName} onChange={(e) => handleChange('heiName', e.target.value)} required />
+                  <label className="form-label">
+                    Higher Education Institution (HEI) <span style={{ fontWeight: 400, color: '#64748b' }}>(Only needed for transferee)</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    placeholder="Previous college/university (if transferee)"
+                    value={formData.heiName} 
+                    onChange={(e) => handleChange('heiName', e.target.value)} 
+                  />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Campus / Branch *</label>
-                  <input type="text" className="form-input" value={formData.heiCampus} onChange={(e) => handleChange('heiCampus', e.target.value)} required />
+                  <label className="form-label">Campus / Branch</label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    placeholder="Campus"
+                    value={formData.heiCampus} 
+                    onChange={(e) => handleChange('heiCampus', e.target.value)} 
+                  />
                 </div>
               </div>
 
               <div className="form-grid-uneven-2-1-1">
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Degree Program *</label>
+                  <label className="form-label">Degree Program *</label>
                   <input type="text" className="form-input" value={formData.degreeProgram} onChange={(e) => handleChange('degreeProgram', e.target.value)} required />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Major</label>
+                  <label className="form-label">Major</label>
                   <input type="text" className="form-input" value={formData.major} onChange={(e) => handleChange('major', e.target.value)} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" style={{ fontSize: 11 }}>Year Level *</label>
+                  <label className="form-label">Year Level *</label>
                   <select className="form-select" value={formData.yearLevel} onChange={(e) => handleChange('yearLevel', e.target.value)}>
                     <option value="1st Year">1st Year</option>
                     <option value="2nd Year">2nd Year</option>
@@ -544,9 +564,9 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               STEP 5: PHOTO & CERTIFICATION
               ========================================================================= */}
           {currentStep === 5 && (
-            <section style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ background: 'var(--blue-tint)', padding: '10px 14px', borderRadius: 6, borderLeft: '4px solid var(--blue)' }}>
-                <h2 style={{ fontSize: 14, fontWeight: 800, color: 'var(--blue)', margin: 0 }}>
+            <section style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ background: '#f8fafc', padding: '9px 12px', borderRadius: 6, border: '1px solid #e2e8f0', borderLeft: '3px solid #111827' }}>
+                <h2 style={{ fontSize: 13.5, fontWeight: 700, color: '#111827', margin: 0 }}>
                   Photo &amp; Certification
                 </h2>
               </div>
