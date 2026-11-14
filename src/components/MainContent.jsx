@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, ChevronDown, Check, Users, Clock, BookOpen } from 'lucide-react';
+import { Plus, ChevronDown, Check, Users, BookOpen } from 'lucide-react';
 
 export default function MainContent({ 
   classes = [], 
@@ -19,20 +19,20 @@ export default function MainContent({
   const currentLabel = filterOptions.find(o => o.id === filter)?.label || 'All';
 
   return (
-    <main className="desktop-main-content" role="main" aria-label="Main class schedule and creation">
-      {/* Subheader controls row */}
-      <div className="main-content-header">
-        {/* Dropdown Selector */}
+    <main className="prod-main-content" role="main" aria-label="Class Management">
+      {/* Content Header & Action Toolbar */}
+      <div className="content-toolbar">
+        {/* Category Filter Dropdown */}
         <div style={{ position: 'relative' }}>
           <button 
             type="button" 
-            className="filter-dropdown-btn"
+            className="category-dropdown-btn"
             onClick={() => setDropdownOpen(!dropdownOpen)}
             aria-expanded={dropdownOpen}
             aria-haspopup="listbox"
           >
             <span>{currentLabel}</span>
-            <ChevronDown size={16} strokeWidth={2.4} />
+            <ChevronDown size={17} strokeWidth={2.4} />
           </button>
 
           {dropdownOpen && (
@@ -43,7 +43,7 @@ export default function MainContent({
                 left: 0,
                 marginTop: 6,
                 background: '#ffffff',
-                boxShadow: 'var(--shadow-dropdown)',
+                boxShadow: 'var(--shadow-md)',
                 borderRadius: '12px',
                 border: '1px solid var(--border-subtle)',
                 padding: '6px',
@@ -83,10 +83,10 @@ export default function MainContent({
           )}
         </div>
 
-        {/* + New Class Button */}
+        {/* Primary Action: + New Class */}
         <button 
           type="button" 
-          className="btn-new-class"
+          className="btn-primary-action"
           onClick={onCreateClassClick}
           aria-label="Create new class"
         >
@@ -95,33 +95,33 @@ export default function MainContent({
         </button>
       </div>
 
-      {/* Main Container Area */}
-      <div className="create-class-card-area">
-        {/* Dotted / Dashed Card matching screenshot */}
+      {/* Main Class Creation / Schedule Space */}
+      <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {/* Signature Dashed / Dotted Empty State Card */}
         <div 
-          className="dashed-create-card"
+          className="dashed-create-container"
           onClick={onCreateClassClick}
           role="button"
           tabIndex={0}
           onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onCreateClassClick()}
           aria-label="Create a class"
         >
-          <div className="plus-circle-icon-wrap" aria-hidden="true">
+          <div className="create-icon-bubble" aria-hidden="true">
             <Plus size={22} strokeWidth={2.2} />
           </div>
-          <h2 className="card-title-text">Create a class</h2>
-          <p className="card-desc-text">Invite members to teach &amp; learn together</p>
+          <h2 className="create-title">Create a class</h2>
+          <p className="create-subtitle">Invite members to teach &amp; learn together</p>
         </div>
 
-        {/* Render any created classes */}
+        {/* Render Created Classes Grid */}
         {classes.length > 0 && (
-          <div className="classes-grid">
+          <div className="classes-grid-layout">
             {classes.map((cls) => (
-              <div key={cls.id} className="active-class-card">
+              <div key={cls.id} className="class-card-item">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ 
                     fontSize: '11px', 
-                    fontWeight: 600, 
+                    fontWeight: 700, 
                     color: '#00c06d', 
                     background: '#e6f9f0', 
                     padding: '2px 8px', 
@@ -129,15 +129,15 @@ export default function MainContent({
                   }}>
                     {cls.status || 'Active'}
                   </span>
-                  <span style={{ fontSize: '11px', color: '#9ca3af' }}>{cls.time || '14:00'}</span>
+                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>{cls.time}</span>
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '14.5px', fontWeight: 600, color: '#111827', marginBottom: 4 }}>
+                  <h3 style={{ fontSize: '14.5px', fontWeight: 700, color: '#111827', marginBottom: 4 }}>
                     {cls.name}
-                  </h4>
-                  <p style={{ fontSize: '12px', color: '#6b7280' }}>{cls.subject || 'General Discussion'}</p>
+                  </h3>
+                  <p style={{ fontSize: '12px', color: '#64748b' }}>{cls.subject || 'General Study'}</p>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: '11px', color: '#9ca3af', paddingTop: 6, borderTop: '1px solid #f3f4f6' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: '11px', color: '#94a3b8', paddingTop: 8, borderTop: '1px solid #f1f5f9' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                     <Users size={12} /> {cls.students || 0} enrolled
                   </span>

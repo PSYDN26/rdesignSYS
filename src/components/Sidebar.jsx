@@ -6,11 +6,13 @@ import {
   Calendar, 
   HardDrive, 
   Presentation, 
-  Cast 
+  Cast,
+  Settings,
+  HelpCircle
 } from 'lucide-react';
 
-export default function Sidebar({ activeTab, onTabSelect, todoCount = 1, user = { name: '006a.user...', tier: 'Free', avatar: '0' } }) {
-  const navItems = [
+export default function Sidebar({ activeTab, onTabSelect, todoCount = 1 }) {
+  const mainNavItems = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'chat', label: 'Chat', icon: MessageSquare },
     { id: 'todo', label: 'To Do', icon: CheckSquare, badge: todoCount },
@@ -21,54 +23,44 @@ export default function Sidebar({ activeTab, onTabSelect, todoCount = 1, user = 
   ];
 
   return (
-    <aside className="desktop-sidebar" aria-label="Main Navigation">
-      <div>
-        {/* Brand Logo */}
-        <div className="brand-logo-container">
-          <div className="brand-logo-text">
-            ClassIn
-          </div>
-        </div>
+    <aside className="prod-sidebar" aria-label="Main Application Navigation">
+      <nav>
+        <ul className="prod-nav-list">
+          {mainNavItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <li key={item.id}>
+                <button
+                  type="button"
+                  className={`prod-nav-btn ${isActive ? 'active' : ''}`}
+                  onClick={() => onTabSelect(item.id)}
+                  aria-current={isActive ? 'page' : undefined}
+                >
+                  <Icon size={18} strokeWidth={isActive ? 2.4 : 2} />
+                  <span>{item.label}</span>
+                  {item.badge ? (
+                    <span className="prod-nav-badge">
+                      {item.badge}
+                    </span>
+                  ) : null}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
 
-        {/* Navigation List */}
-        <nav>
-          <ul className="nav-links-list">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              return (
-                <li key={item.id}>
-                  <button
-                    type="button"
-                    className={`nav-item-btn ${isActive ? 'active' : ''}`}
-                    onClick={() => onTabSelect(item.id)}
-                    aria-current={isActive ? 'page' : undefined}
-                  >
-                    <Icon className="nav-item-icon" strokeWidth={isActive ? 2.4 : 2} />
-                    <span>{item.label}</span>
-                    {item.badge ? (
-                      <span className="nav-badge-red" aria-label={`${item.badge} notifications`}>
-                        {item.badge}
-                      </span>
-                    ) : null}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-      </div>
-
-      {/* User Profile in Sidebar Footer */}
-      <div className="sidebar-user-footer" title={`Logged in as ${user.name}`}>
-        <div className="user-avatar-wrap">
-          <span>{user.avatar}</span>
-          <span className="user-status-dot" aria-label="Online status" />
-        </div>
-        <div className="user-info-text">
-          <span className="user-name-label">{user.name}</span>
-          <span className="user-tier-badge">{user.tier}</span>
-        </div>
+      {/* Utility Links at Bottom */}
+      <div style={{ paddingTop: 16, borderTop: '1px solid var(--border-light)', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <button type="button" className="prod-nav-btn" title="Help & Support">
+          <HelpCircle size={18} strokeWidth={2} />
+          <span>Support</span>
+        </button>
+        <button type="button" className="prod-nav-btn" title="Settings">
+          <Settings size={18} strokeWidth={2} />
+          <span>Settings</span>
+        </button>
       </div>
     </aside>
   );
