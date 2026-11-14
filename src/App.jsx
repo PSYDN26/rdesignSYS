@@ -38,25 +38,27 @@ export default function App() {
   };
 
   return (
-    <div className="prod-app-shell">
-      {/* Column 1: Leftmost Full-Height Navigation Sidebar with SCMBT Logo */}
-      <Sidebar
-        activeTab={activeTab}
-        onTabSelect={setActiveTab}
-        todoCount={1}
-        user={{ name: '006a.user...', tier: 'Free', avatar: '01' }}
-      />
-
-      {/* Main Workspace Stage (TopBar + 2 Edge-to-Edge Touching Columns) */}
-      <div className="prod-stage-wrapper">
-        {/* Top Header Bar (Centered search capsule + right profile & notifications) */}
-        <TopBar
-          lessonCount={1}
-          user={{ name: '006a.user...', tier: 'Free', avatar: '01' }}
-          onSearchClick={() => alert('Search classes & documents')}
-          onCreateClassClick={() => setIsCreateModalOpen(true)}
-          unreadCount={1}
+    <div className="app-grey-page-wrapper">
+      {/* 1 Main Container on Grey Page */}
+      <div className="prod-app-shell">
+        {/* Column 1: Leftmost Full-Height Navigation Sidebar with SCMBT Logo Centered */}
+        <Sidebar
+          activeTab={activeTab}
+          onTabSelect={setActiveTab}
+          todoCount={1}
+          user={{ name: 'Student Name', tier: 'Free', avatar: '01' }}
         />
+
+        {/* Main Workspace Stage (TopBar + 2 Edge-to-Edge Touching Columns) */}
+        <div className="prod-stage-wrapper">
+          {/* Top Header Bar matching wireframe */}
+          <TopBar
+            lessonCount={1}
+            user={{ name: 'Student Name', tier: 'Free', avatar: '01' }}
+            onSearchClick={() => alert('Search classes & documents')}
+            onCreateClassClick={() => setIsCreateModalOpen(true)}
+            unreadCount={1}
+          />
 
         {/* 2 Edge-to-Edge Touching Content Columns */}
         <div className="prod-touching-workspace">
@@ -117,6 +119,7 @@ export default function App() {
         onClose={() => setIsEnterModalOpen(false)}
         lesson={currentLesson}
       />
+      </div>
     </div>
   );
 }

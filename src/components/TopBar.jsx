@@ -1,81 +1,68 @@
 import React from 'react';
-import { Search, Compass, Bell } from 'lucide-react';
+import { Search, Globe, Bell, User } from 'lucide-react';
 
 export default function TopBar({ 
   lessonCount = 1, 
-  user = { name: '006a.user...', tier: 'Free', avatar: '01' },
+  user = { name: 'Student Name', tier: 'Free', avatar: '01' },
   onSearchClick,
   unreadCount = 1
 }) {
   return (
     <header className="prod-top-header" role="banner">
-      {/* Left spacer / status */}
+      {/* Left spacer for optical center balancing */}
       <div className="header-left-spacer" />
 
-      {/* Center Capsule Quick Bar with Compass */}
+      {/* Center Wireframe Quick Bar: [ 🔍 (orange) ] [ Navy Capsule: "Insert Text Here" ] [ 🌐 (orange) ] */}
       <div className="header-center-section">
-        <div className="capsule-quickbar" role="search">
+        <div className="wireframe-search-group" role="search">
           <button 
             type="button" 
-            className="capsule-search-btn" 
+            className="wireframe-icon-btn" 
             onClick={onSearchClick}
-            title="Search classes and resources"
+            title="Search student records"
             aria-label="Search"
           >
-            <Search size={15} strokeWidth={2.2} />
+            <Search size={18} color="var(--amber)" strokeWidth={2.4} />
           </button>
 
-          <div className="live-lesson-badge" title="Active Lesson in Progress">
-            <span className="green-bars" aria-hidden="true">
-              <span />
-              <span />
-            </span>
-            <span>{lessonCount} lesson</span>
+          <div 
+            className="wireframe-navy-capsule"
+            onClick={onSearchClick}
+            role="button"
+            tabIndex={0}
+            title="Search / Insert query"
+          >
+            <span>Insert Text Here</span>
           </div>
 
           <button 
             type="button" 
-            className="capsule-search-btn" 
-            title="Explore courses"
+            className="wireframe-icon-btn" 
+            title="Global Resources"
             aria-label="Explore"
           >
-            <Compass size={15} strokeWidth={2.2} />
+            <Globe size={18} color="var(--amber)" strokeWidth={2.2} />
           </button>
         </div>
       </div>
 
-      {/* Right User & Actions Section */}
+      {/* Right Wireframe Section: [ Orange Utility Icon ] [ Light Pill: User Icon + "Student Name" ] */}
       <div className="header-actions-section">
         <button 
           type="button" 
-          className="icon-action-btn"
+          className="wireframe-icon-btn"
           title="Notifications"
           aria-label="Notifications"
-          style={{ position: 'relative' }}
         >
-          <Bell size={18} strokeWidth={2} />
-          {unreadCount > 0 && (
-            <span style={{
-              position: 'absolute',
-              top: 6,
-              right: 6,
-              width: 7,
-              height: 7,
-              backgroundColor: 'var(--amber)',
-              borderRadius: '50%',
-              border: '1.5px solid #ffffff'
-            }} />
-          )}
+          <Bell size={20} color="var(--amber)" fill="var(--amber)" strokeWidth={0} />
         </button>
 
-        {/* User Account Trigger */}
-        <div className="user-account-badge" title={`Signed in as ${user.name}`}>
-          <div className="avatar-disc">
-            <span>{user.avatar}</span>
-            <span className="avatar-online-dot" />
+        {/* Student Name Pill */}
+        <div className="wireframe-student-badge" title={`Signed in as ${user.name || 'Student Name'}`}>
+          <div className="wireframe-avatar-circle">
+            <User size={13} color="#ffffff" strokeWidth={2.5} />
           </div>
-          <span className="user-badge-name">{user.name}</span>
-          <span className="user-badge-tier">{user.tier}</span>
+          <span className="wireframe-student-name">{user.name || 'Student Name'}</span>
         </div>
       </div>
     </header>

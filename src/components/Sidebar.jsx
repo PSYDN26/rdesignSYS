@@ -32,9 +32,9 @@ export default function Sidebar({
 
   return (
     <aside className="prod-sidebar" aria-label="Main Application Navigation">
-      {/* SCMBT Maritime Brand Vector Logo */}
-      <div className="sidebar-brand-wrapper">
-        <BrandLogo style={{ height: '44px', width: 'auto' }} />
+      {/* SCMBT Maritime Brand Vector Logo - Centered in Side Nav Bar */}
+      <div className="sidebar-brand-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+        <BrandLogo style={{ height: '48px', width: 'auto', margin: '0 auto' }} />
       </div>
 
       <nav style={{ flex: 1, overflowY: 'auto' }}>
