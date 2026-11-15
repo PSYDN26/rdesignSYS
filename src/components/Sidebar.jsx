@@ -13,9 +13,7 @@ import {
   Anchor,
   HelpCircle,
   Settings,
-  LogOut,
-  ChevronLeft,
-  ChevronRight
+  LogOut
 } from 'lucide-react';
 
 export default function Sidebar({ 
@@ -27,13 +25,13 @@ export default function Sidebar({
 }) {
   const mainNavItems = [
     { id: 'home', label: 'Dashboard', icon: LayoutGrid },
-    { id: 'todo', label: 'Checklist & Tasks', icon: ClipboardCheck, badge: todoCount },
-    { id: 'campus', label: 'Campus & Facilities', icon: Building2 },
-    { id: 'profile', label: 'Student Profile (PDS)', icon: Users },
-    { id: 'academics', label: 'Academics & Program', icon: GraduationCap },
-    { id: 'finance', label: 'Tuition & Wallet', icon: Wallet },
-    { id: 'analytics', label: 'Performance & Grades', icon: TrendingUp },
-    { id: 'settings', label: 'System Settings', icon: SlidersHorizontal },
+    { id: 'todo', label: 'Tasks', icon: ClipboardCheck, badge: todoCount },
+    { id: 'campus', label: 'Campus', icon: Building2 },
+    { id: 'profile', label: 'Profile', icon: Users },
+    { id: 'academics', label: 'Academics', icon: GraduationCap },
+    { id: 'finance', label: 'Finance', icon: Wallet },
+    { id: 'analytics', label: 'Analytics', icon: TrendingUp },
+    { id: 'settings', label: 'Settings', icon: SlidersHorizontal },
   ];
 
   return (
@@ -45,25 +43,20 @@ export default function Sidebar({
           STATE A: EXPANDED WIDE SIDEBAR
           ========================================================= */}
       <div className={`sidebar-expanded-content ${isCollapsed ? 'hidden-fade' : 'visible-fade'}`}>
-        {/* Header with Centered Logo & Collapse Toggle */}
+        {/* Header with Centered Logo (Click logo directly to collapse) */}
         <div className="sidebar-brand-wrapper">
-          <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+          <button 
+            type="button" 
+            onClick={onToggleCollapse} 
+            className="brand-logo-toggle-btn"
+            title="Click logo to collapse sidebar"
+            aria-label="Collapse sidebar"
+          >
             <BrandLogo style={{ height: '44px', width: 'auto' }} />
-          </div>
-          {onToggleCollapse && (
-            <button 
-              type="button" 
-              className="sidebar-toggle-btn"
-              onClick={onToggleCollapse}
-              title="Collapse to capsule sidebar"
-              aria-label="Collapse sidebar"
-            >
-              <ChevronLeft size={16} />
-            </button>
-          )}
+          </button>
         </div>
 
-        {/* Navigation List */}
+        {/* Navigation List - 1 Word Item Names */}
         <nav className="sidebar-nav-container">
           <ul className="prod-nav-list">
             {mainNavItems.map((item) => {
@@ -92,9 +85,9 @@ export default function Sidebar({
           </ul>
         </nav>
 
-        {/* Utility Links & Sign Out Action at Bottom */}
+        {/* Utility Links & Signout Action at Bottom - 1 Word Names */}
         <div className="sidebar-bottom-actions">
-          <button type="button" className="prod-nav-btn" title="Help & Support">
+          <button type="button" className="prod-nav-btn" title="Support">
             <HelpCircle size={17} strokeWidth={1.8} />
             <span>Support</span>
           </button>
@@ -105,7 +98,7 @@ export default function Sidebar({
           <button 
             type="button" 
             className="prod-nav-btn signout-btn" 
-            title="Sign Out"
+            title="Signout"
             onClick={() => {
               if (window.confirm('Are you sure you want to sign out?')) {
                 alert('Signed out successfully.');
@@ -113,22 +106,23 @@ export default function Sidebar({
             }}
           >
             <LogOut size={17} strokeWidth={1.8} />
-            <span>Sign Out</span>
+            <span>Signout</span>
           </button>
         </div>
       </div>
 
       {/* =========================================================
-          STATE B: COLLAPSED CAPSULE SIDEBAR (MATCHING SPEC / IMAGE)
+          STATE B: COLLAPSED CAPSULE SIDEBAR
           ========================================================= */}
       <div className={`sidebar-collapsed-content ${isCollapsed ? 'visible-fade' : 'hidden-fade'}`}>
-        {/* Top: Large Centered Maritime College Crest Emblem */}
+        {/* Top: Large Centered Maritime Crest Emblem (Click crest directly to expand) */}
         <div className="collapsed-crest-wrapper" title="Southwestern College of Maritime, Business and Technology">
           <button 
             type="button" 
             onClick={onToggleCollapse} 
             className="crest-btn" 
-            title="Click to expand sidebar"
+            title="Click crest to expand sidebar"
+            aria-label="Expand sidebar"
           >
             <img 
               src={crestEmblem} 
