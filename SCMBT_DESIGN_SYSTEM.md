@@ -19,14 +19,30 @@ The portal uses an asymmetrical **3-Column Canvas System** set on a soft cool-gr
 
 2. **Top Navigation & Page Title Bar**
    - Height: `60px` - `68px`, borderless (`border-bottom: none`), clean optical spacing.
-   - **Left utilities**: Magnifying search icon in warm amber (`#f59e0b`).
-   - **Center Capsule**: Dark Navy pill container (`#042B4E`) with white text (e.g., `Student Profile`). Acts as the unified page container header without cluttering the form canvas.
-   - **Center utilities**: Globe/language icon in amber (`#f59e0b`).
-   - **Right Actions**:
-     - Notification bell icon in amber (`#f59e0b`).
-     - User Identity capsule: White pill with thin border (`#e2e8f0`), dark navy circle user avatar icon, and student name text (`Student Name`).
+   - **Desktop**:
+     - Left utilities: Magnifying search icon in warm amber (`#f59e0b`).
+     - Center Capsule: Dark Navy pill container (`#042B4E`) with white text (e.g., `Student Profile`). Acts as the unified page container header without cluttering the form canvas.
+     - Center utilities: Globe/language icon in amber (`#f59e0b`).
+     - Right Actions: Notification bell icon in amber (`#f59e0b`), User Identity capsule (`Student Name`).
+   - **Mobile Viewport (< 768px)**:
+     - Search and globe icons are removed to save horizontal room.
+     - Redundant Dashboard button is removed.
+     - The dark navy Page Capsule (`Student Profile`) is positioned on the **far left** of the header bar.
+     - Right utilities: Notification bell + user avatar.
+   - **Scroll Fade Extension**: A soft gradient (`linear-gradient(to bottom, #EEF2F6 0%, rgba(238, 242, 246, 0.75) 45%, rgba(238, 242, 246, 0) 100%)`) extending 24px below the header so content scrolling upward dissolves smoothly without an abrupt cut.
 
-3. **Center Column: Document Form Sheet**
+3. **Mobile Bottom Navigation Bar (< 768px)**
+   - Strict ceiling of **maximum 5 items** structured as:
+     `[Item 1][Item 2][Crest][Item 3][More icon]`
+   - Mapping:
+     - `Item 1`: `Home` (Dashboard / Main overview)
+     - `Item 2`: `Tasks` (with amber notification badge `1`)
+     - `Center`: Elevated circular SCMBT Maritime Crest emblem (`SCMBT_Crest.png`, `44px` circle floating `-12px` above the bar)
+     - `Item 3`: `Profile` (Student Profile view)
+     - `More icon`: Triggers a smooth slide-up drawer containing secondary sections (`Campus`, `Academics`, `Finance`, `Analytics`, `Settings`, `Support`, `Signout`)
+   - Fixed at bottom with safe-area padding (`env(safe-area-inset-bottom)`), white background, clean subtle top border.
+
+4. **Center Column: Document Form Sheet**
    - **Presentation**: Bounded floating white card (`bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 md:p-8`).
    - Never spans the entire monitor; maximum ergonomic reading and data-entry width (`max-w-4xl` / `800px - 860px`).
    - **Form Section Header**:
