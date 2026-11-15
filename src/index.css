@@ -166,6 +166,20 @@ button:active {
   padding: 0 24px;
   z-index: 40;
   flex-shrink: 0;
+  position: relative;
+}
+
+/* Smooth fade gradient extending below header so scrolled content fades seamlessly */
+.prod-top-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -24px;
+  height: 24px;
+  background: linear-gradient(to bottom, #EEF2F6 0%, rgba(238, 242, 246, 0.75) 45%, rgba(238, 242, 246, 0) 100%);
+  pointer-events: none;
+  z-index: 35;
 }
 
 /* Wireframe Header Search & Action Elements */
@@ -414,6 +428,8 @@ button:active {
   min-width: 0;
   border-right: none;
   background: transparent;
+  mask-image: linear-gradient(to bottom, transparent 0px, black 28px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0px, black 28px);
 }
 
 /* Left Sidebar Navigation (Full Height) */
@@ -813,12 +829,14 @@ button:active {
   flex: 1;
   background: transparent;
   overflow-y: auto;
-  padding: 12px 20px 32px;
+  padding: 20px 20px 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   box-sizing: border-box;
+  mask-image: linear-gradient(to bottom, transparent 0px, black 28px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0px, black 28px);
 }
 
 .bond-paper-sheet {
@@ -1018,6 +1036,8 @@ button:active {
   flex-direction: column;
   flex-shrink: 0;
   overflow-y: auto;
+  mask-image: linear-gradient(to bottom, transparent 0px, black 28px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0px, black 28px);
 }
 
 .todo-header-row {

@@ -149,3 +149,6 @@ The portal uses an asymmetrical **3-Column Canvas System** set on a soft cool-gr
 - **No Harsh Lines**:
   - Top header has no horizontal bottom divider.
   - Center workspace flows directly into the right rail without a vertical line divider. Separation is achieved through white card elevation on the cool-grey canvas.
+- **Scroll Fading Transition**:
+  - When content scrolls up under the top navigation area, it must never be abruptly clipped with a hard edge.
+  - Apply CSS `mask-image: linear-gradient(to bottom, transparent 0px, black 28px)` and a soft fading gradient extension on the top header (`linear-gradient(to bottom, #EEF2F6 0%, rgba(238, 242, 246, 0.75) 45%, rgba(238, 242, 246, 0) 100%)`) so that upward-scrolling content smoothly dissolves into the cool-grey canvas.
