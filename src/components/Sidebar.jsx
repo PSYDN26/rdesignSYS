@@ -1,6 +1,6 @@
 import React from 'react';
 import BrandLogo from './BrandLogo';
-import crestEmblem from '../assets/Maritime_College_Seal_Emblem.png';
+import crestEmblem from '../assets/SCMBT_Crest.png';
 import { 
   LayoutGrid, 
   ClipboardCheck, 
