@@ -658,9 +658,14 @@ button:active {
 }
 
 .prod-nav-btn.active {
-  background: var(--bg-active);
-  color: var(--text-primary);
+  background: var(--blue);
+  color: #ffffff;
   font-weight: 600;
+  box-shadow: 0 2px 0 0 var(--amber);
+}
+
+.prod-nav-btn.active svg {
+  stroke: #ffffff;
 }
 
 .signout-btn {
@@ -676,7 +681,7 @@ button:active {
 .prod-nav-badge {
   position: absolute;
   right: 12px;
-  background: var(--accent-red);
+  background: var(--amber);
   color: #ffffff;
   font-size: 10.5px;
   font-weight: 700;
