@@ -16,6 +16,7 @@ export default function App() {
   const [classes, setClasses] = useState([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEnterModalOpen, setIsEnterModalOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Lesson data matching the design
   const [currentLesson, setCurrentLesson] = useState({
@@ -41,12 +42,13 @@ export default function App() {
     <div className="app-grey-page-wrapper">
       {/* 1 Main Container on Grey Page */}
       <div className="prod-app-shell">
-        {/* Column 1: Leftmost Full-Height Navigation Sidebar with SCMBT Logo Centered */}
+        {/* Column 1: Leftmost Full-Height Navigation Sidebar (Collapsible into Floating Capsule) */}
         <Sidebar
           activeTab={activeTab}
           onTabSelect={setActiveTab}
           todoCount={1}
-          user={{ name: 'Student Name', tier: 'Free', avatar: '01' }}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed((prev) => !prev)}
         />
 
         {/* Main Workspace Stage (TopBar + 2 Edge-to-Edge Touching Columns) */}

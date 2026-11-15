@@ -417,6 +417,7 @@ button:active {
 }
 
 /* Left Sidebar Navigation (Full Height) */
+/* Left Sidebar Navigation (Full Height) - Smooth Sliding Animation */
 .prod-sidebar {
   width: var(--sidebar-width);
   height: 100%;
@@ -427,8 +428,214 @@ button:active {
   justify-content: space-between;
   padding: 16px 12px;
   flex-shrink: 0;
-  overflow-y: auto;
+  overflow: hidden;
   z-index: 50;
+  position: relative;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, padding 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.prod-sidebar.collapsed {
+  width: 82px;
+  background-color: #F8FAFC;
+  padding: 14px 6px;
+  align-items: center;
+}
+
+/* Visibility and Fade Transitions between Expanded & Collapsed States */
+.sidebar-expanded-content {
+  width: calc(var(--sidebar-width) - 24px);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: opacity 0.22s ease, transform 0.25s ease;
+}
+
+.sidebar-collapsed-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  transition: opacity 0.22s ease, transform 0.25s ease;
+}
+
+.visible-fade {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  pointer-events: auto;
+  visibility: visible;
+  transition: opacity 0.25s ease 0.08s, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) 0.05s;
+}
+
+.hidden-fade {
+  opacity: 0;
+  transform: translateX(-16px) scale(0.95);
+  pointer-events: none;
+  visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+/* Header Collapse Toggle Button */
+.sidebar-toggle-btn {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: absolute;
+  right: 0px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: all 0.15s ease;
+}
+
+.sidebar-toggle-btn:hover {
+  background: #f1f5f9;
+  color: #111827;
+  border-color: #cbd5e1;
+}
+
+.sidebar-nav-container {
+  flex: 1;
+  overflow-y: auto;
+  margin: 12px 0;
+}
+
+.sidebar-bottom-actions {
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* =========================================================
+   COLLAPSED CAPSULE FORM STYLING (MATCHING IMAGE SPEC)
+   ========================================================= */
+
+/* Top: Enlarged Crest Emblem */
+.collapsed-crest-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding-top: 2px;
+  padding-bottom: 6px;
+}
+
+.crest-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.crest-btn:hover {
+  transform: scale(1.08);
+}
+
+.collapsed-crest-img {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(4, 42, 78, 0.16));
+}
+
+/* Middle: Floating White Capsule with Navigation Icons */
+.floating-nav-capsule {
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
+  border-radius: 9999px;
+  padding: 7px 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 10px 25px -4px rgba(4, 42, 78, 0.08), 0 4px 10px -2px rgba(4, 42, 78, 0.04);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.floating-nav-capsule:hover {
+  box-shadow: 0 14px 28px -4px rgba(4, 42, 78, 0.12), 0 6px 12px -2px rgba(4, 42, 78, 0.06);
+}
+
+.capsule-icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #334155;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.capsule-icon-btn:hover {
+  background: #F1F5F9;
+  color: #042A4E;
+  transform: scale(1.08);
+}
+
+.capsule-icon-btn.active {
+  background: #042A4E;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(4, 42, 78, 0.28);
+}
+
+.capsule-icon-btn.active:hover {
+  background: #063968;
+  color: #ffffff;
+  transform: scale(1.08);
+}
+
+/* Bottom: Floating Circular Button with Anchor Icon */
+.collapsed-bottom-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding-bottom: 4px;
+}
+
+.floating-anchor-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
+  color: #042A4E;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 18px -2px rgba(4, 42, 78, 0.1), 0 2px 6px -1px rgba(4, 42, 78, 0.05);
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.floating-anchor-btn:hover {
+  transform: scale(1.12) rotate(8deg);
+  background: #f8fafc;
+  color: #F98809;
+  box-shadow: 0 12px 24px -2px rgba(4, 42, 78, 0.18);
 }
 
 .prod-nav-list {
@@ -462,6 +669,11 @@ button:active {
   background: var(--bg-active);
   color: var(--text-primary);
   font-weight: 600;
+}
+
+.signout-btn {
+  color: #dc2626 !important;
+  margin-top: 2px;
 }
 
 .signout-btn:hover {
