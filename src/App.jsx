@@ -53,8 +53,9 @@ export default function App() {
 
         {/* Main Workspace Stage (TopBar + 2 Edge-to-Edge Touching Columns) */}
         <div className="prod-stage-wrapper">
-          {/* Top Header Bar matching wireframe */}
+          {/* Top Header Bar with dynamic container capsule title */}
           <TopBar
+            title={activeTab === 'profile' ? 'Student Profile' : 'Dashboard'}
             lessonCount={1}
             user={{ name: 'Student Name', tier: 'Free', avatar: '01' }}
             onSearchClick={() => alert('Search classes & documents')}

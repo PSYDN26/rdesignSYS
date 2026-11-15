@@ -5,14 +5,15 @@ export default function TopBar({
   lessonCount = 1, 
   user = { name: 'Student Name', tier: 'Free', avatar: '01' },
   onSearchClick,
-  unreadCount = 1
+  unreadCount = 1,
+  title = 'Student Profile'
 }) {
   return (
     <header className="prod-top-header" role="banner">
       {/* Left spacer for optical center balancing */}
       <div className="header-left-spacer" />
 
-      {/* Center Wireframe Quick Bar: [ 🔍 (orange) ] [ Navy Capsule: "Insert Text Here" ] [ 🌐 (orange) ] */}
+      {/* Center Container Quick Bar: [ 🔍 (orange) ] [ Navy Capsule: Page Container Title ] [ 🌐 (orange) ] */}
       <div className="header-center-section">
         <div className="wireframe-search-group" role="search">
           <button 
@@ -30,9 +31,9 @@ export default function TopBar({
             onClick={onSearchClick}
             role="button"
             tabIndex={0}
-            title="Search / Insert query"
+            title={title}
           >
-            <span>Insert Text Here</span>
+            <span>{title}</span>
           </div>
 
           <button 

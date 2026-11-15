@@ -8,7 +8,6 @@ import {
   BookOpen, 
   FileCheck, 
   Printer, 
-  ShieldCheck, 
   Clock 
 } from 'lucide-react';
 
@@ -29,23 +28,14 @@ export default function ProfileProgressSidebar({
 
   // Calculate percentage
   const percentage = Math.round((completedSteps.length / totalSteps) * 100);
-  
-  // Circle geometry
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <aside className="prod-todo-rail" style={{ width: '300px', background: '#ffffff' }} aria-label="Profile Completion and Navigation">
+    <aside className="prod-todo-rail" style={{ width: '300px', background: '#ffffff', borderLeft: 'none' }} aria-label="Profile Completion and Navigation">
       
-      {/* Sidebar Header without In Progress badge */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <h2 style={{ fontSize: 14.5, fontWeight: 700, color: '#111827', margin: 0 }}>
-          Profile Completion
-        </h2>
-      </div>
-
-      {/* Circle Progress Percentage Card (Amber gauge retains color, monochrome text) */}
+      {/* Circle Progress Percentage Card (Profile Completion header removed) */}
       <div style={{ 
         background: '#fafafa', 
         border: '1px solid #e5e7eb', 
@@ -73,17 +63,17 @@ export default function ProfileProgressSidebar({
               cx="55"
               cy="55"
               r={radius}
-              stroke="var(--amber)"
+              stroke="#F98809"
               strokeWidth="8"
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
               fill="transparent"
-              style={{ transition: 'stroke-dashoffset 0.4s ease' }}
+              style={{ transition: 'stroke-dashoffset 0.6s ease' }}
             />
           </svg>
 
-          {/* Centered Percentage Label */}
+          {/* Center Content: Percentage & Count */}
           <div style={{
             position: 'absolute',
             inset: 0,
@@ -95,39 +85,57 @@ export default function ProfileProgressSidebar({
           }}>
             <span style={{ 
               fontSize: 22, 
-              fontWeight: 800, 
+              fontWeight: 900, 
               color: '#111827', 
               letterSpacing: '-0.5px',
-              fontVariantNumeric: 'tabular-nums' 
+              fontVariantNumeric: 'tabular-nums',
+              lineHeight: 1
             }}>
               {percentage}%
             </span>
-            <span style={{ fontSize: 10, fontWeight: 600, color: '#64748b' }}>
+            <span style={{ 
+              fontSize: 10, 
+              fontWeight: 600, 
+              color: '#64748b',
+              marginTop: 3
+            }}>
               {completedSteps.length} of {totalSteps} done
             </span>
           </div>
         </div>
 
-        {/* Saved status (Philippine Standard Biodata removed) */}
-        <div style={{ marginTop: 8, textAlign: 'center' }}>
-          <div style={{ fontSize: 10.5, color: '#64748b', display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' }}>
-            <Clock size={11} /> Saved: {lastSaved}
-          </div>
+        {/* Real-time Save Status Pill */}
+        <div style={{ 
+          marginTop: 10, 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 5, 
+          fontSize: 10.5, 
+          color: '#64748b' 
+        }}>
+          <Clock size={11} color="#94a3b8" />
+          <span>Saved: <strong>{lastSaved}</strong></span>
         </div>
       </div>
 
-      {/* Vertical Section Tabs */}
-      <div style={{ marginBottom: 12 }}>
-        <span style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.6, color: 'var(--muted)' }}>
+      {/* DOCUMENT SECTIONS */}
+      <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ 
+          fontSize: 11, 
+          fontWeight: 700, 
+          letterSpacing: '0.04em', 
+          color: '#475569', 
+          textTransform: 'uppercase' 
+        }}>
           Document Sections
         </span>
       </div>
 
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
+      {/* Stepper Navigation List */}
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1, overflowY: 'auto' }}>
         {steps.map((s) => {
           const isActive = currentStep === s.num;
           const isDone = completedSteps.includes(s.num);
-          const Icon = s.icon;
 
           return (
             <button
@@ -139,22 +147,23 @@ export default function ProfileProgressSidebar({
                 display: 'flex',
                 alignItems: 'flex-start',
                 gap: 10,
-                padding: '9px 11px',
+                padding: '9px 12px',
                 borderRadius: 8,
-                background: isActive ? '#f8fafc' : '#ffffff',
-                color: isActive ? '#111827' : '#4b5563',
-                border: isActive ? '1.5px solid #111827' : '1px solid #e5e7eb',
+                background: isActive ? '#042B4E' : '#ffffff',
+                color: isActive ? '#ffffff' : '#4b5563',
+                border: isActive ? 'none' : '1px solid #e5e7eb',
                 textAlign: 'left',
                 transition: 'all 0.15s ease',
-                boxShadow: isActive ? '0 1px 4px rgba(0, 0, 0, 0.05)' : 'none'
+                boxShadow: isActive ? '0 4px 12px rgba(4, 43, 78, 0.22)' : 'none',
+                cursor: 'pointer'
               }}
             >
-              {/* Status Icon - Retains Amber for Completed */}
+              {/* Status Icon */}
               <div style={{ marginTop: 2 }}>
                 {isDone ? (
-                  <CheckCircle2 size={16} color="var(--amber)" strokeWidth={2.4} />
+                  <CheckCircle2 size={16} color={isActive ? '#F98809' : 'var(--amber)'} strokeWidth={2.4} />
                 ) : (
-                  <Circle size={16} color="#d1d5db" strokeWidth={2} />
+                  <Circle size={16} color={isActive ? 'rgba(255, 255, 255, 0.6)' : '#d1d5db'} strokeWidth={2} />
                 )}
               </div>
 
@@ -163,7 +172,7 @@ export default function ProfileProgressSidebar({
                 <div style={{ 
                   fontSize: 12, 
                   fontWeight: isActive ? 700 : 600, 
-                  color: isActive ? '#111827' : '#374151',
+                  color: isActive ? '#ffffff' : '#374151',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between'
@@ -172,7 +181,7 @@ export default function ProfileProgressSidebar({
                 </div>
                 <div style={{ 
                   fontSize: 10, 
-                  color: '#64748b', 
+                  color: isActive ? 'rgba(255, 255, 255, 0.8)' : '#64748b', 
                   marginTop: 1,
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
@@ -186,7 +195,7 @@ export default function ProfileProgressSidebar({
         })}
       </nav>
 
-      {/* Bottom Institutional Seal & Print Action */}
+      {/* Bottom Print Action (CHED & DepEd line removed) */}
       <div style={{ paddingTop: 14, borderTop: '1px solid #e5e7eb', marginTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
         <button
           type="button"
@@ -204,17 +213,13 @@ export default function ProfileProgressSidebar({
             alignItems: 'center',
             justifyContent: 'center',
             gap: 6,
-            transition: 'all 0.15s ease'
+            transition: 'all 0.15s ease',
+            cursor: 'pointer'
           }}
         >
           <Printer size={13} />
           <span>Print / Export PDF</span>
         </button>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center', fontSize: 10, color: '#64748b' }}>
-          <ShieldCheck size={12} color="var(--amber)" />
-          <span>CHED &amp; DepEd Format Compliant</span>
-        </div>
       </div>
 
     </aside>

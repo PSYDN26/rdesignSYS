@@ -145,29 +145,7 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
       {/* THE PHYSICAL BOND PAPER SHEET */}
       <article className="bond-paper-sheet" aria-label="Official Student Profile Form">
         
-        {/* Document Header (Clean & Simplified) */}
-        <header className="bond-paper-header" style={{ alignItems: 'center' }}>
-          <div>
-            <h1 style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.4px', margin: 0 }}>
-              Student Profile
-            </h1>
-          </div>
-
-          <div style={{ textAlign: 'right' }}>
-            <span style={{ 
-              fontSize: 11, 
-              fontWeight: 700, 
-              background: '#f1f5f9', 
-              color: '#334155', 
-              padding: '4px 10px', 
-              borderRadius: 6, 
-              display: 'inline-block',
-              fontVariantNumeric: 'tabular-nums'
-            }}>
-              LRN: {formData.lrnNumber}
-            </span>
-          </div>
-        </header>
+        {/* Document Header removed per request - title is now shown in top navigation container capsule */}
 
         {/* MOBILE VIEW ONLY: Progress Bar & Section Tabs (Visible < 900px) */}
         <div className="mobile-profile-progress">
