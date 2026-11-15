@@ -155,10 +155,10 @@ button:active {
   overflow: hidden;
 }
 
-/* Production Top Navigation Bar */
+/* Production Top Navigation Bar - Clean, seamless without bottom divider line */
 .prod-top-header {
   height: var(--header-height);
-  border-bottom: 1px solid #EDF2F7;
+  border-bottom: none;
   background: #ffffff;
   display: flex;
   align-items: center;
@@ -412,7 +412,7 @@ button:active {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  border-right: 1px solid var(--border-subtle);
+  border-right: none;
   background: #ffffff;
 }
 
@@ -1003,10 +1003,10 @@ button:active {
   transform: translateY(-2px);
 }
 
-/* Right Rail: To-do List */
+/* Right Rail: To-do List & Profile Progress Rail - Clean, seamless without left divider line */
 .prod-todo-rail {
   width: var(--todo-sidebar-width);
-  border-left: 1px solid var(--border-subtle);
+  border-left: none;
   padding: 20px;
   background: #ffffff;
   display: flex;
