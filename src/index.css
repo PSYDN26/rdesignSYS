@@ -1321,7 +1321,7 @@ button:active {
     position: absolute;
     top: -2px;
     right: calc(50% - 15px);
-    background: var(--accent-red);
+    background: #F98809;
     color: #ffffff;
     font-size: 9px;
     font-weight: 700;
@@ -1331,6 +1331,147 @@ button:active {
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  /* Center Crest Button */
+  .mobile-crest-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .mobile-crest-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -12px;
+    transition: transform 0.15s ease;
+  }
+
+  .mobile-crest-btn:active .mobile-crest-circle {
+    transform: scale(0.94);
+  }
+
+  .mobile-crest-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* More Options Bottom Sheet */
+  .mobile-more-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(4px);
+    z-index: 120;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    animation: fadeIn 0.18s ease-out;
+  }
+
+  .mobile-more-sheet {
+    background: #ffffff;
+    width: 100%;
+    max-width: 480px;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.18);
+    padding: 18px 20px 32px;
+    animation: slideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .mobile-more-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 16px;
+  }
+
+  .mobile-more-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .mobile-more-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    color: #64748b;
+    border: none;
+    cursor: pointer;
+  }
+
+  .mobile-more-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px 6px;
+  }
+
+  .mobile-more-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 4px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .mobile-more-item:hover,
+  .mobile-more-item.active {
+    background: #f1f5f9;
+    color: var(--blue);
+  }
+
+  .mobile-more-item.danger {
+    color: #ef4444;
+  }
+
+  .mobile-more-icon-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #f8fafc;
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+  }
+
+  .mobile-more-item.active .mobile-more-icon-box {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
   }
 }
 
@@ -1488,3 +1629,9 @@ button:active {
   from { transform: scale(0.96); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
