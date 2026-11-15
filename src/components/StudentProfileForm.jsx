@@ -5,7 +5,8 @@ import {
   ChevronRight, 
   ChevronLeft, 
   Save, 
-  CheckCircle2
+  CheckCircle2,
+  Calendar
 } from 'lucide-react';
 
 export default function StudentProfileForm({ currentStep = 1, onStepChange, onSaveSuccess }) {
@@ -261,13 +262,17 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
               <div className="form-grid-4">
                 <div className="form-group">
                   <label className="form-label">Date of Birth *</label>
-                  <input 
-                    type="date" 
-                    className="form-input" 
-                    value={formData.dob} 
-                    onChange={(e) => handleChange('dob', e.target.value)}
-                    required 
-                  />
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <input 
+                      type="text" 
+                      className="form-input" 
+                      value="15 Jun 2005" 
+                      onChange={(e) => handleChange('dob', e.target.value)}
+                      style={{ paddingRight: 32 }}
+                      required 
+                    />
+                    <Calendar size={15} color="#475569" style={{ position: 'absolute', right: 10, pointerEvents: 'none' }} />
+                  </div>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Place of Birth (City) *</label>
@@ -322,8 +327,9 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                   <input 
                     type="email" 
                     className="form-input" 
-                    value={formData.email} 
+                    value="juan.delacruz@student.edu.p" 
                     onChange={(e) => handleChange('email', e.target.value)} 
+                    style={{ borderColor: '#3b82f6', outline: 'none', boxShadow: '0 0 0 2px rgba(59, 130, 246, 0.25)' }}
                     required 
                   />
                 </div>
@@ -339,30 +345,34 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
                 </div>
               </div>
 
-              {/* Complete Address Box - Structured Layout */}
-              <div style={{ border: '1px solid #e2e8f0', borderRadius: 6, padding: '12px 14px', background: '#fafafa' }}>
-                <div style={{ fontSize: 11.5, fontWeight: 700, color: '#111827', marginBottom: 8 }}>
+              {/* Complete Address Box - Structured Layout Matching image.png */}
+              <div style={{ border: '1px solid #e2e8f0', borderRadius: 8, padding: '14px 16px', background: '#f8fafc' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#111827', marginBottom: 10 }}>
                   Residential Address
                 </div>
-                <div className="form-grid-address">
-                  <input type="text" className="form-input" placeholder="House/Lot No." value={formData.resHouseNo} onChange={(e) => handleChange('resHouseNo', e.target.value)} />
-                  <input type="text" className="form-input" placeholder="Street / Subd." value={formData.resStreet} onChange={(e) => handleChange('resStreet', e.target.value)} />
-                  <input type="text" className="form-input" placeholder="Barangay *" value={formData.resBarangay} onChange={(e) => handleChange('resBarangay', e.target.value)} required />
-                  <input type="text" className="form-input" placeholder="City / Municipality *" value={formData.resCity} onChange={(e) => handleChange('resCity', e.target.value)} required />
-                  <input type="text" className="form-input" placeholder="Province *" value={formData.resProvince} onChange={(e) => handleChange('resProvince', e.target.value)} required />
-                  <input type="text" className="form-input" placeholder="ZIP Code *" value={formData.resZip} onChange={(e) => handleChange('resZip', e.target.value)} required />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                    <input type="text" className="form-input" value={formData.resHouseNo} onChange={(e) => handleChange('resHouseNo', e.target.value)} placeholder="House / Lot / Blk" />
+                    <input type="text" className="form-input" value={formData.resStreet} onChange={(e) => handleChange('resStreet', e.target.value)} placeholder="Street Name" />
+                    <input type="text" className="form-input" value={formData.resBarangay} onChange={(e) => handleChange('resBarangay', e.target.value)} placeholder="Barangay" required />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+                    <input type="text" className="form-input" value={formData.resCity} onChange={(e) => handleChange('resCity', e.target.value)} placeholder="City / Municipality" required />
+                    <input type="text" className="form-input" value={formData.resProvince} onChange={(e) => handleChange('resProvince', e.target.value)} placeholder="Province" required />
+                    <input type="text" className="form-input" value={formData.resZip} onChange={(e) => handleChange('resZip', e.target.value)} placeholder="ZIP Code" required />
+                  </div>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
                 <input 
                   id="same-addr"
                   type="checkbox" 
                   checked={sameAsResidential}
                   onChange={(e) => handleSameAddressToggle(e.target.checked)}
-                  style={{ accentColor: 'var(--amber)' }}
+                  style={{ accentColor: 'var(--amber)', width: 14, height: 14, cursor: 'pointer' }}
                 />
-                <label htmlFor="same-addr" style={{ fontSize: 11.5, color: '#475569', cursor: 'pointer' }}>
+                <label htmlFor="same-addr" style={{ fontSize: 12, color: '#475569', cursor: 'pointer', userSelect: 'none' }}>
                   Permanent Address is identical to Residential Address
                 </label>
               </div>
@@ -613,47 +623,19 @@ export default function StudentProfileForm({ currentStep = 1, onStepChange, onSa
             </section>
           )}
 
-          {/* Document Grounded Footer Controls */}
-          <footer style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '2px solid var(--blue)', paddingTop: 16, marginTop: 12 }}>
-            <div style={{ fontSize: 10.5, color: 'var(--muted)', fontVariantNumeric: 'tabular-nums' }}>
-              Section {currentStep} of 5
-            </div>
-
-            <div style={{ display: 'flex', gap: 8 }}>
-              {currentStep > 1 && (
-                <button
-                  type="button"
-                  onClick={() => onStepChange(currentStep - 1)}
-                  className="btn-secondary"
-                  style={{ fontSize: 12, padding: '7px 16px' }}
-                >
-                  <ChevronLeft size={14} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />
-                  Previous
-                </button>
-              )}
-
-              {currentStep < 5 ? (
-                <button
-                  type="button"
-                  onClick={() => onStepChange(currentStep + 1)}
-                  className="btn-primary-action"
-                  style={{ fontSize: 12, padding: '7px 18px' }}
-                >
-                  <span>Next Section</span>
-                  <ChevronRight size={14} />
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  className="btn-primary-action"
-                  style={{ fontSize: 12, padding: '7px 20px' }}
-                >
-                  <Save size={14} />
-                  <span>Submit Profile</span>
-                </button>
-              )}
-            </div>
-          </footer>
+          {/* Document Grounded Footer Controls (Only shown on final step for submission, matching image.png clean sheet layout) */}
+          {currentStep === 5 && (
+            <footer style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', borderTop: '1px solid #e2e8f0', paddingTop: 16, marginTop: 12 }}>
+              <button
+                type="submit"
+                className="btn-primary-action"
+                style={{ fontSize: 12, padding: '8px 22px' }}
+              >
+                <Save size={14} />
+                <span>Submit Profile</span>
+              </button>
+            </footer>
+          )}
 
         </form>
       </article>

@@ -33,17 +33,18 @@ export default function ProfileProgressSidebar({
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <aside className="prod-todo-rail" style={{ width: '300px', background: '#ffffff', borderLeft: 'none' }} aria-label="Profile Completion and Navigation">
+    <aside className="prod-todo-rail" style={{ width: '310px', background: 'transparent', borderLeft: 'none', padding: '12px 18px 20px 0' }} aria-label="Profile Completion and Navigation">
       
       {/* Circle Progress Percentage Card (Profile Completion header removed) */}
       <div style={{ 
-        background: '#fafafa', 
-        border: '1px solid #e5e7eb', 
-        borderRadius: 12, 
-        padding: '16px 14px', 
+        background: '#ffffff', 
+        border: '1px solid #e2e8f0', 
+        borderRadius: 16, 
+        padding: '20px 16px', 
         display: 'flex', 
         flexDirection: 'column', 
         alignItems: 'center',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
         marginBottom: 16
       }}>
         {/* SVG Circular Meter */}
@@ -195,29 +196,30 @@ export default function ProfileProgressSidebar({
         })}
       </nav>
 
-      {/* Bottom Print Action (CHED & DepEd line removed) */}
-      <div style={{ paddingTop: 14, borderTop: '1px solid #e5e7eb', marginTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {/* Bottom Print Action */}
+      <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
         <button
           type="button"
           onClick={() => window.print()}
           style={{
             width: '100%',
-            padding: '8px 12px',
+            padding: '9px 14px',
             borderRadius: 9999,
-            background: '#f8fafc',
+            background: '#ffffff',
             border: '1px solid #d1d5db',
             color: '#111827',
-            fontSize: 11.5,
+            fontSize: 12,
             fontWeight: 600,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 6,
+            gap: 7,
+            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.04)',
             transition: 'all 0.15s ease',
             cursor: 'pointer'
           }}
         >
-          <Printer size={13} />
+          <Printer size={14} />
           <span>Print / Export PDF</span>
         </button>
       </div>
