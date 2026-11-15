@@ -152,3 +152,6 @@ The portal uses an asymmetrical **3-Column Canvas System** set on a soft cool-gr
 - **Scroll Fading Transition**:
   - When content scrolls up under the top navigation area, it must never be abruptly clipped with a hard edge.
   - Apply CSS `mask-image: linear-gradient(to bottom, transparent 0px, black 28px)` and a soft fading gradient extension on the top header (`linear-gradient(to bottom, #EEF2F6 0%, rgba(238, 242, 246, 0.75) 45%, rgba(238, 242, 246, 0) 100%)`) so that upward-scrolling content smoothly dissolves into the cool-grey canvas.
+- **Mobile Header Adaptation (< 768px)**:
+  - Remove Search and Globe icons from the header to maximize screen economy.
+  - Place a dedicated `Dashboard` pill button (`bg-[#042B4E]`, text-white, amber `LayoutGrid` icon) on the left side of the header to restore instant navigation while the desktop sidebar is hidden.

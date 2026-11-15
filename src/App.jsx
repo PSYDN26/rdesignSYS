@@ -60,6 +60,7 @@ export default function App() {
             user={{ name: 'Student Name', tier: 'Free', avatar: '01' }}
             onSearchClick={() => alert('Search classes & documents')}
             onCreateClassClick={() => setIsCreateModalOpen(true)}
+            onDashboardClick={() => setActiveTab('home')}
             unreadCount={1}
           />
 
