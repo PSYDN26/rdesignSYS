@@ -75,31 +75,31 @@ export default function CircleBottomNav({
           {/* Layer 1: SVG Downward Scooped Notch Backdrop (Dark Navy #042B4E) */}
           <svg 
             className="circle-nav-backdrop-svg"
-            viewBox="0 0 375 74" 
+            viewBox="0 0 375 72" 
             preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
             aria-hidden="true"
           >
             {/* 
-              Reference-matching Scooped Notch Formula:
+              Reference-matching Wide U-Cradle Formula:
               - Top-left rounded corner: Q 0 0 18 0
-              - Left horizontal baseline: y=0 (H 130)
-              - Downward concave scoop into cradle: C (150, 0) -> (160, 34) -> (187.5, 34)
-              - Upward scoop returning to baseline: C (215, 34) -> (225, 0) -> (245, 0)
+              - Left horizontal baseline: y=0 (H 120)
+              - Wide, gentle concentric scoop: C (142, 0) -> (154, 28) -> (187.5, 28)
+              - Symmetrical return to baseline: C (221, 28) -> (233, 0) -> (255, 0)
               - Right horizontal baseline: y=0 (H 357)
               - Top-right rounded corner: Q 375 0 375 18
-              - Base box fill: V 74 H 0 Z
+              - Base box fill: V 72 H 0 Z
             */}
             <path 
               d="
                 M 0 18
                 Q 0 0 18 0
-                H 130
-                C 150 0, 160 34, 187.5 34
-                C 215 34, 225 0, 245 0
+                H 120
+                C 142 0, 154 28, 187.5 28
+                C 221 28, 233 0, 255 0
                 H 357
                 Q 375 0 375 18
-                V 74
+                V 72
                 H 0
                 Z
               "
