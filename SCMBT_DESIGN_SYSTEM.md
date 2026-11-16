@@ -33,14 +33,17 @@ The portal uses an asymmetrical **3-Column Canvas System** set on a soft cool-gr
 
 3. **Mobile Bottom Navigation Bar (< 768px)**
    - Strict ceiling of **maximum 5 items** structured as:
-     `[Item 1: Tasks][Item 2: Campus][Center Crest: Home][Item 3: Profile][More icon]`
-   - Mapping:
-     - `Item 1`: `Tasks` (with amber notification badge `1`)
-     - `Item 2`: `Campus` (institutional portal facilities & directory)
-     - `Center Crest`: **Home** (Elevated circular SCMBT Maritime Crest emblem `SCMBT_Crest.png`, `42px` circle floating `-14px` above the bar, with text label `Home` and active border/shadow when on Dashboard)
-     - `Item 3`: `Profile` (Student Profile view)
-     - `More icon`: Triggers a smooth slide-up drawer containing secondary sections (`Academics`, `Finance`, `Analytics`, `Settings`, `Support`, `Signout`)
-   - Fixed at bottom with safe-area padding (`env(safe-area-inset-bottom)`), white background, clean subtle top border.
+     `[Item 1: Tasks][Item 2: Campus][Center Ship CTA: Home][Item 3: Profile][More icon]`
+   - Visual Architecture:
+     - **Bar Color**: Institutional Dark Navy (`#042B4E`) with soft ambient drop-shadow.
+     - **Curved Silhouette**: Downward scooped notch ($凹$) dipping 34px into the bar with 18px top-corner radiuses, seamlessly cradling the elevated center circular CTA.
+     - **Mapping**:
+       - `Item 1`: `Tasks` (with amber notification badge `1`, active white / inactive slate `#9CB3C9`)
+       - `Item 2`: `Campus` (institutional portal directory)
+       - `Center Ship CTA`: **Home** (Elevated `50px` circular button holding the SCMBT Ship Menu Compass Emblem `scmbt-ship-menu.png` nestled 40% inside the scooped notch, with white bold label `Home` and active amber ring `#F98809`)
+       - `Item 3`: `Profile` (Student Profile view, active bold white)
+       - `More icon`: Triggers a smooth slide-up drawer containing secondary sections (`Academics`, `Finance`, `Analytics`, `Settings`, `Support`, `Signout`)
+   - Fixed at bottom with safe-area padding (`env(safe-area-inset-bottom)`).
 
 4. **Center Column: Document Form Sheet**
    - **Presentation**: Bounded floating white card (`bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 md:p-8`).

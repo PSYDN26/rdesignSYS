@@ -12,13 +12,16 @@ import {
   LogOut,
   X
 } from 'lucide-react';
-import crestImg from '../assets/SCMBT_Crest.png';
+import shipMenuImg from '../assets/scmbt-ship-menu.png';
 import './CircleBottomNav.css';
 
 /**
  * CircleBottomNav
- * 5-Item Circle CTA Bottom Navigation Bar for SCMBT Portal
- * Sequence: [Tasks] [Campus] [Crest (Home)] [Profile] [More]
+ * Reference-matching 5-Item Circle CTA Bottom Navigation Bar
+ * - Dark Navy color (#042B4E)
+ * - Downward Scooped Notch (凹) with top corner radiuses
+ * - SCMBT Ship Menu Compass Emblem as Home
+ * - Sequence: [Tasks] [Campus] [Ship (Home)] [Profile] [More]
  */
 export default function CircleBottomNav({
   activeTab = 'profile',
@@ -30,7 +33,7 @@ export default function CircleBottomNav({
   const mainTabs = [
     { id: 'todo', label: 'Tasks', icon: ClipboardCheck, badge: todoBadge },
     { id: 'campus', label: 'Campus', icon: Building2 },
-    // Center is Crest (Home)
+    // Center is SCMBT Ship (Home)
     { id: 'profile', label: 'Profile', icon: Users },
     { id: 'more', label: 'More', icon: MoreHorizontal, isAction: true },
   ];
@@ -69,33 +72,38 @@ export default function CircleBottomNav({
         aria-label="Mobile Bottom Navigation"
       >
         <div className="circle-nav-container">
-          {/* Layer 1: SVG Organic Curved Cradle Backdrop */}
+          {/* Layer 1: SVG Downward Scooped Notch Backdrop (Dark Navy #042B4E) */}
           <svg 
             className="circle-nav-backdrop-svg"
-            viewBox="0 0 375 78" 
+            viewBox="0 0 375 74" 
             preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
             aria-hidden="true"
           >
             {/* 
-              Organic Cradle Formula:
-              - Left horizontal baseline: y=16
-              - Smooth concave fillet curve scooping up: C (130, 16) -> (155, 0)
-              - Crest apex over center circle: (187.5, 0)
-              - Smooth concave fillet curve dropping back: C (220, 0) -> (245, 16)
-              - Right horizontal baseline: y=16
+              Reference-matching Scooped Notch Formula:
+              - Top-left rounded corner: Q 0 0 18 0
+              - Left horizontal baseline: y=0 (H 130)
+              - Downward concave scoop into cradle: C (150, 0) -> (160, 34) -> (187.5, 34)
+              - Upward scoop returning to baseline: C (215, 34) -> (225, 0) -> (245, 0)
+              - Right horizontal baseline: y=0 (H 357)
+              - Top-right rounded corner: Q 375 0 375 18
+              - Base box fill: V 74 H 0 Z
             */}
             <path 
               d="
-                M 0 16
-                H 125
-                C 145 16, 162 0, 187.5 0
-                C 213 0, 230 16, 250 16
-                H 375
-                V 78
+                M 0 18
+                Q 0 0 18 0
+                H 130
+                C 150 0, 160 34, 187.5 34
+                C 215 34, 225 0, 245 0
+                H 357
+                Q 375 0 375 18
+                V 74
                 H 0
                 Z
               "
+              className="circle-nav-path"
             />
           </svg>
 
@@ -132,7 +140,7 @@ export default function CircleBottomNav({
               <span>Campus</span>
             </button>
 
-            {/* Slot 3 (Center): Elevated Circle CTA (Crest as Home) */}
+            {/* Slot 3 (Center): Elevated Circle CTA with SCMBT Ship Emblem (Home) */}
             <button
               type="button"
               className={`circle-nav-center-cta ${activeTab === 'home' ? 'active' : ''}`}
@@ -143,9 +151,9 @@ export default function CircleBottomNav({
             >
               <div className="circle-nav-cta-disc">
                 <img 
-                  src={crestImg} 
-                  alt="SCMBT Crest" 
-                  className="circle-nav-crest-img" 
+                  src={shipMenuImg} 
+                  alt="SCMBT Ship Home" 
+                  className="circle-nav-ship-img" 
                 />
               </div>
               <span className="circle-nav-center-label">Home</span>
