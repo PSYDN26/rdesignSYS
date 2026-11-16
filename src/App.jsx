@@ -4,7 +4,7 @@ import Sidebar from './components/Sidebar';
 import MainContent from './components/MainContent';
 import TodoList from './components/TodoList';
 import ProfileProgressSidebar from './components/ProfileProgressSidebar';
-import MobileBottomNav from './components/MobileBottomNav';
+import CircleBottomNav from './components/CircleBottomNav';
 import CreateClassModal from './components/CreateClassModal';
 import EnterClassModal from './components/EnterClassModal';
 import StudentProfileForm from './components/StudentProfileForm';
@@ -104,7 +104,7 @@ export default function App() {
       </div>
 
       {/* Mobile Native Bottom Navigation Bar (< 768px) */}
-      <MobileBottomNav
+      <CircleBottomNav
         activeTab={activeTab}
         onTabSelect={setActiveTab}
         todoBadge={1}
