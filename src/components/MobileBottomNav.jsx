@@ -23,15 +23,14 @@ export default function MobileBottomNav({
   const [isMoreOpen, setIsMoreOpen] = useState(false);
 
   const mainTabs = [
-    { id: 'home', label: 'Home', icon: LayoutGrid },
     { id: 'todo', label: 'Tasks', icon: ClipboardCheck, badge: todoBadge },
-    // Center is Crest
+    { id: 'campus', label: 'Campus', icon: Building2 },
+    // Center is Crest (Home)
     { id: 'profile', label: 'Profile', icon: Users },
     { id: 'more', label: 'More', icon: MoreHorizontal, isAction: true },
   ];
 
   const moreItems = [
-    { id: 'campus', label: 'Campus', icon: Building2 },
     { id: 'academics', label: 'Academics', icon: GraduationCap },
     { id: 'finance', label: 'Finance', icon: Wallet },
     { id: 'analytics', label: 'Analytics', icon: TrendingUp },
@@ -60,23 +59,11 @@ export default function MobileBottomNav({
   return (
     <>
       <nav className="mobile-bottom-bar" aria-label="Mobile Navigation">
-        {/* Item 1: Home / Dashboard */}
-        <button
-          type="button"
-          className={`mobile-tab-btn ${activeTab === 'home' ? 'active' : ''}`}
-          onClick={() => handleTabClick(mainTabs[0])}
-          aria-current={activeTab === 'home' ? 'page' : undefined}
-          title="Home"
-        >
-          <LayoutGrid size={19} strokeWidth={activeTab === 'home' ? 2.5 : 1.8} />
-          <span>Home</span>
-        </button>
-
-        {/* Item 2: Tasks (with amber badge) */}
+        {/* Item 1: Tasks (with amber badge) */}
         <button
           type="button"
           className={`mobile-tab-btn ${activeTab === 'todo' ? 'active' : ''}`}
-          onClick={() => handleTabClick(mainTabs[1])}
+          onClick={() => handleTabClick(mainTabs[0])}
           aria-current={activeTab === 'todo' ? 'page' : undefined}
           title="Tasks"
         >
@@ -89,17 +76,31 @@ export default function MobileBottomNav({
           <span>Tasks</span>
         </button>
 
-        {/* Center: Crest */}
+        {/* Item 2: Campus */}
         <button
           type="button"
-          className="mobile-crest-btn"
+          className={`mobile-tab-btn ${activeTab === 'campus' ? 'active' : ''}`}
+          onClick={() => handleTabClick(mainTabs[1])}
+          aria-current={activeTab === 'campus' ? 'page' : undefined}
+          title="Campus"
+        >
+          <Building2 size={19} strokeWidth={activeTab === 'campus' ? 2.5 : 1.8} />
+          <span>Campus</span>
+        </button>
+
+        {/* Center: Crest as Home */}
+        <button
+          type="button"
+          className={`mobile-crest-btn ${activeTab === 'home' ? 'active' : ''}`}
           onClick={() => onTabSelect && onTabSelect('home')}
-          title="SCMBT Portal Home"
-          aria-label="SCMBT Crest"
+          title="Home"
+          aria-label="Home"
+          aria-current={activeTab === 'home' ? 'page' : undefined}
         >
           <div className="mobile-crest-circle">
             <img src={crestImg} alt="SCMBT Crest" className="mobile-crest-img" />
           </div>
+          <span className="mobile-crest-label">Home</span>
         </button>
 
         {/* Item 3: Profile */}

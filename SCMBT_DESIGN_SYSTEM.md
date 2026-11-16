@@ -33,13 +33,13 @@ The portal uses an asymmetrical **3-Column Canvas System** set on a soft cool-gr
 
 3. **Mobile Bottom Navigation Bar (< 768px)**
    - Strict ceiling of **maximum 5 items** structured as:
-     `[Item 1][Item 2][Crest][Item 3][More icon]`
+     `[Item 1: Tasks][Item 2: Campus][Center Crest: Home][Item 3: Profile][More icon]`
    - Mapping:
-     - `Item 1`: `Home` (Dashboard / Main overview)
-     - `Item 2`: `Tasks` (with amber notification badge `1`)
-     - `Center`: Elevated circular SCMBT Maritime Crest emblem (`SCMBT_Crest.png`, `44px` circle floating `-12px` above the bar)
+     - `Item 1`: `Tasks` (with amber notification badge `1`)
+     - `Item 2`: `Campus` (institutional portal facilities & directory)
+     - `Center Crest`: **Home** (Elevated circular SCMBT Maritime Crest emblem `SCMBT_Crest.png`, `42px` circle floating `-14px` above the bar, with text label `Home` and active border/shadow when on Dashboard)
      - `Item 3`: `Profile` (Student Profile view)
-     - `More icon`: Triggers a smooth slide-up drawer containing secondary sections (`Campus`, `Academics`, `Finance`, `Analytics`, `Settings`, `Support`, `Signout`)
+     - `More icon`: Triggers a smooth slide-up drawer containing secondary sections (`Academics`, `Finance`, `Analytics`, `Settings`, `Support`, `Signout`)
    - Fixed at bottom with safe-area padding (`env(safe-area-inset-bottom)`), white background, clean subtle top border.
 
 4. **Center Column: Document Form Sheet**
