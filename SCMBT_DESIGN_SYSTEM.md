@@ -35,12 +35,13 @@ The portal uses an asymmetrical **3-Column Canvas System** set on a soft cool-gr
    - Strict ceiling of **maximum 5 items** structured as:
      `[Item 1: Tasks][Item 2: Campus][Center Ship CTA: Home][Item 3: Profile][More icon]`
    - Visual Architecture:
-     - **Bar Color**: Institutional Dark Navy (`#042B4E`) with soft ambient drop-shadow.
-     - **Curved Silhouette**: Downward scooped notch ($凹$) dipping 34px into the bar with 18px top-corner radiuses, seamlessly cradling the elevated center circular CTA.
+     - **Bar Color**: Institutional Dark Navy (`#042B4E`) with soft ambient drop-shadow (`drop-shadow(0 -4px 18px rgba(4, 43, 78, 0.45))`).
+     - **Curved Silhouette**: Wide, flowing U-shaped cradle ($凹$) dipping 40px into the bar with 140px opening width, seamlessly cradling the elevated 76px circular CTA disc with a consistent ~6-8px concentric visual gap.
+     - **Cubic Bézier Formula**: Smooth $C^1$ horizontal transitions at both shoulders (`dy/dx = 0`) and nadir (`dy/dx = 0`) preventing sharp corners or V-pointiness. Responsive across viewport widths via `ResizeObserver` without curve distortion.
      - **Mapping**:
        - `Item 1`: `Tasks` (with amber notification badge `1`, active white / inactive slate `#9CB3C9`)
        - `Item 2`: `Campus` (institutional portal directory)
-       - `Center Ship CTA`: **Home** (Elevated `50px` circular button holding the SCMBT Ship Menu Compass Emblem `scmbt-ship-menu.png` nestled 40% inside the scooped notch, with white bold label `Home` and active amber ring `#F98809`)
+       - `Center Ship CTA`: **Home** (Elevated `76px` circular button holding the SCMBT Ship Menu Compass Emblem `scmbt-ship-menu.png`, overlapping 40px above top edge, seated naturally in the 140px cradle with 11px label `Home` locked to the standard baseline)
        - `Item 3`: `Profile` (Student Profile view, active bold white)
        - `More icon`: Triggers a smooth slide-up drawer containing secondary sections (`Academics`, `Finance`, `Analytics`, `Settings`, `Support`, `Signout`)
    - Fixed at bottom with safe-area padding (`env(safe-area-inset-bottom)`).

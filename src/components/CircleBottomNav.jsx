@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   ClipboardCheck, 
   Building2, 
@@ -17,13 +17,15 @@ import './CircleBottomNav.css';
 
 /**
  * CircleBottomNav
- * Pixel-Perfect Scaling based on PowerPoint Guides:
- * - Total Width: 35 cm (5 columns of 7 cm = 20% each)
- * - Circle Donut: 5.5 cm x 5.5 cm (78.6% of center column)
- * - Drop Effect: 7.25 cm from top guide (3.34 cm drop below flat baseline)
- * - 50% circle elevation above baseline, 50% nested in scoop
- * - Concentric gap: ~6px around lower half of disc
- * - SCMBT Ship Menu Compass Emblem (#042B4E Navy + #F98809 Amber)
+ * Wide, Smooth Circular CTA Notch matching the reference design:
+ * - Mobile viewport baseline: 390px (responsive via ResizeObserver)
+ * - Navigation height: 86px
+ * - Circular CTA diameter: 76px (with 50px SCMBT ship emblem)
+ * - Notch width: 140px (wide, flowing U-shaped cradle)
+ * - Notch depth: 40px (gentle rounded nadir, zero V-pointiness)
+ * - CTA overlap above top edge: 40px (disc top at -40px)
+ * - Visual gap: ~6-8px consistent concentric clearance
+ * - Cubic Bézier easing: smooth C1 horizontal transitions at shoulders & nadir
  */
 export default function CircleBottomNav({
   activeTab = 'profile',
@@ -31,6 +33,52 @@ export default function CircleBottomNav({
   todoBadge = 1,
 }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const containerRef = useRef(null);
+  const [navWidth, setNavWidth] = useState(390);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const updateWidth = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        if (rect.width > 0) {
+          setNavWidth(Math.round(rect.width));
+        }
+      }
+    };
+    updateWidth();
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  // Geometry: Wide, smooth U-shaped cradle with horizontal tangents
+  const height = 86;
+  const cx = navWidth / 2;
+  const halfNotch = 70; // 140px total notch opening
+  const notchDepth = 40;
+  const cornerR = 16;
+
+  const leftStart = Math.max(cornerR, cx - halfNotch);
+  const leftCp1 = cx - 47.6; // Shoulder departure control point
+  const leftCp2 = cx - 35.0; // Nadir arrival control point
+  const rightCp1 = cx + 35.0; // Nadir departure control point
+  const rightCp2 = cx + 47.6; // Shoulder arrival control point
+  const rightEnd = Math.min(navWidth - cornerR, cx + halfNotch);
+  const rightCorner = navWidth - cornerR;
+
+  const svgPath = `
+    M 0 ${cornerR}
+    Q 0 0 ${cornerR} 0
+    H ${leftStart.toFixed(1)}
+    C ${leftCp1.toFixed(1)} 0, ${leftCp2.toFixed(1)} ${notchDepth}, ${cx.toFixed(1)} ${notchDepth}
+    C ${rightCp1.toFixed(1)} ${notchDepth}, ${rightCp2.toFixed(1)} 0, ${rightEnd.toFixed(1)} 0
+    H ${rightCorner.toFixed(1)}
+    Q ${navWidth} 0 ${navWidth} ${cornerR}
+    V ${height}
+    H 0
+    Z
+  `;
 
   const mainTabs = [
     { id: 'todo', label: 'Tasks', icon: ClipboardCheck, badge: todoBadge },
@@ -73,38 +121,16 @@ export default function CircleBottomNav({
         role="navigation" 
         aria-label="Mobile Bottom Navigation"
       >
-        <div className="circle-nav-container">
-          {/* Layer 1: Pixel-Perfect SVG Scooped Notch Backdrop (Dark Navy #042B4E) */}
+        <div className="circle-nav-container" ref={containerRef}>
+          {/* Layer 1: Pixel-Perfect SVG Wide U-Cradle Backdrop (Dark Navy #042B4E) */}
           <svg 
             className="circle-nav-backdrop-svg"
-            viewBox="0 0 350 66" 
-            preserveAspectRatio="none"
+            viewBox={`0 0 ${navWidth} ${height}`}
             xmlns="http://www.w3.org/2000/svg"
             aria-hidden="true"
           >
-            {/* 
-              Exact PowerPoint Mathematical Ratios (35cm width, 7cm cols, 5.5cm donut, 7.25cm drop):
-              - Top-left corner: Q 0 0 16 0
-              - Left baseline: y=0, H 125.5 (extends 4.5cm into Col 2)
-              - Cubic Bézier Scoop: C (148, 0) -> (157, 34) -> (175, 34)
-              - Cubic Bézier Return: C (193, 34) -> (202, 0) -> (224.5, 0)
-              - Right baseline: y=0, H 334
-              - Top-right corner: Q 350 0 350 16
-              - Bottom closure: V 66 H 0 Z
-            */}
             <path 
-              d="
-                M 0 16
-                Q 0 0 16 0
-                H 125.5
-                C 148 0, 157 34, 175 34
-                C 193 34, 202 0, 224.5 0
-                H 334
-                Q 350 0 350 16
-                V 66
-                H 0
-                Z
-              "
+              d={svgPath}
               className="circle-nav-path"
             />
           </svg>
