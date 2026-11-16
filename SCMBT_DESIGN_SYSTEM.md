@@ -35,8 +35,13 @@ The portal uses an asymmetrical **3-Column Canvas System** set on a soft cool-gr
    - Strict ceiling of **maximum 5 items** structured as:
      `[Item 1: Tasks][Item 2: Campus][Center Ship CTA: Home][Item 3: Profile][More icon]`
    - Visual Architecture (Exact specification from `circle-cta-fullwidth-mobile-preview.html`):
-     - **Dock**: Full-bleed viewport dock (`width: 100%; max-width: none; margin: 0;`).
-     - **Height**: `calc(78px + env(safe-area-inset-bottom, 0px))` with `::after` filling the phone's home indicator safe area with `#042B4E`.
+     - **Dock**: Full-bleed viewport dock (`width: 100%; max-width: none; margin: 0; bottom: 0;`).
+     - **Safe Area & System Bar Sealing**:
+       - `<meta name="viewport" content="..., viewport-fit=cover">` and `<meta name="theme-color" content="#042B4E">` ensure edge-to-edge rendering without white system gesture gutters.
+       - A solid Dark Navy extension (`::after`) with `height: 120px` past the $77\text{px}$ mark seals any home indicator / gesture navigation bar area with `#042B4E`.
+     - **Scroll Clearance**:
+       - All mobile scroll containers (`.bond-paper-canvas`, `.prod-main-content`) have `padding-bottom: calc(140px + env(safe-area-inset-bottom, 20px));`.
+       - This guarantees that when pages are scrolled max down, the lowest form fields, action buttons, and declarations remain 100% visible and unoccluded above the $112\text{px}$ elevated circular CTA.
      - **Bar Color**: Institutional Dark Navy (`#042B4E`) with ambient drop-shadow (`drop-shadow(0 -4px 18px rgba(4, 43, 78, 0.45))`).
      - **SVG Notch Formula**:
        `w = navWidth, c = w/2, s = 61, d = 42`

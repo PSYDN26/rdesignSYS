@@ -29,14 +29,14 @@
     user-select: none;
   }
 
-  /* Fill the phone's home-indicator safe area with the same bar color */
+  /* Fill the phone's home-indicator safe area and gesture gutter with solid dark navy */
   .circle-bottom-nav::after {
     content: '';
     position: absolute;
-    top: 78px;
-    bottom: 0;
+    top: 77px;
     left: 0;
     right: 0;
+    height: 120px;
     background: var(--nav-bg);
     z-index: -1;
     pointer-events: none;
