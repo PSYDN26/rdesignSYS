@@ -17,11 +17,13 @@ import './CircleBottomNav.css';
 
 /**
  * CircleBottomNav
- * Reference-matching 5-Item Circle CTA Bottom Navigation Bar
- * - Dark Navy color (#042B4E)
- * - Downward Scooped Notch (凹) with top corner radiuses
- * - SCMBT Ship Menu Compass Emblem as Home
- * - Sequence: [Tasks] [Campus] [Ship (Home)] [Profile] [More]
+ * Pixel-Perfect Scaling based on PowerPoint Guides:
+ * - Total Width: 35 cm (5 columns of 7 cm = 20% each)
+ * - Circle Donut: 5.5 cm x 5.5 cm (78.6% of center column)
+ * - Drop Effect: 7.25 cm from top guide (3.34 cm drop below flat baseline)
+ * - 50% circle elevation above baseline, 50% nested in scoop
+ * - Concentric gap: ~6px around lower half of disc
+ * - SCMBT Ship Menu Compass Emblem (#042B4E Navy + #F98809 Amber)
  */
 export default function CircleBottomNav({
   activeTab = 'profile',
@@ -72,34 +74,34 @@ export default function CircleBottomNav({
         aria-label="Mobile Bottom Navigation"
       >
         <div className="circle-nav-container">
-          {/* Layer 1: SVG Downward Scooped Notch Backdrop (Dark Navy #042B4E) */}
+          {/* Layer 1: Pixel-Perfect SVG Scooped Notch Backdrop (Dark Navy #042B4E) */}
           <svg 
             className="circle-nav-backdrop-svg"
-            viewBox="0 0 375 72" 
+            viewBox="0 0 350 66" 
             preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
             aria-hidden="true"
           >
             {/* 
-              Reference-matching Wide U-Cradle Formula:
-              - Top-left rounded corner: Q 0 0 18 0
-              - Left horizontal baseline: y=0 (H 120)
-              - Wide, gentle concentric scoop: C (142, 0) -> (154, 28) -> (187.5, 28)
-              - Symmetrical return to baseline: C (221, 28) -> (233, 0) -> (255, 0)
-              - Right horizontal baseline: y=0 (H 357)
-              - Top-right rounded corner: Q 375 0 375 18
-              - Base box fill: V 72 H 0 Z
+              Exact PowerPoint Mathematical Ratios (35cm width, 7cm cols, 5.5cm donut, 7.25cm drop):
+              - Top-left corner: Q 0 0 16 0
+              - Left baseline: y=0, H 125.5 (extends 4.5cm into Col 2)
+              - Cubic Bézier Scoop: C (148, 0) -> (157, 34) -> (175, 34)
+              - Cubic Bézier Return: C (193, 34) -> (202, 0) -> (224.5, 0)
+              - Right baseline: y=0, H 334
+              - Top-right corner: Q 350 0 350 16
+              - Bottom closure: V 66 H 0 Z
             */}
             <path 
               d="
-                M 0 18
-                Q 0 0 18 0
-                H 120
-                C 142 0, 154 28, 187.5 28
-                C 221 28, 233 0, 255 0
-                H 357
-                Q 375 0 375 18
-                V 72
+                M 0 16
+                Q 0 0 16 0
+                H 125.5
+                C 148 0, 157 34, 175 34
+                C 193 34, 202 0, 224.5 0
+                H 334
+                Q 350 0 350 16
+                V 66
                 H 0
                 Z
               "
@@ -107,9 +109,9 @@ export default function CircleBottomNav({
             />
           </svg>
 
-          {/* Layer 2: 5 Interactive Nav Slots */}
+          {/* Layer 2: 5 Interactive Nav Slots (Exact 20% / 7cm each) */}
           <div className="circle-nav-items-grid">
-            {/* Slot 1: Tasks (with amber badge) */}
+            {/* Slot 1: Tasks (Col 1: 0 - 7cm) */}
             <button
               type="button"
               className={`circle-nav-tab ${activeTab === 'todo' ? 'active' : ''}`}
@@ -126,7 +128,7 @@ export default function CircleBottomNav({
               <span>Tasks</span>
             </button>
 
-            {/* Slot 2: Campus */}
+            {/* Slot 2: Campus (Col 2: 7 - 14cm) */}
             <button
               type="button"
               className={`circle-nav-tab ${activeTab === 'campus' ? 'active' : ''}`}
@@ -140,7 +142,7 @@ export default function CircleBottomNav({
               <span>Campus</span>
             </button>
 
-            {/* Slot 3 (Center): Elevated Circle CTA with SCMBT Ship Emblem (Home) */}
+            {/* Slot 3 (Center): Elevated Circle Donut CTA (Col 3: 14 - 21cm, Center 17.5cm) */}
             <button
               type="button"
               className={`circle-nav-center-cta ${activeTab === 'home' ? 'active' : ''}`}
@@ -159,7 +161,7 @@ export default function CircleBottomNav({
               <span className="circle-nav-center-label">Home</span>
             </button>
 
-            {/* Slot 4: Profile */}
+            {/* Slot 4: Profile (Col 4: 21 - 28cm) */}
             <button
               type="button"
               className={`circle-nav-tab ${activeTab === 'profile' ? 'active' : ''}`}
@@ -173,7 +175,7 @@ export default function CircleBottomNav({
               <span>Profile</span>
             </button>
 
-            {/* Slot 5: More */}
+            {/* Slot 5: More (Col 5: 28 - 35cm) */}
             <button
               type="button"
               className={`circle-nav-tab ${isDrawerOpen ? 'active' : ''}`}
