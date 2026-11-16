@@ -17,15 +17,14 @@ import './CircleBottomNav.css';
 
 /**
  * CircleBottomNav
- * Wide, Smooth Circular CTA Notch matching the reference design:
- * - Mobile viewport baseline: 390px (responsive via ResizeObserver)
- * - Navigation height: 86px
- * - Circular CTA diameter: 76px (with 50px SCMBT ship emblem)
- * - Notch width: 140px (wide, flowing U-shaped cradle)
- * - Notch depth: 40px (gentle rounded nadir, zero V-pointiness)
- * - CTA overlap above top edge: 40px (disc top at -40px)
- * - Visual gap: ~6-8px consistent concentric clearance
- * - Cubic Bézier easing: smooth C1 horizontal transitions at shoulders & nadir
+ * Sizing and layout matching circle-cta-fullwidth-mobile-preview.html:
+ * - Height: 78px (+ safe-area-inset-bottom)
+ * - Full-bleed viewport dock: width 100%, max-width none
+ * - SVG Formula: w = navWidth, c = w/2, s = 61, d = 42
+ *   `M 9 0 H ${c-s} C ${c-35} 0 ${c-36} ${d} ${c} ${d} C ${c+36} ${d} ${c+35} 0 ${c+s} 0 H ${w-9} Q ${w} 0 ${w} 9 V 78 H 0 V 9 Q 0 0 9 0 Z`
+ * - Center CTA button: 68px x 68px, top: -34px, 4px border
+ * - Label: top 54px, 11.5px / 14px line-height
+ * - SCMBT tokens: #042B4E Dark Navy, #F98809 Amber, white disc with ship emblem
  */
 export default function CircleBottomNav({
   activeTab = 'profile',
@@ -52,33 +51,12 @@ export default function CircleBottomNav({
     return () => observer.disconnect();
   }, []);
 
-  // Geometry: Wide, smooth U-shaped cradle with horizontal tangents
-  const height = 86;
-  const cx = navWidth / 2;
-  const halfNotch = 70; // 140px total notch opening
-  const notchDepth = 40;
-  const cornerR = 16;
-
-  const leftStart = Math.max(cornerR, cx - halfNotch);
-  const leftCp1 = cx - 47.6; // Shoulder departure control point
-  const leftCp2 = cx - 35.0; // Nadir arrival control point
-  const rightCp1 = cx + 35.0; // Nadir departure control point
-  const rightCp2 = cx + 47.6; // Shoulder arrival control point
-  const rightEnd = Math.min(navWidth - cornerR, cx + halfNotch);
-  const rightCorner = navWidth - cornerR;
-
-  const svgPath = `
-    M 0 ${cornerR}
-    Q 0 0 ${cornerR} 0
-    H ${leftStart.toFixed(1)}
-    C ${leftCp1.toFixed(1)} 0, ${leftCp2.toFixed(1)} ${notchDepth}, ${cx.toFixed(1)} ${notchDepth}
-    C ${rightCp1.toFixed(1)} ${notchDepth}, ${rightCp2.toFixed(1)} 0, ${rightEnd.toFixed(1)} 0
-    H ${rightCorner.toFixed(1)}
-    Q ${navWidth} 0 ${navWidth} ${cornerR}
-    V ${height}
-    H 0
-    Z
-  `;
+  // Exact formula from circle-cta-fullwidth-mobile-preview.html
+  const height = 78;
+  const c = navWidth / 2;
+  const s = 61;
+  const d = 42;
+  const svgPath = `M 9 0 H ${c - s} C ${c - 35} 0 ${c - 36} ${d} ${c} ${d} C ${c + 36} ${d} ${c + 35} 0 ${c + s} 0 H ${navWidth - 9} Q ${navWidth} 0 ${navWidth} 9 V ${height} H 0 V 9 Q 0 0 9 0 Z`;
 
   const mainTabs = [
     { id: 'todo', label: 'Tasks', icon: ClipboardCheck, badge: todoBadge },
@@ -117,104 +95,97 @@ export default function CircleBottomNav({
   return (
     <>
       <nav 
-        className="circle-bottom-nav-root" 
+        className="circle-bottom-nav" 
         role="navigation" 
-        aria-label="Mobile Bottom Navigation"
+        aria-label="Bottom navigation"
+        ref={containerRef}
       >
-        <div className="circle-nav-container" ref={containerRef}>
-          {/* Layer 1: Pixel-Perfect SVG Wide U-Cradle Backdrop (Dark Navy #042B4E) */}
-          <svg 
-            className="circle-nav-backdrop-svg"
-            viewBox={`0 0 ${navWidth} ${height}`}
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
+        <svg 
+          className="circle-bottom-nav__background"
+          viewBox={`0 0 ${navWidth} ${height}`}
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          preserveAspectRatio="none"
+        >
+          <path d={svgPath} />
+        </svg>
+
+        <div className="circle-bottom-nav__tabs">
+          {/* Tab 1: Tasks */}
+          <button
+            type="button"
+            className={`circle-bottom-nav__tab ${activeTab === 'todo' ? 'is-active' : ''}`}
+            onClick={() => handleTabClick(mainTabs[0])}
+            aria-label="Tasks"
+            aria-current={activeTab === 'todo' ? 'page' : undefined}
           >
-            <path 
-              d={svgPath}
-              className="circle-nav-path"
-            />
-          </svg>
+            <span className="circle-bottom-nav__icon">
+              <ClipboardCheck size={20} strokeWidth={activeTab === 'todo' ? 2.4 : 1.8} />
+              {todoBadge ? (
+                <span className="circle-bottom-nav__badge">{todoBadge}</span>
+              ) : null}
+            </span>
+            <span className="circle-bottom-nav__label">Tasks</span>
+          </button>
 
-          {/* Layer 2: 5 Interactive Nav Slots (Exact 20% / 7cm each) */}
-          <div className="circle-nav-items-grid">
-            {/* Slot 1: Tasks (Col 1: 0 - 7cm) */}
-            <button
-              type="button"
-              className={`circle-nav-tab ${activeTab === 'todo' ? 'active' : ''}`}
-              onClick={() => handleTabClick(mainTabs[0])}
-              aria-current={activeTab === 'todo' ? 'page' : undefined}
-              title="Tasks"
-            >
-              <div className="circle-nav-icon-wrap">
-                <ClipboardCheck size={20} strokeWidth={activeTab === 'todo' ? 2.4 : 1.8} />
-                {todoBadge ? (
-                  <span className="circle-nav-badge">{todoBadge}</span>
-                ) : null}
-              </div>
-              <span>Tasks</span>
-            </button>
+          {/* Tab 2: Campus */}
+          <button
+            type="button"
+            className={`circle-bottom-nav__tab ${activeTab === 'campus' ? 'is-active' : ''}`}
+            onClick={() => handleTabClick(mainTabs[1])}
+            aria-label="Campus"
+            aria-current={activeTab === 'campus' ? 'page' : undefined}
+          >
+            <span className="circle-bottom-nav__icon">
+              <Building2 size={20} strokeWidth={activeTab === 'campus' ? 2.4 : 1.8} />
+            </span>
+            <span className="circle-bottom-nav__label">Campus</span>
+          </button>
 
-            {/* Slot 2: Campus (Col 2: 7 - 14cm) */}
-            <button
-              type="button"
-              className={`circle-nav-tab ${activeTab === 'campus' ? 'active' : ''}`}
-              onClick={() => handleTabClick(mainTabs[1])}
-              aria-current={activeTab === 'campus' ? 'page' : undefined}
-              title="Campus"
-            >
-              <div className="circle-nav-icon-wrap">
-                <Building2 size={20} strokeWidth={activeTab === 'campus' ? 2.4 : 1.8} />
-              </div>
-              <span>Campus</span>
-            </button>
+          {/* Center Tab: SCMBT Ship (Home) */}
+          <button
+            type="button"
+            className={`circle-bottom-nav__tab circle-bottom-nav__tab--center ${activeTab === 'home' ? 'is-active' : ''}`}
+            onClick={() => onTabSelect && onTabSelect('home')}
+            aria-label="Home"
+            aria-current={activeTab === 'home' ? 'page' : undefined}
+          >
+            <span className="circle-bottom-nav__center-button">
+              <img 
+                src={shipMenuImg} 
+                alt="SCMBT Ship Home" 
+                className="circle-bottom-nav__ship-img" 
+              />
+            </span>
+            <span className="circle-bottom-nav__label">Home</span>
+          </button>
 
-            {/* Slot 3 (Center): Elevated Circle Donut CTA (Col 3: 14 - 21cm, Center 17.5cm) */}
-            <button
-              type="button"
-              className={`circle-nav-center-cta ${activeTab === 'home' ? 'active' : ''}`}
-              onClick={() => onTabSelect && onTabSelect('home')}
-              title="Home"
-              aria-label="Home"
-              aria-current={activeTab === 'home' ? 'page' : undefined}
-            >
-              <div className="circle-nav-cta-disc">
-                <img 
-                  src={shipMenuImg} 
-                  alt="SCMBT Ship Home" 
-                  className="circle-nav-ship-img" 
-                />
-              </div>
-              <span className="circle-nav-center-label">Home</span>
-            </button>
+          {/* Tab 4: Profile */}
+          <button
+            type="button"
+            className={`circle-bottom-nav__tab ${activeTab === 'profile' ? 'is-active' : ''}`}
+            onClick={() => handleTabClick(mainTabs[2])}
+            aria-label="Profile"
+            aria-current={activeTab === 'profile' ? 'page' : undefined}
+          >
+            <span className="circle-bottom-nav__icon">
+              <Users size={20} strokeWidth={activeTab === 'profile' ? 2.4 : 1.8} />
+            </span>
+            <span className="circle-bottom-nav__label">Profile</span>
+          </button>
 
-            {/* Slot 4: Profile (Col 4: 21 - 28cm) */}
-            <button
-              type="button"
-              className={`circle-nav-tab ${activeTab === 'profile' ? 'active' : ''}`}
-              onClick={() => handleTabClick(mainTabs[2])}
-              aria-current={activeTab === 'profile' ? 'page' : undefined}
-              title="Profile"
-            >
-              <div className="circle-nav-icon-wrap">
-                <Users size={20} strokeWidth={activeTab === 'profile' ? 2.4 : 1.8} />
-              </div>
-              <span>Profile</span>
-            </button>
-
-            {/* Slot 5: More (Col 5: 28 - 35cm) */}
-            <button
-              type="button"
-              className={`circle-nav-tab ${isDrawerOpen ? 'active' : ''}`}
-              onClick={() => handleTabClick(mainTabs[3])}
-              title="More options"
-              aria-label="More"
-            >
-              <div className="circle-nav-icon-wrap">
-                <MoreHorizontal size={20} strokeWidth={1.8} />
-              </div>
-              <span>More</span>
-            </button>
-          </div>
+          {/* Tab 5: More */}
+          <button
+            type="button"
+            className={`circle-bottom-nav__tab ${isDrawerOpen ? 'is-active' : ''}`}
+            onClick={() => handleTabClick(mainTabs[3])}
+            aria-label="More"
+          >
+            <span className="circle-bottom-nav__icon">
+              <MoreHorizontal size={20} strokeWidth={1.8} />
+            </span>
+            <span className="circle-bottom-nav__label">More</span>
+          </button>
         </div>
       </nav>
 

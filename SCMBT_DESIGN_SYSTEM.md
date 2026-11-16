@@ -34,17 +34,23 @@ The portal uses an asymmetrical **3-Column Canvas System** set on a soft cool-gr
 3. **Mobile Bottom Navigation Bar (< 768px)**
    - Strict ceiling of **maximum 5 items** structured as:
      `[Item 1: Tasks][Item 2: Campus][Center Ship CTA: Home][Item 3: Profile][More icon]`
-   - Visual Architecture:
-     - **Bar Color**: Institutional Dark Navy (`#042B4E`) with soft ambient drop-shadow (`drop-shadow(0 -4px 18px rgba(4, 43, 78, 0.45))`).
-     - **Curved Silhouette**: Wide, flowing U-shaped cradle ($凹$) dipping 40px into the bar with 140px opening width, seamlessly cradling the elevated 76px circular CTA disc with a consistent ~6-8px concentric visual gap.
-     - **Cubic Bézier Formula**: Smooth $C^1$ horizontal transitions at both shoulders (`dy/dx = 0`) and nadir (`dy/dx = 0`) preventing sharp corners or V-pointiness. Responsive across viewport widths via `ResizeObserver` without curve distortion.
-     - **Mapping**:
-       - `Item 1`: `Tasks` (with amber notification badge `1`, active white / inactive slate `#9CB3C9`)
-       - `Item 2`: `Campus` (institutional portal directory)
-       - `Center Ship CTA`: **Home** (Elevated `76px` circular button holding the SCMBT Ship Menu Compass Emblem `scmbt-ship-menu.png`, overlapping 40px above top edge, seated naturally in the 140px cradle with 11px label `Home` locked to the standard baseline)
-       - `Item 3`: `Profile` (Student Profile view, active bold white)
-       - `More icon`: Triggers a smooth slide-up drawer containing secondary sections (`Academics`, `Finance`, `Analytics`, `Settings`, `Support`, `Signout`)
-   - Fixed at bottom with safe-area padding (`env(safe-area-inset-bottom)`).
+   - Visual Architecture (Exact specification from `circle-cta-fullwidth-mobile-preview.html`):
+     - **Dock**: Full-bleed viewport dock (`width: 100%; max-width: none; margin: 0;`).
+     - **Height**: `calc(78px + env(safe-area-inset-bottom, 0px))` with `::after` filling the phone's home indicator safe area with `#042B4E`.
+     - **Bar Color**: Institutional Dark Navy (`#042B4E`) with ambient drop-shadow (`drop-shadow(0 -4px 18px rgba(4, 43, 78, 0.45))`).
+     - **SVG Notch Formula**:
+       `w = navWidth, c = w/2, s = 61, d = 42`
+       `M 9 0 H ${c-s} C ${c-35} 0 ${c-36} ${d} ${c} ${d} C ${c+36} ${d} ${c+35} 0 ${c+s} 0 H ${w-9} Q ${w} 0 ${w} 9 V 78 H 0 V 9 Q 0 0 9 0 Z`
+     - **Elevated Center CTA (Home)**:
+       - Disc dimensions: `width: 68px; height: 68px; top: -34px; left: 50%; transform: translateX(-50%);`
+       - Elevation: Exactly 50% above flat top ($34\text{px}$) and 50% sunken into the scoop notch ($34\text{px}$).
+       - Border: `4px solid #042B4E`, white background, holding SCMBT Ship Emblem (`scmbt-ship-menu.png`, $44\text{px} \times 44\text{px}$).
+       - Center Label: Positioned at `top: 54px; left: 0; right: 0; text-align: center; font-size: 11.5px; line-height: 14px;`.
+     - **Standard Tabs (`Tasks`, `Campus`, `Profile`, `More`)**:
+       - Height `78px`, `padding: 20px 0 0; gap: 12px;`
+       - Icon size $20\text{px}$, label `font-size: 11.5px; line-height: 14px;`
+       - `Tasks` features an amber notification badge pill (`#F98809`, $8.5\text{px}$ font, $14\text{px}$ height) at `top: -4px; right: -7px;`.
+       - `More` opens the slide-up drawer for secondary sections.
 
 4. **Center Column: Document Form Sheet**
    - **Presentation**: Bounded floating white card (`bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 md:p-8`).
