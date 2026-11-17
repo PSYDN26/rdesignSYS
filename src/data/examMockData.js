@@ -282,3 +282,22 @@ export const INITIAL_PUBLISHED_REVISION = {
     { id: 'spatial', name: 'Spatial & Mechanical', quota: 2, minPassScore: 45.0 },
   ],
 };
+
+// Mock Applicant Session Data
+export const INITIAL_APPLICANT = {
+  applicationId: 'app-2026-00891',
+  applicationNumber: 'APP-2026-00891',
+  fullName: 'Juan Santos Dela Cruz',
+  email: 'j.delacruz@applicant.scmbt.edu.ph',
+  targetProgram: 'BS Marine Transportation (BSMT)',
+  shsStrand: 'STEM (Pre-Baccalaureate Maritime)',
+  currentAttemptNumber: 1, // 1 to 3
+  maxAttempts: 3,
+  applicationStatus: 'exam_pending', // 'exam_pending', 'exam_passed', 'aptitude_referred', 'course_selection'
+};
+
+// Derived Server-Side Answer Keys map (Simulation of exam_answer_keys table)
+export const EXAM_ANSWER_KEYS = INITIAL_QUESTION_BANK.reduce((acc, q) => {
+  acc[q.id] = q.correctChoiceId;
+  return acc;
+}, {});

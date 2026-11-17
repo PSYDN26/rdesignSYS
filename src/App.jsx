@@ -9,10 +9,11 @@ import CreateClassModal from './components/CreateClassModal';
 import EnterClassModal from './components/EnterClassModal';
 import StudentProfileForm from './components/StudentProfileForm';
 import GuidanceExamBank from './components/GuidanceExamBank';
+import ApplicantExamRunner from './components/ApplicantExamRunner';
 
 export default function App() {
-  // Navigation & View state - Default to Page 1: Guidance Exam Bank
-  const [activeTab, setActiveTab] = useState('exam-bank');
+  // Navigation & View state - Active on Gate 2: Applicant Exam Runner
+  const [activeTab, setActiveTab] = useState('applicant-exam');
   const [profileStep, setProfileStep] = useState(1);
   const [filter, setFilter] = useState('all');
   const [classes, setClasses] = useState([]);
@@ -113,21 +114,22 @@ export default function App() {
                 type="button"
                 className={`gate-step-btn ${activeTab === 'exam-bank' ? 'active current' : 'done'}`}
                 onClick={() => setActiveTab('exam-bank')}
+                title="Gate 1: Guidance Exam Bank & Setup (Approved GO)"
               >
                 <span className="step-num">1</span>
                 <span className="step-name">Guidance: Exam Bank</span>
-                <span className="step-gate-tag current">Review Underway</span>
+                <span className="step-gate-tag done-tag">Gate 1 [GO]</span>
               </button>
 
               <button
                 type="button"
-                className={`gate-step-btn ${activeTab === 'applicant-exam' ? 'active' : 'locked'}`}
+                className={`gate-step-btn ${activeTab === 'applicant-exam' ? 'active current' : 'done'}`}
                 onClick={() => setActiveTab('applicant-exam')}
-                title="Gate 2: Unlocks upon Gate 1 Go confirmation"
+                title="Gate 2: Active under review"
               >
                 <span className="step-num">2</span>
                 <span className="step-name">Applicant: Exam Runner</span>
-                <span className="step-gate-tag">Gate 2</span>
+                <span className="step-gate-tag current">Review Underway</span>
               </button>
 
               <button
@@ -180,6 +182,17 @@ export default function App() {
           {activeTab === 'exam-bank' ? (
             <div className="prod-fullwidth-workspace">
               <GuidanceExamBank />
+            </div>
+          ) : activeTab === 'applicant-exam' ? (
+            <div className="prod-fullwidth-workspace">
+              <ApplicantExamRunner
+                onNavigateToReferral={() => setActiveTab('referral-slip')}
+                onNavigateToCourseSelection={() => {
+                  alert('Admission requirement satisfied! Application status updated to "course_selection".');
+                  setActiveTab('profile');
+                }}
+                onBackToExamBank={() => setActiveTab('exam-bank')}
+              />
             </div>
           ) : activeTab === 'profile' ? (
             <div className="prod-touching-workspace">
