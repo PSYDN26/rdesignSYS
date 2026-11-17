@@ -12,8 +12,8 @@ import GuidanceExamBank from './components/GuidanceExamBank';
 import ApplicantExamRunner from './components/ApplicantExamRunner';
 
 export default function App() {
-  // Navigation & View state - Active on Gate 2: Applicant Exam Runner
-  const [activeTab, setActiveTab] = useState('applicant-exam');
+  // Navigation & View state - Active on Guidance Office Exam Bank & Setup
+  const [activeTab, setActiveTab] = useState('exam-bank');
   const [profileStep, setProfileStep] = useState(1);
   const [filter, setFilter] = useState('all');
   const [classes, setClasses] = useState([]);
@@ -114,22 +114,22 @@ export default function App() {
                 type="button"
                 className={`gate-step-btn ${activeTab === 'exam-bank' ? 'active current' : 'done'}`}
                 onClick={() => setActiveTab('exam-bank')}
-                title="Gate 1: Guidance Exam Bank & Setup (Approved GO)"
+                title="Gate 1: Guidance Exam Bank & Setup (2-Tab Structure)"
               >
                 <span className="step-num">1</span>
                 <span className="step-name">Guidance: Exam Bank</span>
-                <span className="step-gate-tag done-tag">Gate 1 [GO]</span>
+                <span className="step-gate-tag current">Active Review</span>
               </button>
 
               <button
                 type="button"
                 className={`gate-step-btn ${activeTab === 'applicant-exam' ? 'active current' : 'done'}`}
                 onClick={() => setActiveTab('applicant-exam')}
-                title="Gate 2: Active under review"
+                title="Gate 2: Applicant Exam Runner"
               >
                 <span className="step-num">2</span>
                 <span className="step-name">Applicant: Exam Runner</span>
-                <span className="step-gate-tag current">Review Underway</span>
+                <span className="step-gate-tag">Gate 2</span>
               </button>
 
               <button

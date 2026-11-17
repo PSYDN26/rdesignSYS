@@ -23,11 +23,30 @@ import {
   X,
   ShieldCheck,
   Award,
-  Layers
+  Layers,
+  RotateCcw,
+  Power,
+  Info,
+  Lock,
+  Unlock,
+  CheckCircle,
+  XCircle
 } from 'lucide-react';
 import './GuidanceExamBank.css';
 
 export default function GuidanceExamBank() {
+  // Navigation Tabs: 'test-bank' | 'settings'
+  const [activeSubTab, setActiveSubTab] = useState('test-bank');
+
+  // Exam Availability & Status state
+  const [isExamAvailable, setIsExamAvailable] = useState(INITIAL_EXAM_CONFIG.isAvailable ?? true);
+  const [availabilityNotice, setAvailabilityNotice] = useState(
+    INITIAL_EXAM_CONFIG.availabilityNotice || 'Open for AY 2026–2027 Freshman Admissions Testing'
+  );
+
+  // Attempt Policy: Number of retakes allowed (default 2, meaning 1 initial + 2 retakes = 3 total)
+  const [maxRetakes, setMaxRetakes] = useState(INITIAL_EXAM_CONFIG.maxRetakes ?? 2);
+
   // State for exam policy configuration
   const [examType, setExamType] = useState('demo_10'); // 'official_100' | 'demo_10'
   const [timeLimitMinutes, setTimeLimitMinutes] = useState(90);
@@ -82,15 +101,6 @@ export default function GuidanceExamBank() {
     });
     return counts;
   }, [categories, questions]);
-
-  // Check if bank has enough questions to cover the quota
-  const isInventorySufficient = useMemo(() => {
-    return categories.every(cat => {
-      const required = examType === 'official_100' ? cat.officialQuota : cat.demoQuota;
-      const available = categoryInventory[cat.id] || 0;
-      return available >= required;
-    });
-  }, [categories, examType, categoryInventory]);
 
   // Handle category quota change
   const handleQuotaChange = (categoryId, newQuota) => {
@@ -198,6 +208,8 @@ export default function GuidanceExamBank() {
       publishedAt: new Date().toISOString(),
       timeLimitMinutes,
       overallPassingScore,
+      maxRetakes,
+      isAvailable: isExamAvailable,
       totalItems: targetTotalQuota,
       categorySummary: categories.map(c => ({
         id: c.id,
@@ -209,7 +221,7 @@ export default function GuidanceExamBank() {
 
     setPublishedRevision(newPublished);
     setIsPublishModalOpen(false);
-    showToast(`Revision #${newRevNumber} published and activated for applicant sessions!`, 'success');
+    showToast(`Revision #${newRevNumber} published and activated for admissions testing!`, 'success');
   };
 
   return (
@@ -227,21 +239,36 @@ export default function GuidanceExamBank() {
         <div className="header-meta">
           <div className="dept-tag">
             <span className="dept-dot"></span>
-            <span>SCMBT Guidance Testing Office &bull; Admissions Directorate</span>
+            <span>SCMBT Guidance Testing Office &bull; Staff Administrator View</span>
           </div>
           <h1 className="header-title">Entrance Examination Bank &amp; Setup</h1>
           <p className="header-subtitle">
-            Configure standardized item distribution, timed session rules, category passing thresholds, and publish version-controlled test revisions.
+            Administered by Guidance Center Officers &bull; Author test items, manage item quotas, configure retake allowances, and set exam availability status.
           </p>
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons & Top Status */}
         <div className="header-actions">
+          {/* Availability Status Pill */}
+          <div className={`header-avail-pill ${isExamAvailable ? 'active-open' : 'inactive-closed'}`}>
+            {isExamAvailable ? (
+              <>
+                <CheckCircle size={14} className="text-emerald-500" />
+                <span>Exam Available (Open)</span>
+              </>
+            ) : (
+              <>
+                <XCircle size={14} className="text-red-500" />
+                <span>Exam Unavailable (Closed)</span>
+              </>
+            )}
+          </div>
+
           <button
             type="button"
             className="btn-outline-preview"
             onClick={() => setIsPreviewModalOpen(true)}
-            title="Preview Exam Paper"
+            title="Preview Exam Paper Questionnaire"
           >
             <Eye size={17} />
             <span>Preview Paper</span>
@@ -265,59 +292,384 @@ export default function GuidanceExamBank() {
         </div>
       </header>
 
-      {/* Live Status & Revision Status Strip */}
-      <div className="revision-status-strip">
-        <div className="status-item">
-          <span className="status-label">Active Published Revision</span>
-          <div className="status-value-group">
-            <span className="status-badge-published">Revision #{publishedRevision.revisionNumber}</span>
-            <span className="status-timestamp">
-              {new Date(publishedRevision.publishedAt).toLocaleDateString('en-PH', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
+      {/* 2-TAB SEGMENTED NAVIGATION BAR */}
+      <nav className="guidance-subtabs-bar" role="tablist" aria-label="Guidance Exam Bank Navigation">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeSubTab === 'test-bank'}
+          className={`subtab-btn ${activeSubTab === 'test-bank' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('test-bank')}
+        >
+          <BookOpen size={17} />
+          <span>Test Bank Maker</span>
+          <span className="subtab-counter-badge">{questions.length} Items</span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeSubTab === 'settings'}
+          className={`subtab-btn ${activeSubTab === 'settings' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('settings')}
+        >
+          <Sliders size={17} />
+          <span>Settings &amp; Policy</span>
+          <span className={`subtab-status-pill ${isExamAvailable ? 'open' : 'closed'}`}>
+            {isExamAvailable ? 'Active' : 'Closed'}
+          </span>
+        </button>
+      </nav>
+
+      {/* =========================================================
+          TAB 1: TEST BANK MAKER
+          ========================================================= */}
+      {activeSubTab === 'test-bank' && (
+        <div className="tab-pane-test-bank">
+          {/* Category Inventory & Sufficiency Strip */}
+          <div className="category-inventory-strip">
+            <div className="inventory-strip-header">
+              <span className="inv-title">Category Quota Sufficiency Overview</span>
+              <span className="inv-sub">Real-time count of questions authored in bank vs active quota target</span>
+            </div>
+            <div className="category-cards-grid">
+              {categories.map((c) => {
+                const count = categoryInventory[c.id] || 0;
+                const required = examType === 'official_100' ? c.officialQuota : c.demoQuota;
+                const isSufficient = count >= required;
+                return (
+                  <div key={c.id} className={`cat-inv-card ${isSufficient ? 'sufficient' : 'deficit'}`}>
+                    <div className="cat-inv-top">
+                      <span className="cat-name">{c.name}</span>
+                      <span className={`inv-tag ${isSufficient ? 'tag-green' : 'tag-amber'}`}>
+                        {isSufficient ? 'Sufficient' : `Need ${required - count} more`}
+                      </span>
+                    </div>
+                    <div className="cat-inv-stats">
+                      <span className="inv-count tabular-nums">{count}</span>
+                      <span className="inv-denom tabular-nums">/ {required} needed</span>
+                    </div>
+                    <div className="inv-progress-track">
+                      <div
+                        className={`inv-progress-fill ${isSufficient ? 'fill-navy' : 'fill-amber'}`}
+                        style={{ width: `${Math.min(100, (count / (required || 1)) * 100)}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                );
               })}
-            </span>
+            </div>
           </div>
-        </div>
 
-        <div className="status-item">
-          <span className="status-label">Authorized Officer</span>
-          <span className="status-officer">{CURRENT_STAFF_USER.name}</span>
-          <span className="status-subtext">PRC License: {CURRENT_STAFF_USER.rpmLicenseNumber}</span>
-        </div>
-
-        <div className="status-item">
-          <span className="status-label">Item Target &amp; Timing</span>
-          <span className="status-number-tag">{targetTotalQuota} Items &bull; {timeLimitMinutes} Mins</span>
-          <span className="status-subtext">1 Initial + 2 Retakes = 3 Attempts</span>
-        </div>
-
-        <div className="status-item">
-          <span className="status-label">Overall Passing Cutoff</span>
-          <span className="status-cutoff-pill">{overallPassingScore.toFixed(1)}%</span>
-          <span className="status-subtext">Configurable per regulatory review</span>
-        </div>
-      </div>
-
-      {/* Grid: 2 Ergonomic Main Columns */}
-      <div className="bank-workspace-grid">
-        {/* LEFT COLUMN: EXAM CONFIGURATION & CATEGORY QUOTAS (40% width) */}
-        <section className="config-column" aria-label="Exam Parameters and Category Quotas">
-          {/* Card 1: Exam Type & Global Parameters */}
-          <div className="guidance-card">
+          {/* Question Repository Card */}
+          <div className="guidance-card full-bank-card">
             <div className="card-header-bar">
               <div className="bar-title">
-                <Sliders size={18} className="text-amber-500" />
-                <h2>Global Parameters &amp; Thresholds</h2>
+                <BookOpen size={18} className="text-navy-900" />
+                <h2>Question Item Repository ({filteredQuestions.length} of {questions.length} Items)</h2>
               </div>
-              <span className="mode-indicator">{examType === 'official_100' ? 'Official Format' : 'Demo Mode'}</span>
+              <button
+                type="button"
+                className="btn-add-item primary"
+                onClick={() => handleOpenQuestionModal()}
+              >
+                <Plus size={16} />
+                <span>Author New Question</span>
+              </button>
             </div>
 
             <div className="card-body">
-              {/* Exam Format Toggle */}
+              {/* Search and Category Filter Toolbar */}
+              <div className="bank-toolbar">
+                <div className="search-box">
+                  <Search size={16} className="search-icon" />
+                  <input
+                    type="text"
+                    placeholder="Search question prompts, terms, or choices..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="search-input"
+                  />
+                  {searchQuery && (
+                    <button type="button" onClick={() => setSearchQuery('')} className="clear-search-btn">
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+
+                <div className="filter-dropdown-wrapper">
+                  <Filter size={15} className="filter-icon" />
+                  <select
+                    value={selectedCategoryFilter}
+                    onChange={(e) => setSelectedCategoryFilter(e.target.value)}
+                    className="category-filter-select"
+                  >
+                    <option value="all">All Categories ({questions.length})</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} ({categoryInventory[c.id] || 0})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Question Items List */}
+              <div className="question-items-list">
+                {filteredQuestions.length === 0 ? (
+                  <div className="empty-bank-state">
+                    <BookOpen size={40} className="text-slate-300" />
+                    <p className="empty-title">No questions found matching your filter</p>
+                    <p className="empty-subtitle">
+                      Try clearing the search query, selecting another category, or click "Author New Question" above.
+                    </p>
+                  </div>
+                ) : (
+                  filteredQuestions.map((q, index) => {
+                    const catObj = categories.find(c => c.id === q.categoryId);
+                    return (
+                      <article key={q.id} className="question-item-card">
+                        <div className="question-card-top">
+                          <div className="question-tags">
+                            <span className="question-seq-badge">Item #{index + 1}</span>
+                            <span className="category-pill">{catObj?.name || q.categoryId}</span>
+                            <span className={`difficulty-badge ${q.difficulty.toLowerCase()}`}>
+                              {q.difficulty}
+                            </span>
+                            <span className="points-badge">{q.points} Point{q.points > 1 ? 's' : ''}</span>
+                          </div>
+
+                          <div className="question-item-actions">
+                            <button
+                              type="button"
+                              className="btn-icon-action"
+                              title="Edit Question"
+                              onClick={() => handleOpenQuestionModal(q)}
+                            >
+                              <Edit3 size={15} />
+                              <span className="btn-label-text">Edit</span>
+                            </button>
+                            <button
+                              type="button"
+                              className="btn-icon-action delete"
+                              title="Delete Question"
+                              onClick={() => handleDeleteQuestion(q.id)}
+                            >
+                              <Trash2 size={15} />
+                              <span className="btn-label-text">Delete</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Question Stem */}
+                        <p className="question-prompt-text">{q.prompt}</p>
+
+                        {/* 4 Choices with Correct Key Highlight */}
+                        <div className="question-choices-preview-grid">
+                          {q.choices.map((c) => {
+                            const isCorrect = c.id === q.correctChoiceId;
+                            return (
+                              <div
+                                key={c.id}
+                                className={`choice-preview-pill ${isCorrect ? 'correct-key' : ''}`}
+                              >
+                                <span className="choice-label">{c.id.toUpperCase()}</span>
+                                <span className="choice-text">{c.text}</span>
+                                {isCorrect && (
+                                  <span className="key-tag" title="Designated Server-Side Answer Key">
+                                    <Check size={12} strokeWidth={3} />
+                                    Correct Key
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </article>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================
+          TAB 2: SETTINGS & POLICY
+          ========================================================= */}
+      {activeSubTab === 'settings' && (
+        <div className="tab-pane-settings">
+          {/* Card 1: Exam Availability & Admissions Access Control */}
+          <div className="guidance-card settings-card">
+            <div className="card-header-bar">
+              <div className="bar-title">
+                <Power size={18} className="text-amber-500" />
+                <h2>Exam Availability &amp; Access Status</h2>
+              </div>
+              <span className={`avail-badge-lg ${isExamAvailable ? 'available' : 'unavailable'}`}>
+                {isExamAvailable ? 'Currently Open' : 'Currently Closed'}
+              </span>
+            </div>
+
+            <div className="card-body">
+              <div className="availability-setting-row">
+                <div className="avail-info-col">
+                  <div className="toggle-lead">
+                    {isExamAvailable ? (
+                      <Unlock size={20} className="text-emerald-600" />
+                    ) : (
+                      <Lock size={20} className="text-slate-500" />
+                    )}
+                    <div>
+                      <h3 className="avail-heading">
+                        {isExamAvailable
+                          ? 'Admissions Entrance Examination is Active & Available'
+                          : 'Admissions Entrance Examination is Closed / Unavailable'}
+                      </h3>
+                      <p className="avail-subheading">
+                        {isExamAvailable
+                          ? 'Eligible applicants with an active application can log in, start timed sessions, and take attempts.'
+                          : 'The exam portal is temporarily locked. Applicants will be unable to launch sessions until re-opened by Guidance.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Master Switch Button */}
+                <div className="avail-switch-col">
+                  <button
+                    type="button"
+                    className={`master-avail-toggle ${isExamAvailable ? 'is-on' : 'is-off'}`}
+                    onClick={() => {
+                      const next = !isExamAvailable;
+                      setIsExamAvailable(next);
+                      showToast(
+                        next
+                          ? 'Entrance Examination opened and set to Available.'
+                          : 'Entrance Examination closed and set to Unavailable.',
+                        next ? 'success' : 'info'
+                      );
+                    }}
+                    title="Toggle applicant availability"
+                  >
+                    <span className="toggle-track">
+                      <span className="toggle-thumb"></span>
+                    </span>
+                    <span className="toggle-label-text">
+                      {isExamAvailable ? 'Available' : 'Unavailable'}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Availability Notice Input */}
+              <div className="form-field-group" style={{ marginTop: '1.25rem' }}>
+                <label className="field-label" htmlFor="avail-notice-input">
+                  Admissions Status Notice (Displayed on Applicant Exam Briefing)
+                </label>
+                <div className="input-with-icon">
+                  <Info size={16} className="input-icon" />
+                  <input
+                    id="avail-notice-input"
+                    type="text"
+                    value={availabilityNotice}
+                    onChange={(e) => setAvailabilityNotice(e.target.value)}
+                    placeholder="e.g. Open for AY 2026–2027 Freshman Admissions Testing"
+                    className="text-input"
+                  />
+                </div>
+                <span className="field-hint">
+                  Guidance Office announcement communicated to applicants regarding testing periods or maintenance.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2: Attempt Limits & Retake Policy Configuration */}
+          <div className="guidance-card settings-card">
+            <div className="card-header-bar">
+              <div className="bar-title">
+                <RotateCcw size={18} className="text-navy-900" />
+                <h2>Attempt Allowance &amp; Retake Policy</h2>
+              </div>
+              <span className="policy-pill">1 Initial + {maxRetakes} Retakes = {maxRetakes + 1} Total</span>
+            </div>
+
+            <div className="card-body">
+              <div className="grid-2-cols">
+                {/* Number of Retakes Allowed */}
+                <div className="form-field-group">
+                  <label className="field-label" htmlFor="max-retakes-input">
+                    Number of Retakes Allowed
+                  </label>
+                  <div className="retake-stepper-wrapper">
+                    <button
+                      type="button"
+                      className="stepper-btn"
+                      disabled={maxRetakes <= 0}
+                      onClick={() => setMaxRetakes(prev => Math.max(0, prev - 1))}
+                    >
+                      -
+                    </button>
+                    <input
+                      id="max-retakes-input"
+                      type="number"
+                      min="0"
+                      max="5"
+                      value={maxRetakes}
+                      onChange={(e) => setMaxRetakes(Math.min(5, Math.max(0, parseInt(e.target.value, 10) || 0)))}
+                      className="retake-number-input tabular-nums"
+                    />
+                    <button
+                      type="button"
+                      className="stepper-btn"
+                      disabled={maxRetakes >= 5}
+                      onClick={() => setMaxRetakes(prev => Math.min(5, prev + 1))}
+                    >
+                      +
+                    </button>
+                    <span className="retake-unit-tag">Retakes Permitted</span>
+                  </div>
+                  <span className="field-hint">
+                    Standard institutional policy: <strong>2 retakes</strong> (allowing 3 total attempts).
+                  </span>
+                </div>
+
+                {/* Calculation breakdown explanation */}
+                <div className="policy-summary-callout">
+                  <div className="callout-header">
+                    <CheckCircle2 size={16} className="text-emerald-600" />
+                    <strong>Attempt Limit Summary</strong>
+                  </div>
+                  <ul className="callout-bullets">
+                    <li>
+                      <strong>Initial Attempt:</strong> 1 mandatory first try for all applicants.
+                    </li>
+                    <li>
+                      <strong>Retake Allowance:</strong> {maxRetakes} retake chance{maxRetakes !== 1 ? 's' : ''} if initial score is below cutoff.
+                    </li>
+                    <li>
+                      <strong>Total Permitted:</strong> <strong>{maxRetakes + 1} total chances</strong> before referral to Guidance Paper Aptitude Testing.
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3: Global Test Delivery Parameters (Timing, Cutoff, Mode) */}
+          <div className="guidance-card settings-card">
+            <div className="card-header-bar">
+              <div className="bar-title">
+                <Sliders size={18} className="text-amber-500" />
+                <h2>Delivery Format, Timing &amp; Passing Cutoff</h2>
+              </div>
+              <span className="mode-indicator">{examType === 'official_100' ? 'Official (100 Items)' : 'Demo (10 Items)'}</span>
+            </div>
+
+            <div className="card-body">
+              {/* Exam Delivery Mode */}
               <div className="form-field-group">
                 <label className="field-label">Exam Delivery Mode</label>
                 <div className="segmented-toggle">
@@ -336,13 +688,13 @@ export default function GuidanceExamBank() {
                     Official Exam (100 Items)
                   </button>
                 </div>
-                <p className="field-hint">
+                <span className="field-hint">
                   Demo mode tests the full applicant workflow with 10 sample items. Official requires 100 scored items.
-                </p>
+                </span>
               </div>
 
               {/* Time Limit & Passing Cutoff */}
-              <div className="grid-2-cols">
+              <div className="grid-2-cols" style={{ marginTop: '1rem' }}>
                 <div className="form-field-group">
                   <label className="field-label" htmlFor="time-limit-input">
                     Time Limit (Minutes)
@@ -360,12 +712,12 @@ export default function GuidanceExamBank() {
                       className="text-input"
                     />
                   </div>
-                  <span className="field-hint">Standard: 90 mins (1 hr 30 min)</span>
+                  <span className="field-hint">Standard duration: 90 mins (1 hour 30 minutes)</span>
                 </div>
 
                 <div className="form-field-group">
                   <label className="field-label" htmlFor="overall-pass-input">
-                    Target Passing Score (%)
+                    Overall Passing Benchmark (%)
                   </label>
                   <div className="input-with-icon">
                     <Award size={16} className="input-icon" />
@@ -380,18 +732,18 @@ export default function GuidanceExamBank() {
                       className="text-input"
                     />
                   </div>
-                  <span className="field-hint">Target passing is 50% default</span>
+                  <span className="field-hint">Target passing is 50.0% default</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Card 2: Category Quota Balancer & Minimum Thresholds */}
-          <div className="guidance-card">
+          {/* Card 4: Category Item Distribution Quota Balancer */}
+          <div className="guidance-card settings-card">
             <div className="card-header-bar">
               <div className="bar-title">
                 <Layers size={18} className="text-navy-900" />
-                <h2>Category Item Distribution</h2>
+                <h2>Category Item Distribution &amp; Quotas</h2>
               </div>
               <div className={`quota-sum-badge ${isQuotaBalanced ? 'balanced' : 'unbalanced'}`}>
                 {isQuotaBalanced ? (
@@ -419,10 +771,10 @@ export default function GuidanceExamBank() {
 
               <div className="category-quota-table">
                 <div className="quota-table-head">
-                  <span className="col-cat">Category</span>
+                  <span className="col-cat">Category Domain</span>
                   <span className="col-quota">Item Quota</span>
                   <span className="col-min">Min Pass %</span>
-                  <span className="col-inv">In Bank</span>
+                  <span className="col-inv">Bank Inventory</span>
                 </div>
 
                 <div className="quota-table-body">
@@ -464,7 +816,7 @@ export default function GuidanceExamBank() {
 
                         <div className="col-inv">
                           <span className={`inventory-pill ${isDeficit ? 'deficit' : 'sufficient'}`}>
-                            {inBank}
+                            {inBank} in bank
                           </span>
                         </div>
                       </div>
@@ -476,7 +828,7 @@ export default function GuidanceExamBank() {
               {/* Quota Progress Bar */}
               <div className="quota-progress-container">
                 <div className="quota-progress-meta">
-                  <span>Distribution Completion</span>
+                  <span>Quota Allocation Completion</span>
                   <span className="tabular-nums font-semibold">
                     {Math.round((currentAllocatedQuota / targetTotalQuota) * 100)}%
                   </span>
@@ -499,140 +851,12 @@ export default function GuidanceExamBank() {
               )}
             </div>
           </div>
-        </section>
+        </div>
+      )}
 
-        {/* RIGHT COLUMN: QUESTION BANK REPOSITORY & AUTHORING (60% width) */}
-        <section className="bank-column" aria-label="Question Bank Authoring">
-          <div className="guidance-card">
-            <div className="card-header-bar">
-              <div className="bar-title">
-                <BookOpen size={18} className="text-navy-900" />
-                <h2>Question Repository ({questions.length} Items Available)</h2>
-              </div>
-              <button
-                type="button"
-                className="btn-add-item"
-                onClick={() => handleOpenQuestionModal()}
-              >
-                <Plus size={16} />
-                <span>Author Question</span>
-              </button>
-            </div>
-
-            <div className="card-body">
-              {/* Filters & Search Toolbar */}
-              <div className="bank-toolbar">
-                <div className="search-box">
-                  <Search size={16} className="search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Search prompts or choices..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="search-input"
-                  />
-                  {searchQuery && (
-                    <button type="button" onClick={() => setSearchQuery('')} className="clear-search-btn">
-                      <X size={14} />
-                    </button>
-                  )}
-                </div>
-
-                <div className="filter-dropdown-wrapper">
-                  <Filter size={15} className="filter-icon" />
-                  <select
-                    value={selectedCategoryFilter}
-                    onChange={(e) => setSelectedCategoryFilter(e.target.value)}
-                    className="category-filter-select"
-                  >
-                    <option value="all">All Categories ({questions.length})</option>
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name} ({categoryInventory[c.id] || 0})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Question Items List */}
-              <div className="question-items-list">
-                {filteredQuestions.length === 0 ? (
-                  <div className="empty-bank-state">
-                    <BookOpen size={36} className="text-slate-300" />
-                    <p className="empty-title">No questions found</p>
-                    <p className="empty-subtitle">Try adjusting your category filter or search query, or author a new question.</p>
-                  </div>
-                ) : (
-                  filteredQuestions.map((q, index) => {
-                    const catObj = categories.find(c => c.id === q.categoryId);
-                    return (
-                      <article key={q.id} className="question-item-card">
-                        <div className="question-card-top">
-                          <div className="question-tags">
-                            <span className="question-seq-badge">#{index + 1}</span>
-                            <span className="category-pill">{catObj?.name || q.categoryId}</span>
-                            <span className={`difficulty-badge ${q.difficulty.toLowerCase()}`}>
-                              {q.difficulty}
-                            </span>
-                            <span className="points-badge">{q.points} Point</span>
-                          </div>
-
-                          <div className="question-item-actions">
-                            <button
-                              type="button"
-                              className="btn-icon-action"
-                              title="Edit Question"
-                              onClick={() => handleOpenQuestionModal(q)}
-                            >
-                              <Edit3 size={15} />
-                            </button>
-                            <button
-                              type="button"
-                              className="btn-icon-action delete"
-                              title="Delete Question"
-                              onClick={() => handleDeleteQuestion(q.id)}
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Prompt */}
-                        <p className="question-prompt-text">{q.prompt}</p>
-
-                        {/* Choices Grid */}
-                        <div className="question-choices-preview-grid">
-                          {q.choices.map((c) => {
-                            const isCorrect = c.id === q.correctChoiceId;
-                            return (
-                              <div
-                                key={c.id}
-                                className={`choice-preview-pill ${isCorrect ? 'correct-key' : ''}`}
-                              >
-                                <span className="choice-label">{c.id.toUpperCase()}</span>
-                                <span className="choice-text">{c.text}</span>
-                                {isCorrect && (
-                                  <span className="key-tag" title="Correct Server-Side Answer Key">
-                                    <Check size={12} strokeWidth={3} />
-                                    Key
-                                  </span>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </article>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      {/* MODAL 1: QUESTION AUTHORING / EDITING DIALOG */}
+      {/* =========================================================
+          MODAL 1: QUESTION AUTHORING / EDITING DIALOG
+          ========================================================= */}
       {isQuestionModalOpen && editingQuestion && (
         <div className="guidance-modal-overlay" role="dialog" aria-modal="true">
           <div className="guidance-modal-card">
@@ -655,7 +879,7 @@ export default function GuidanceExamBank() {
 
             <form onSubmit={handleSaveQuestion}>
               <div className="modal-body-scroll">
-                {/* Category and Difficulty row */}
+                {/* Category, Difficulty, Points */}
                 <div className="grid-3-cols">
                   <div className="form-field-group">
                     <label className="field-label">Assigned Category *</label>
@@ -696,7 +920,7 @@ export default function GuidanceExamBank() {
                   </div>
                 </div>
 
-                {/* Prompt */}
+                {/* Question Stem / Prompt */}
                 <div className="form-field-group">
                   <label className="field-label">Question Stem / Prompt *</label>
                   <textarea
@@ -712,7 +936,7 @@ export default function GuidanceExamBank() {
                 {/* Choices & Key Selection */}
                 <div className="form-field-group">
                   <label className="field-label">
-                    Answer Options (Select the radio button beside the correct key) *
+                    Answer Options (Select the radio button beside the designated correct key) *
                   </label>
                   <div className="choices-editor-list">
                     {editingQuestion.choices.map((choice) => (
@@ -758,7 +982,7 @@ export default function GuidanceExamBank() {
                   Cancel
                 </button>
                 <button type="submit" className="btn-submit-save">
-                  Save to Bank
+                  Save Question to Bank
                 </button>
               </div>
             </form>
@@ -766,7 +990,9 @@ export default function GuidanceExamBank() {
         </div>
       )}
 
-      {/* MODAL 2: CONFIRM PUBLISH REVISION */}
+      {/* =========================================================
+          MODAL 2: CONFIRM PUBLISH REVISION
+          ========================================================= */}
       {isPublishModalOpen && (
         <div className="guidance-modal-overlay" role="dialog" aria-modal="true">
           <div className="guidance-modal-card publish-card">
@@ -807,13 +1033,21 @@ export default function GuidanceExamBank() {
                     <span className="spec-val">{overallPassingScore.toFixed(1)}%</span>
                   </div>
                   <div className="spec-box">
-                    <span className="spec-lbl">Total Attempts Allowed</span>
-                    <span className="spec-val">3 (1 Initial + 2 Retakes)</span>
+                    <span className="spec-lbl">Retake Allowance</span>
+                    <span className="spec-val">{maxRetakes} Retakes ({maxRetakes + 1} Total)</span>
+                  </div>
+                  <div className="spec-box">
+                    <span className="spec-lbl">Applicant Availability</span>
+                    <span className="spec-val">{isExamAvailable ? 'Available (Open)' : 'Unavailable (Closed)'}</span>
+                  </div>
+                  <div className="spec-box">
+                    <span className="spec-lbl">Authorized Officer</span>
+                    <span className="spec-val">{CURRENT_STAFF_USER.name}</span>
                   </div>
                 </div>
 
                 <div className="categories-breakdown-box">
-                  <h4>Category Quota Summary</h4>
+                  <h4>Category Quota Distribution</h4>
                   <ul className="category-summary-list">
                     {categories.map((c) => (
                       <li key={c.id}>
@@ -829,7 +1063,7 @@ export default function GuidanceExamBank() {
                 <div className="security-notice">
                   <ShieldCheck size={16} />
                   <span>
-                    Answer keys will be stored in restricted database table <code>exam_answer_keys</code> with server-side validation. Applicant exam sessions will never receive key payloads.
+                    Answer keys are encrypted and isolated in database table <code>exam_answer_keys</code>. Applicant client sessions will never receive answer keys.
                   </span>
                 </div>
               </div>
@@ -856,7 +1090,9 @@ export default function GuidanceExamBank() {
         </div>
       )}
 
-      {/* MODAL 3: APPLICANT PAPER SIMULATION PREVIEW */}
+      {/* =========================================================
+          MODAL 3: APPLICANT PAPER SIMULATION PREVIEW
+          ========================================================= */}
       {isPreviewModalOpen && (
         <div className="guidance-modal-overlay" role="dialog" aria-modal="true">
           <div className="guidance-modal-card preview-card">
@@ -889,13 +1125,14 @@ export default function GuidanceExamBank() {
               <div className="paper-institutional-header">
                 <div className="inst-header-text">
                   <h3>SOUTHWESTERN COLLEGE OF MARITIME, BUSINESS AND TECHNOLOGY</h3>
-                  <p>Admissions Office &bull; Guidance Testing Directorate</p>
+                  <p>Admissions Directorate &bull; Guidance Testing Center</p>
                   <h4>FRESHMAN ENTRANCE EXAMINATION &bull; TEST QUESTIONNAIRE</h4>
                 </div>
                 <div className="paper-meta-strip">
-                  <span>Time Limit: {timeLimitMinutes} Minutes</span>
-                  <span>Passing Criterion: {overallPassingScore}%</span>
-                  <span>Attempts: 3 Total</span>
+                  <span>Duration: {timeLimitMinutes} Minutes</span>
+                  <span>Passing Score: {overallPassingScore}%</span>
+                  <span>Attempts: 1 Initial + {maxRetakes} Retakes</span>
+                  <span>Status: {isExamAvailable ? 'Active' : 'Closed'}</span>
                 </div>
               </div>
 

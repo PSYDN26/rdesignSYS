@@ -50,6 +50,8 @@ export const INITIAL_EXAM_CONFIG = {
   timeLimitMinutes: 90, // 1 hour 30 mins (5400 seconds)
   overallPassingScore: 50.0, // Configurable passing percentage (default 50%)
   maxRetakes: 2, // 1 initial + 2 retakes = 3 total attempts
+  isAvailable: true, // Exam availability switch
+  availabilityNotice: 'Open for AY 2026–2027 Freshman Admissions Testing',
   categories: [
     {
       id: 'num',
@@ -301,3 +303,45 @@ export const EXAM_ANSWER_KEYS = INITIAL_QUESTION_BANK.reduce((acc, q) => {
   acc[q.id] = q.correctChoiceId;
   return acc;
 }, {});
+
+// Initial Written Aptitude Test Referral Slip Record
+export const INITIAL_REFERRAL = {
+  referralCode: 'REF-2026-00412',
+  applicationId: 'app-2026-00891',
+  applicationNumber: 'APP-2026-00891',
+  applicantName: 'Juan Santos Dela Cruz',
+  contactNumber: '+63 917 849 2011',
+  email: 'j.delacruz@applicant.scmbt.edu.ph',
+  targetProgram: 'BS Marine Transportation (BSMT)',
+  shsStrand: 'STEM (Pre-Baccalaureate Maritime Strand)',
+  issueDate: '2026-11-17',
+  validUntil: '2026-12-05',
+  referralReason: 'Exhausted maximum allowed online entrance examination attempts (3 of 3 attempts below 50.0% benchmark). Referred for proctored psychological assessment.',
+  onlineAttemptsHistory: [
+    { attempt: 1, date: '2026-11-15 10:14', score: '40.0%', status: 'Not Qualified' },
+    { attempt: 2, date: '2026-11-16 14:30', score: '44.0%', status: 'Not Qualified' },
+    { attempt: 3, date: '2026-11-17 09:15', score: '46.0%', status: 'Not Qualified' },
+  ],
+  testingVenue: 'Guidance Testing Hall Room 204, 2nd Floor, SCMBT Main Academic Complex',
+  officeHours: 'Monday to Friday, 8:00 AM – 5:00 PM',
+  status: 'pending_visit', // 'pending_visit' | 'scheduled' | 'tested' | 'encoded' | 'released'
+  scheduledTestDate: '2026-11-21',
+  scheduledSession: 'Morning Session (09:00 AM – 11:30 AM)',
+  issuingOfficer: {
+    name: 'Maria Elena Santos, RPM',
+    title: 'Admissions Psychometrician',
+    license: 'PRC-RPM-0048192',
+  },
+  directorateHead: {
+    name: 'Dr. Rolando G. Alcantara, RGC, CSOP',
+    title: 'Director, Center for Guidance & Student Development',
+    license: 'PRC-RGC-001294',
+  },
+  instructions: [
+    'Report in person to the SCMBT Guidance Office (Room 204, Main Complex) within 5 working days to confirm your testing seat.',
+    'Present this printed or digital Referral Slip along with two (2) valid government or Senior High School photo IDs.',
+    'Bring two (2) sharpened No. 2 lead pencils and a clean eraser for optical mark answer sheet completion.',
+    'Arrive at least thirty (30) minutes before your scheduled session slot. Late examinees will not be admitted once testing has commenced.',
+    'Cellular phones, smartwatches, programmable calculators, and unauthorized materials are strictly prohibited inside the Testing Hall.',
+  ],
+};
