@@ -13,7 +13,8 @@ import {
   Anchor,
   HelpCircle,
   Settings,
-  LogOut
+  LogOut,
+  BookOpen
 } from 'lucide-react';
 
 export default function Sidebar({ 
@@ -25,6 +26,7 @@ export default function Sidebar({
 }) {
   const mainNavItems = [
     { id: 'home', label: 'Dashboard', icon: LayoutGrid },
+    { id: 'exam-bank', label: 'Guidance', icon: BookOpen, badge: 'RPM' },
     { id: 'todo', label: 'Tasks', icon: ClipboardCheck, badge: todoCount },
     { id: 'campus', label: 'Campus', icon: Building2 },
     { id: 'profile', label: 'Profile', icon: Users },
