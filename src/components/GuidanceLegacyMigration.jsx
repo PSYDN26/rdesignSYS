@@ -745,13 +745,10 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                         <span className="student-name text-slate-500">{s.middleName || '—'}</span>
                       </td>
 
-                      {/* Column 5: Entrance Exam (Clean presentation) */}
+                      {/* Column 5: Entrance Exam (Only % or Input button) */}
                       <td className="td-entrance">
                         {hasEntrance ? (
-                          <div className="clean-score-pill">
-                            <span className="score-val tabular-nums">{s.entranceExam.score}%</span>
-                            <span className="version-mini-tag">{s.entranceExam.examVersionId}</span>
-                          </div>
+                          <span className="score-val tabular-nums">{s.entranceExam.score}%</span>
                         ) : (
                           <button
                             type="button"
@@ -765,19 +762,14 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                         )}
                       </td>
 
-                      {/* Column 6: Aptitude Test (Clean presentation) */}
+                      {/* Column 6: Aptitude Test (Only % or Input button) */}
                       <td className="td-aptitude">
                         {hasAptitude ? (
-                          <div className="clean-score-pill aptitude">
-                            {s.aptitudeTest.mode === 'mode_a' ? (
-                              <>
-                                <span className="score-val tabular-nums">Stanine {s.aptitudeTest.stanine}</span>
-                                <span className="pr-mini-tag tabular-nums">{s.aptitudeTest.percentileRank}% PR</span>
-                              </>
-                            ) : (
-                              <span className="modeb-mini-tag">Clinical Letter</span>
-                            )}
-                          </div>
+                          s.aptitudeTest.mode === 'mode_a' && s.aptitudeTest.percentileRank !== null ? (
+                            <span className="score-val tabular-nums aptitude">{s.aptitudeTest.percentileRank}%</span>
+                          ) : (
+                            <span className="modeb-letter-text">Letter</span>
+                          )
                         ) : (
                           <button
                             type="button"
