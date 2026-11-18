@@ -21,7 +21,6 @@ import {
   FileText,
   Brain,
   Info,
-  Layers,
   ChevronRight
 } from 'lucide-react';
 import './GuidanceLegacyMigration.css';
@@ -582,20 +581,12 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
         style={{ display: 'none' }}
       />
 
-      {/* Header Section */}
+      {/* Header Section (Clean & Minimal) */}
       <div className="migration-header-card">
         <div className="header-left">
-          <div className="header-badge-row">
-            <span className="inst-badge">SCMBT Guidance Directorate</span>
-            <span className="gate-pill">Gate 5 Migration</span>
-            <span className="version-pill">
-              <Layers size={11} />
-              <span>Version Control &bull; Dual Exam Columns</span>
-            </span>
-          </div>
           <h1 className="header-title">Student Entrance Exam &amp; Aptitude Migration</h1>
           <p className="header-subtitle">
-            Historical student testing roster. Click <strong>Details</strong> on any student to view full category breakdowns, RPM psychological evaluation, or adjust admission status.
+            Historical student testing and examination database
           </p>
         </div>
 

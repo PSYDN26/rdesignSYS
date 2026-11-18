@@ -5,13 +5,11 @@ import {
   Printer,
   ShieldCheck,
   FileSpreadsheet,
-  Calendar,
   X,
   TrendingUp,
   Brain,
   FileText,
-  ChevronRight,
-  Sparkles
+  ChevronRight
 } from 'lucide-react';
 import './FacultyClassRoster.css';
 
@@ -329,33 +327,13 @@ export default function FacultyClassRoster({ onBackToGate5 }) {
 
   return (
     <div className="faculty-roster-container">
-      {/* Roster Header Banner */}
+      {/* Roster Header Banner (Clean & Minimal) */}
       <header className="roster-header-card">
         <div className="header-meta-left">
-          <div className="institutional-kicker">
-            <span className="inst-badge">SCMBT College of Maritime Education</span>
-            <span className="gate-pill">Gate 6 &bull; Faculty Class Roster</span>
-            <span className="accreditation-pill">Official Section Roll</span>
-          </div>
-
-          <div className="course-title-lockup">
-            <h1 className="course-code-heading font-mono">{courseInfo.courseCode}: {courseInfo.courseTitle}</h1>
-            <p className="course-sub-line">
-              Section <strong>{courseInfo.section}</strong> &bull; {courseInfo.creditUnits} &bull; {courseInfo.schedule}
-            </p>
-          </div>
-
-          <div className="instructor-badge-row">
-            <span className="instructor-chip">
-              <Sparkles size={13} className="text-amber-500" />
-              <span>Assigned Faculty: <strong>{courseInfo.instructor}</strong></span>
-              <span className="font-mono text-slate-400">({courseInfo.prcLicense})</span>
-            </span>
-            <span className="term-chip">
-              <Calendar size={13} className="text-slate-500" />
-              <span>{courseInfo.term}</span>
-            </span>
-          </div>
+          <h1 className="course-code-heading font-mono">{courseInfo.courseCode}: {courseInfo.courseTitle}</h1>
+          <p className="course-sub-line">
+            Section <strong>{courseInfo.section}</strong> &bull; {courseInfo.instructor}
+          </p>
         </div>
 
         <div className="header-actions-right">
@@ -363,10 +341,10 @@ export default function FacultyClassRoster({ onBackToGate5 }) {
             type="button"
             className="btn-print-official"
             onClick={() => setIsPrintModalOpen(true)}
-            title="Generate Official SCMBT Class Roster Sheet"
+            title="Print Official Section Roster"
           >
             <Printer size={15} />
-            <span>Print Official Class Roster</span>
+            <span>Print Roster</span>
           </button>
         </div>
       </header>
@@ -380,7 +358,6 @@ export default function FacultyClassRoster({ onBackToGate5 }) {
           <div className="metric-content">
             <span className="metric-caption">Enrolled Cadets</span>
             <span className="metric-number tabular-nums">{metrics.total}</span>
-            <span className="metric-foot">Official Section Roster</span>
           </div>
         </div>
 
@@ -391,7 +368,6 @@ export default function FacultyClassRoster({ onBackToGate5 }) {
           <div className="metric-content">
             <span className="metric-caption">Entrance Evaluated</span>
             <span className="metric-number tabular-nums">{metrics.entranceDone} / {metrics.total}</span>
-            <span className="metric-foot">Academic Battery Complete</span>
           </div>
         </div>
 
@@ -402,7 +378,6 @@ export default function FacultyClassRoster({ onBackToGate5 }) {
           <div className="metric-content">
             <span className="metric-caption">Guidance Evaluated</span>
             <span className="metric-number tabular-nums">{metrics.aptitudeDone} / {metrics.total}</span>
-            <span className="metric-foot">RPM Psychological Clearance</span>
           </div>
         </div>
 
@@ -413,7 +388,6 @@ export default function FacultyClassRoster({ onBackToGate5 }) {
           <div className="metric-content">
             <span className="metric-caption">Avg Entrance Baseline</span>
             <span className="metric-number tabular-nums">{metrics.avgEntrance}%</span>
-            <span className="metric-foot">Section Academic Average</span>
           </div>
         </div>
       </section>
