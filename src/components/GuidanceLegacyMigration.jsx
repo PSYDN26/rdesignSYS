@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useRef } from 'react';
 import {
   INITIAL_MIGRATION_STUDENTS,
-  CURRENT_STAFF_USER
+  CURRENT_STAFF_USER,
+  EXAM_VERSIONS
 } from '../data/examMockData';
 import {
   Upload,
@@ -17,7 +18,10 @@ import {
   ArrowLeft,
   Check,
   ShieldCheck,
-  RotateCcw
+  RotateCcw,
+  Layers,
+  ChevronDown,
+  Info
 } from 'lucide-react';
 import './GuidanceLegacyMigration.css';
 
@@ -28,10 +32,20 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
   const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'without_score', 'scored'
 
   // Modals state
+  const [isDownloadTemplateModalOpen, setIsDownloadTemplateModalOpen] = useState(false);
   const [isUploadCsvModalOpen, setIsUploadCsvModalOpen] = useState(false);
   const [isInputScoreModalOpen, setIsInputScoreModalOpen] = useState(false);
   const [isCorrectionModalOpen, setIsCorrectionModalOpen] = useState(false);
   const [activeStudent, setActiveStudent] = useState(null);
+
+  // Active Category Breakdown Popover / Drawer
+  const [viewBreakdownStudentId, setViewBreakdownStudentId] = useState(null);
+
+  // Version selection for Download Template
+  const [templateVersionId, setTemplateVersionId] = useState('v3.0');
+
+  // Version selection for Upload CSV Migration
+  const [uploadVersionId, setUploadVersionId] = useState('v2.0');
 
   // File input ref for CSV upload
   const fileInputRef = useRef(null);
@@ -44,36 +58,47 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
   };
 
   // Form state for Manual Input (for student without score)
-  const [inputScoreForm, setInputScoreForm] = useState({
-    score: '',
-    stanine: 6,
-    testDate: '2026-11-18',
-    examType: 'Physical Paper Aptitude Battery',
+  const [selectedExamVersionId, setSelectedExamVersionId] = useState('v3.0');
+  const [categoryInputScores, setCategoryInputScores] = useState({});
+  const [inputMetaForm, setInputMetaForm] = useState({
+    testDate: '2024-07-15',
     evaluator: CURRENT_STAFF_USER.name,
-    remarks: 'Encoded from verified physical archives in Room 102.',
+    remarks: 'Transcribed from verified Room 102 archives.',
   });
 
   // Form state for Manual Correction (for student who already has score)
-  const [correctionForm, setCorrectionForm] = useState({
-    newScore: '',
-    newStanine: 6,
-    reason: '',
-  });
+  const [correctionCategoryScores, setCorrectionCategoryScores] = useState({});
+  const [correctionReason, setCorrectionReason] = useState('');
 
   // Parsed CSV state for preview in Upload CSV modal
   const [csvPreviewData, setCsvPreviewData] = useState(null);
   const [csvFileName, setCsvFileName] = useState('');
 
   // -------------------------------------------------------------
+  // Helpers
+  // -------------------------------------------------------------
+  const getVersionById = (id) => EXAM_VERSIONS.find((v) => v.id === id) || EXAM_VERSIONS[0];
+
+  const calculateStanine = (percentage) => {
+    if (percentage >= 96) return 9;
+    if (percentage >= 89) return 8;
+    if (percentage >= 77) return 7;
+    if (percentage >= 60) return 6;
+    if (percentage >= 40) return 5;
+    if (percentage >= 23) return 4;
+    if (percentage >= 12) return 3;
+    if (percentage >= 5) return 2;
+    return 1;
+  };
+
+  // -------------------------------------------------------------
   // Filtered Students
   // -------------------------------------------------------------
   const filteredStudents = useMemo(() => {
     return students.filter((s) => {
-      // Status filter
       if (statusFilter === 'without_score' && s.score !== null) return false;
       if (statusFilter === 'scored' && s.score === null) return false;
 
-      // Search filter (Student ID, Lastname, First, Middle)
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchId = s.studentId.toLowerCase().includes(q);
@@ -86,32 +111,46 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
     });
   }, [students, statusFilter, searchQuery]);
 
-  // Counts for tabs
   const withoutScoreCount = useMemo(() => students.filter((s) => s.score === null).length, [students]);
   const scoredCount = useMemo(() => students.filter((s) => s.score !== null).length, [students]);
 
   // -------------------------------------------------------------
-  // Action 1: Download Template (Students with account but without score)
+  // Action 1: Download Template (With Exam Version Option)
   // -------------------------------------------------------------
-  const handleDownloadTemplate = () => {
+  const handleExecuteDownloadTemplate = () => {
     const unScoredList = students.filter((s) => s.score === null);
+    const version = getVersionById(templateVersionId);
 
     if (unScoredList.length === 0) {
       showToast('All registered students currently have scores recorded.', 'info');
+      setIsDownloadTemplateModalOpen(false);
       return;
     }
 
-    // Generate CSV Content
-    const headers = ['Student ID', 'Lastname', 'First', 'Middle', 'Score', 'Stanine', 'Test Date', 'Remarks'];
+    // Build category column headers according to selected version
+    const categoryHeaders = version.categories.map((c) => `Score_${c.id}_${c.name.replace(/[^a-zA-Z0-9]/g, '_')}_[Max_${c.maxPoints}]`);
+    const headers = [
+      'Student ID',
+      'Lastname',
+      'First',
+      'Middle',
+      'Exam_Version_ID',
+      'Exam_Version_Name',
+      ...categoryHeaders,
+      'Test_Date',
+      'Archival_Remarks'
+    ];
+
     const rows = unScoredList.map((s) => [
       s.studentId,
       `"${s.lastName}"`,
       `"${s.firstName}"`,
       `"${s.middleName}"`,
-      '', // empty score for user to fill
-      '', // empty stanine
+      version.id,
+      `"${version.name}"`,
+      ...version.categories.map(() => ''), // empty score cells for categories
       '2024-07-15',
-      `"Freshman/Transferee ${s.program}"`
+      `"Retroactive migration for ${s.program}"`
     ]);
 
     const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
@@ -119,12 +158,13 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `SCMBT_Students_Without_Score_Template_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `SCMBT_Template_${version.id}_${version.academicYear.replace(/[^a-zA-Z0-9]/g, '_')}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
-    showToast(`Downloaded CSV template with ${unScoredList.length} unscored student accounts.`, 'success');
+    setIsDownloadTemplateModalOpen(false);
+    showToast(`Downloaded template for ${version.name} with ${version.categories.length} category columns.`, 'success');
   };
 
   // -------------------------------------------------------------
@@ -145,33 +185,58 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
     const reader = new FileReader();
     reader.onload = (evt) => {
       const text = evt.target.result;
-      processCsvContent(text);
+      processCsvContent(text, uploadVersionId);
     };
     reader.readAsText(file);
   };
 
-  // Helper to load sample CSV instantly for quick review
+  // Quick 1-Click Sample Ingestion based on selected version
   const handleLoadSampleCsv = () => {
-    setCsvFileName('SCMBT_Historical_Scores_AY2024.csv');
-    const unScoredList = students.filter((s) => s.score === null);
-    const sampleScores = [79.0, 83.5, 71.0, 88.0, 75.5];
-    const sampleStanines = [6, 7, 5, 8, 6];
+    const version = getVersionById(uploadVersionId);
+    setCsvFileName(`SCMBT_Retroactive_Sample_${version.id}.csv`);
 
-    const preview = unScoredList.map((s, idx) => ({
-      studentId: s.studentId,
-      lastName: s.lastName,
-      firstName: s.firstName,
-      middleName: s.middleName,
-      score: sampleScores[idx % sampleScores.length],
-      stanine: sampleStanines[idx % sampleStanines.length],
-      testDate: '2024-07-15',
-      remarks: 'Batch imported from Guidance archive Form 137',
-    }));
+    const unScoredList = students.filter((s) => s.score === null);
+    const sampleCategoryScorePcts = [0.82, 0.74, 0.88, 0.70, 0.90];
+
+    const preview = unScoredList.map((s, idx) => {
+      const pct = sampleCategoryScorePcts[idx % sampleCategoryScorePcts.length];
+      const categoryScores = version.categories.map((cat, cIdx) => {
+        const catPct = Math.min(1, Math.max(0.4, pct + ((cIdx % 2 === 0 ? 1 : -1) * 0.05)));
+        const catScore = Math.round(cat.maxPoints * catPct * 2) / 2; // round to half points
+        return {
+          categoryId: cat.id,
+          name: cat.name,
+          score: catScore,
+          maxPoints: cat.maxPoints,
+        };
+      });
+
+      const totalRaw = categoryScores.reduce((acc, curr) => acc + curr.score, 0);
+      const scorePct = Math.round((totalRaw / version.totalItems) * 1000) / 10;
+      const stanine = calculateStanine(scorePct);
+
+      return {
+        studentId: s.studentId,
+        lastName: s.lastName,
+        firstName: s.firstName,
+        middleName: s.middleName,
+        examVersionId: version.id,
+        examVersionName: version.name,
+        categoryScores,
+        totalRaw,
+        maxPoints: version.totalItems,
+        scorePct,
+        stanine,
+        testDate: '2024-07-15',
+        remarks: 'Sample category-wise retroactive import',
+      };
+    });
 
     setCsvPreviewData(preview);
   };
 
-  const processCsvContent = (csvText) => {
+  const processCsvContent = (csvText, versionId) => {
+    const version = getVersionById(versionId);
     const lines = csvText.split('\n').filter((l) => l.trim().length > 0);
     if (lines.length < 2) {
       showToast('CSV file is empty or missing data rows.', 'error');
@@ -179,22 +244,49 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
     }
 
     const preview = [];
-    // Skip header line
     for (let i = 1; i < lines.length; i++) {
       const parts = lines[i].split(',').map((p) => p.replace(/^"|"$/g, '').trim());
       if (parts.length >= 5) {
-        const [studentId, lastName, firstName, middleName, scoreStr, stanineStr, testDate, remarks] = parts;
-        const numScore = parseFloat(scoreStr);
-        if (studentId && !isNaN(numScore)) {
+        const studentId = parts[0];
+        const lastName = parts[1];
+        const firstName = parts[2];
+        const middleName = parts[3];
+
+        // Parse categories (starts at index 6 after student metadata and version name)
+        let categoryScores = [];
+        let totalRaw = 0;
+
+        version.categories.forEach((cat, cIdx) => {
+          const colIdx = 6 + cIdx;
+          const scoreVal = parts[colIdx] ? parseFloat(parts[colIdx]) : cat.maxPoints * 0.75;
+          const safeScore = isNaN(scoreVal) ? cat.maxPoints * 0.75 : scoreVal;
+          totalRaw += safeScore;
+          categoryScores.push({
+            categoryId: cat.id,
+            name: cat.name,
+            score: safeScore,
+            maxPoints: cat.maxPoints,
+          });
+        });
+
+        const scorePct = Math.round((totalRaw / version.totalItems) * 1000) / 10;
+        const stanine = calculateStanine(scorePct);
+
+        if (studentId) {
           preview.push({
             studentId,
             lastName: lastName || '',
             firstName: firstName || '',
             middleName: middleName || '',
-            score: numScore,
-            stanine: parseInt(stanineStr, 10) || 6,
-            testDate: testDate || '2024-07-15',
-            remarks: remarks || 'Imported via CSV Migration',
+            examVersionId: version.id,
+            examVersionName: version.name,
+            categoryScores,
+            totalRaw,
+            maxPoints: version.totalItems,
+            scorePct,
+            stanine,
+            testDate: '2024-07-15',
+            remarks: 'Imported via Versioned CSV Migration',
           });
         }
       }
@@ -221,10 +313,15 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
           updatedCount++;
           return {
             ...s,
-            score: match.score,
+            examVersionId: match.examVersionId,
+            examVersionName: match.examVersionName,
+            categoryScores: match.categoryScores,
+            totalRaw: match.totalRaw,
+            maxPoints: match.maxPoints,
+            score: match.scorePct,
             stanine: match.stanine,
             testDate: match.testDate,
-            examType: 'Physical Paper Aptitude Exam (CSV Migrated)',
+            examType: `${match.examVersionName} (CSV Migrated)`,
             status: 'Scored',
             evaluator: CURRENT_STAFF_USER.name,
             updatedAt: nowIso,
@@ -237,7 +334,7 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
     setIsUploadCsvModalOpen(false);
     setCsvPreviewData(null);
     setCsvFileName('');
-    showToast(`Migration complete! Successfully updated ${updatedCount} student records from CSV.`, 'success');
+    showToast(`Migration complete! Successfully imported category scores for ${updatedCount} students.`, 'success');
   };
 
   // -------------------------------------------------------------
@@ -245,26 +342,76 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
   // -------------------------------------------------------------
   const handleOpenInputScore = (student) => {
     setActiveStudent(student);
-    setInputScoreForm({
-      score: '',
-      stanine: 6,
-      testDate: '2024-07-15',
-      examType: 'Physical Paper Aptitude Battery',
-      evaluator: CURRENT_STAFF_USER.name,
-      remarks: 'Transcribed from verified archives in Records Room 102.',
+    const defaultVer = EXAM_VERSIONS[0];
+    setSelectedExamVersionId(defaultVer.id);
+
+    // Initialize category scores with default empty/zeroes
+    const initialScores = {};
+    defaultVer.categories.forEach((c) => {
+      initialScores[c.id] = '';
     });
+    setCategoryInputScores(initialScores);
+
+    setInputMetaForm({
+      testDate: '2024-07-15',
+      evaluator: CURRENT_STAFF_USER.name,
+      remarks: 'Transcribed from verified Room 102 archives.',
+    });
+
     setIsInputScoreModalOpen(true);
   };
+
+  // Handle version change in manual input modal
+  const handleInputVersionChange = (newVerId) => {
+    setSelectedExamVersionId(newVerId);
+    const newVer = getVersionById(newVerId);
+    const initialScores = {};
+    newVer.categories.forEach((c) => {
+      initialScores[c.id] = '';
+    });
+    setCategoryInputScores(initialScores);
+  };
+
+  // Real-time calculation of manual score input
+  const activeInputVersion = useMemo(() => getVersionById(selectedExamVersionId), [selectedExamVersionId]);
+
+  const manualTally = useMemo(() => {
+    let rawSum = 0;
+    let anyFilled = false;
+
+    activeInputVersion.categories.forEach((cat) => {
+      const val = parseFloat(categoryInputScores[cat.id]);
+      if (!isNaN(val)) {
+        rawSum += val;
+        anyFilled = true;
+      }
+    });
+
+    const pct = activeInputVersion.totalItems > 0 ? Math.round((rawSum / activeInputVersion.totalItems) * 1000) / 10 : 0;
+    const stanine = calculateStanine(pct);
+
+    return { rawSum, pct, stanine, anyFilled };
+  }, [activeInputVersion, categoryInputScores]);
 
   const handleSaveInputScore = (e) => {
     e.preventDefault();
     if (!activeStudent) return;
 
-    const numericScore = parseFloat(inputScoreForm.score);
-    if (isNaN(numericScore) || numericScore < 0 || numericScore > 100) {
-      showToast('Please enter a valid percentage score between 0 and 100.', 'error');
-      return;
+    // Validate that all categories have valid scores
+    for (const cat of activeInputVersion.categories) {
+      const val = parseFloat(categoryInputScores[cat.id]);
+      if (isNaN(val) || val < 0 || val > cat.maxPoints) {
+        showToast(`Please enter a valid score for ${cat.name} (0 to ${cat.maxPoints}).`, 'error');
+        return;
+      }
     }
+
+    const categoryScoresSnapshot = activeInputVersion.categories.map((cat) => ({
+      categoryId: cat.id,
+      name: cat.name,
+      score: parseFloat(categoryInputScores[cat.id]),
+      maxPoints: cat.maxPoints,
+    }));
 
     const nowIso = new Date().toISOString();
     setStudents((prev) =>
@@ -272,11 +419,16 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
         s.id === activeStudent.id
           ? {
               ...s,
-              score: numericScore,
-              stanine: parseInt(inputScoreForm.stanine, 10),
-              testDate: inputScoreForm.testDate,
-              examType: inputScoreForm.examType,
-              evaluator: inputScoreForm.evaluator,
+              examVersionId: activeInputVersion.id,
+              examVersionName: activeInputVersion.name,
+              categoryScores: categoryScoresSnapshot,
+              totalRaw: manualTally.rawSum,
+              maxPoints: activeInputVersion.totalItems,
+              score: manualTally.pct,
+              stanine: manualTally.stanine,
+              testDate: inputMetaForm.testDate,
+              examType: activeInputVersion.name,
+              evaluator: inputMetaForm.evaluator,
               status: 'Scored',
               updatedAt: nowIso,
             }
@@ -285,7 +437,7 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
     );
 
     setIsInputScoreModalOpen(false);
-    showToast(`Score recorded for ${activeStudent.lastName}, ${activeStudent.firstName}: ${numericScore}% (Stanine ${inputScoreForm.stanine}).`, 'success');
+    showToast(`Scores recorded for ${activeStudent.lastName}: ${manualTally.pct}% (${manualTally.rawSum}/${activeInputVersion.totalItems} pts).`, 'success');
   };
 
   // -------------------------------------------------------------
@@ -293,28 +445,66 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
   // -------------------------------------------------------------
   const handleOpenCorrection = (student) => {
     setActiveStudent(student);
-    setCorrectionForm({
-      newScore: student.score !== null ? student.score : '',
-      newStanine: student.stanine || 6,
-      reason: '',
-    });
+    const ver = getVersionById(student.examVersionId || 'v2.0');
+
+    // Populate current category scores
+    const currentScoresMap = {};
+    if (student.categoryScores && Array.isArray(student.categoryScores)) {
+      student.categoryScores.forEach((c) => {
+        currentScoresMap[c.categoryId] = c.score;
+      });
+    } else {
+      ver.categories.forEach((c) => {
+        currentScoresMap[c.id] = Math.round(c.maxPoints * 0.8 * 2) / 2;
+      });
+    }
+
+    setCorrectionCategoryScores(currentScoresMap);
+    setCorrectionReason('');
     setIsCorrectionModalOpen(true);
   };
+
+  const correctionVersion = useMemo(() => {
+    if (!activeStudent) return EXAM_VERSIONS[0];
+    return getVersionById(activeStudent.examVersionId || 'v2.0');
+  }, [activeStudent]);
+
+  const correctionTally = useMemo(() => {
+    let rawSum = 0;
+    correctionVersion.categories.forEach((cat) => {
+      const val = parseFloat(correctionCategoryScores[cat.id]);
+      if (!isNaN(val)) rawSum += val;
+    });
+
+    const pct = correctionVersion.totalItems > 0 ? Math.round((rawSum / correctionVersion.totalItems) * 1000) / 10 : 0;
+    const stanine = calculateStanine(pct);
+
+    return { rawSum, pct, stanine };
+  }, [correctionVersion, correctionCategoryScores]);
 
   const handleSaveCorrection = (e) => {
     e.preventDefault();
     if (!activeStudent) return;
 
-    const numericScore = parseFloat(correctionForm.newScore);
-    if (isNaN(numericScore) || numericScore < 0 || numericScore > 100) {
-      showToast('Please enter a valid percentage score between 0 and 100.', 'error');
-      return;
+    for (const cat of correctionVersion.categories) {
+      const val = parseFloat(correctionCategoryScores[cat.id]);
+      if (isNaN(val) || val < 0 || val > cat.maxPoints) {
+        showToast(`Please enter a valid score for ${cat.name} (0 to ${cat.maxPoints}).`, 'error');
+        return;
+      }
     }
 
-    if (!correctionForm.reason.trim()) {
+    if (!correctionReason.trim()) {
       showToast('Please provide an administrative reason for this score correction.', 'error');
       return;
     }
+
+    const updatedCategoryScores = correctionVersion.categories.map((cat) => ({
+      categoryId: cat.id,
+      name: cat.name,
+      score: parseFloat(correctionCategoryScores[cat.id]),
+      maxPoints: cat.maxPoints,
+    }));
 
     const nowIso = new Date().toISOString();
     setStudents((prev) =>
@@ -322,10 +512,12 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
         s.id === activeStudent.id
           ? {
               ...s,
-              score: numericScore,
-              stanine: parseInt(correctionForm.newStanine, 10),
+              categoryScores: updatedCategoryScores,
+              totalRaw: correctionTally.rawSum,
+              score: correctionTally.pct,
+              stanine: correctionTally.stanine,
               status: 'Corrected',
-              correctionReason: correctionForm.reason.trim(),
+              correctionReason: correctionReason.trim(),
               updatedAt: nowIso,
             }
           : s
@@ -333,7 +525,7 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
     );
 
     setIsCorrectionModalOpen(false);
-    showToast(`Score correction saved for ${activeStudent.lastName}: ${numericScore}% with audit justification.`, 'success');
+    showToast(`Correction saved for ${activeStudent.lastName}: ${correctionTally.pct}% (Audited).`, 'success');
   };
 
   return (
@@ -363,10 +555,14 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
           <div className="header-badge-row">
             <span className="inst-badge">SCMBT Guidance Directorate</span>
             <span className="gate-pill">Gate 5 Migration</span>
+            <span className="version-pill" title="Immutable Version Snapshots active">
+              <Layers size={11} />
+              <span>Version Control Active</span>
+            </span>
           </div>
           <h1 className="header-title">Student Entrance Exam Migration</h1>
           <p className="header-subtitle">
-            Upload historical aptitude scores via CSV or manually encode/correct records for registered students with accounts.
+            Upload historical category scores via versioned CSV or manually encode/correct records for registered students with accounts.
           </p>
         </div>
 
@@ -375,11 +571,11 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
           <button
             type="button"
             className="btn-download-template"
-            onClick={handleDownloadTemplate}
+            onClick={() => setIsDownloadTemplateModalOpen(true)}
             title="Download CSV containing students who currently do not have scores recorded"
           >
             <Download size={15} />
-            <span>Download Template (Students without score)</span>
+            <span>Download Template (Select Version)</span>
           </button>
 
           <button
@@ -390,7 +586,7 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
               setCsvFileName('');
               setIsUploadCsvModalOpen(true);
             }}
-            title="Upload CSV to migrate scores in bulk"
+            title="Upload CSV to migrate category scores in bulk"
           >
             <Upload size={15} />
             <span>Migration (Upload CSV)</span>
@@ -483,6 +679,7 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
               ) : (
                 filteredStudents.map((s) => {
                   const hasScore = s.score !== null;
+                  const isBreakdownOpen = viewBreakdownStudentId === s.id;
 
                   return (
                     <tr key={s.id} className={hasScore ? 'row-scored' : 'row-unscored'}>
@@ -506,7 +703,7 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                         <span className="student-name text-slate-500">{s.middleName || '—'}</span>
                       </td>
 
-                      {/* Column 5: Score (with Action Buttons) */}
+                      {/* Column 5: Score (with Category Breakdown and Action Buttons) */}
                       <td className="td-score">
                         {!hasScore ? (
                           /* Manual input per student (only without score) */
@@ -520,24 +717,70 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                             <span>Input Score</span>
                           </button>
                         ) : (
-                          /* Score Display + Option for manual input (for correction) */
-                          <div className="score-with-action">
-                            <div className="score-value-group">
-                              <span className="score-number tabular-nums">{s.score}%</span>
-                              {s.stanine && (
-                                <span className="stanine-pill">S{s.stanine}</span>
+                          /* Score Display + Option for Category Breakdown + Correction */
+                          <div className="score-cell-container">
+                            <div className="score-with-action">
+                              <div className="score-value-group">
+                                <span className="score-number tabular-nums">{s.score}%</span>
+                                {s.stanine && (
+                                  <span className="stanine-pill">S{s.stanine}</span>
+                                )}
+                              </div>
+
+                              {/* Version Tag */}
+                              {s.examVersionId && (
+                                <span className="exam-version-badge" title={s.examVersionName}>
+                                  {s.examVersionId}
+                                </span>
                               )}
+
+                              {/* Toggle Category Breakdown Button */}
+                              {s.categoryScores && s.categoryScores.length > 0 && (
+                                <button
+                                  type="button"
+                                  className={`btn-breakdown-toggle ${isBreakdownOpen ? 'active' : ''}`}
+                                  onClick={() => setViewBreakdownStudentId(isBreakdownOpen ? null : s.id)}
+                                  title="View scores per category"
+                                >
+                                  <span>Categories</span>
+                                  <ChevronDown size={11} className={isBreakdownOpen ? 'rotate-180' : ''} />
+                                </button>
+                              )}
+
+                              <button
+                                type="button"
+                                className="btn-correct-score"
+                                onClick={() => handleOpenCorrection(s)}
+                                title={`Correct category scores for ${s.lastName}`}
+                              >
+                                <Edit3 size={12} />
+                                <span>Correct</span>
+                              </button>
                             </div>
 
-                            <button
-                              type="button"
-                              className="btn-correct-score"
-                              onClick={() => handleOpenCorrection(s)}
-                              title={`Correct or adjust score for ${s.lastName}`}
-                            >
-                              <Edit3 size={12} />
-                              <span>Correct</span>
-                            </button>
+                            {/* Collapsible Per-Category Score Breakdown Pill Drawer */}
+                            {isBreakdownOpen && s.categoryScores && (
+                              <div className="category-breakdown-tray">
+                                <div className="tray-header">
+                                  <span className="tray-title">
+                                    Version: <strong>{s.examVersionName || s.examVersionId}</strong>
+                                  </span>
+                                  <span className="tray-raw tabular-nums">
+                                    Raw Total: <strong>{s.totalRaw}</strong> / {s.maxPoints} pts
+                                  </span>
+                                </div>
+                                <div className="tray-chips-grid">
+                                  {s.categoryScores.map((cat, cIdx) => (
+                                    <div key={cIdx} className="category-score-chip">
+                                      <span className="chip-cat-name">{cat.name}:</span>
+                                      <span className="chip-cat-score tabular-nums">
+                                        <strong>{cat.score}</strong>/{cat.maxPoints}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
                       </td>
@@ -600,6 +843,94 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
       </div>
 
       {/* =========================================================
+          MODAL 0: DOWNLOAD TEMPLATE WITH EXAM VERSION OPTION
+          ========================================================= */}
+      {isDownloadTemplateModalOpen && (
+        <div className="unslop-modal-overlay" role="dialog" aria-modal="true">
+          <div className="unslop-modal-card template-modal-card">
+            <div className="modal-header">
+              <div className="modal-title-group">
+                <Download size={18} className="text-navy-900" />
+                <h3>Download Migration Template &bull; Select Exam Version</h3>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setIsDownloadTemplateModalOpen(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="modal-body-scroll">
+              <p className="modal-lead-text">
+                Select which iteration of the exam was administered to the students you wish to migrate. The CSV template will automatically include the exact categories and max point columns for that version.
+              </p>
+
+              {/* Version Selector Cards */}
+              <div className="version-selector-list">
+                {EXAM_VERSIONS.map((ver) => {
+                  const isSelected = templateVersionId === ver.id;
+                  return (
+                    <div
+                      key={ver.id}
+                      className={`version-card-option ${isSelected ? 'selected' : ''}`}
+                      onClick={() => setTemplateVersionId(ver.id)}
+                    >
+                      <div className="version-card-top">
+                        <div className="version-id-badge">{ver.id}</div>
+                        <div className="version-title-block">
+                          <h4>{ver.name}</h4>
+                          <span className="version-meta">{ver.academicYear} &bull; {ver.totalItems} Total Items</span>
+                        </div>
+                        {ver.isCurrent && <span className="current-flag">Current</span>}
+                      </div>
+
+                      {/* Categories Preview */}
+                      <div className="version-cat-chips">
+                        {ver.categories.map((c) => (
+                          <span key={c.id} className="ver-cat-chip">
+                            {c.name} ({c.maxPoints} pts)
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Notice */}
+              <div className="template-info-box">
+                <Info size={16} className="text-navy-800" />
+                <span>
+                  The downloaded template will be pre-filled with the <strong>{withoutScoreCount}</strong> students currently registered without scores.
+                </span>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn-cancel"
+                onClick={() => setIsDownloadTemplateModalOpen(false)}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className="btn-primary-action"
+                onClick={handleExecuteDownloadTemplate}
+              >
+                <Download size={14} />
+                <span>Download {templateVersionId} CSV Template</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================
           MODAL 1: MIGRATION (UPLOAD CSV)
           ========================================================= */}
       {isUploadCsvModalOpen && (
@@ -608,7 +939,7 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
             <div className="modal-header">
               <div className="modal-title-group">
                 <Upload size={18} className="text-navy-900" />
-                <h3>Migration: Upload from CSV File</h3>
+                <h3>Migration: Upload from CSV File (Per-Category)</h3>
               </div>
               <button
                 type="button"
@@ -621,14 +952,33 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
 
             <div className="modal-body-scroll">
               <p className="modal-lead-text">
-                Upload a completed CSV file matching the SCMBT template. Scores will be automatically linked to student accounts by <strong>Student ID</strong>.
+                Select the target exam version and upload your completed CSV file. Category scores will be validated against the version's frozen rubric.
               </p>
+
+              {/* Version Selector for Upload */}
+              <div className="form-group">
+                <label className="field-label">Target Exam Version for CSV Ingestion *</label>
+                <select
+                  value={uploadVersionId}
+                  onChange={(e) => {
+                    setUploadVersionId(e.target.value);
+                    setCsvPreviewData(null);
+                  }}
+                  className="select-input"
+                >
+                  {EXAM_VERSIONS.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.name} ({v.categories.length} Categories, {v.totalItems} Items)
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               {/* Upload Dropzone */}
               <div className="upload-dropzone" onClick={handleOpenFilePicker}>
                 <FileSpreadsheet size={36} className="text-navy-800" />
                 <h4>{csvFileName || 'Click to select or drop CSV file'}</h4>
-                <p>Accepts standard .csv exports with Student ID and Score columns</p>
+                <p>Accepts standard .csv exports with Student ID and Category Score columns</p>
                 <button
                   type="button"
                   className="btn-select-file"
@@ -643,13 +993,13 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
 
               {/* Quick Sample Button */}
               <div className="sample-helper-row">
-                <span>Want to test immediately?</span>
+                <span>Want to test retroactive category scoring immediately?</span>
                 <button
                   type="button"
                   className="btn-link-sample"
                   onClick={handleLoadSampleCsv}
                 >
-                  Load Sample Roster Data ({withoutScoreCount} students)
+                  Load Sample {uploadVersionId} Category Data ({withoutScoreCount} students)
                 </button>
               </div>
 
@@ -657,8 +1007,8 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
               {csvPreviewData && csvPreviewData.length > 0 && (
                 <div className="csv-preview-section">
                   <div className="preview-header">
-                    <h4>Preview Validated Records ({csvPreviewData.length})</h4>
-                    <span className="ready-badge">Ready for Migration</span>
+                    <h4>Preview Validated Category Records ({csvPreviewData.length})</h4>
+                    <span className="ready-badge">Version {uploadVersionId} Validated</span>
                   </div>
 
                   <div className="preview-table-container">
@@ -667,9 +1017,9 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                         <tr>
                           <th>Student ID</th>
                           <th>Full Name</th>
-                          <th>Score</th>
-                          <th>Stanine</th>
-                          <th>Test Date</th>
+                          <th>Category Breakdown</th>
+                          <th>Raw Total</th>
+                          <th>Calculated Score</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -677,9 +1027,19 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                           <tr key={idx}>
                             <td className="font-mono text-xs">{row.studentId}</td>
                             <td>{row.lastName}, {row.firstName}</td>
-                            <td className="font-bold tabular-nums">{row.score}%</td>
-                            <td className="tabular-nums">Stanine {row.stanine}</td>
-                            <td className="tabular-nums text-slate-500">{row.testDate}</td>
+                            <td>
+                              <div className="preview-categories-cell">
+                                {row.categoryScores.map((c, ci) => (
+                                  <span key={ci} className="preview-cat-tag">
+                                    {c.name}: {c.score}/{c.maxPoints}
+                                  </span>
+                                ))}
+                              </div>
+                            </td>
+                            <td className="font-bold tabular-nums">{row.totalRaw}/{row.maxPoints}</td>
+                            <td className="font-bold tabular-nums text-navy-900">
+                              {row.scorePct}% (S{row.stanine})
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -752,70 +1112,102 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                   </div>
                 </div>
 
-                <div className="form-grid-2col">
-                  {/* Score */}
-                  <div className="form-group">
-                    <label className="field-label">Percentage Score (0–100%) *</label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      min="0"
-                      max="100"
-                      value={inputScoreForm.score}
-                      onChange={(e) => setInputScoreForm({ ...inputScoreForm, score: e.target.value })}
-                      placeholder="e.g. 82.5"
-                      className="text-input-lg tabular-nums"
-                      required
-                      autoFocus
-                    />
-                  </div>
+                {/* Exam Version Selector */}
+                <div className="form-group">
+                  <label className="field-label">Exam Version Administered *</label>
+                  <select
+                    value={selectedExamVersionId}
+                    onChange={(e) => handleInputVersionChange(e.target.value)}
+                    className="select-input"
+                  >
+                    {EXAM_VERSIONS.map((v) => (
+                      <option key={v.id} value={v.id}>
+                        {v.name} &bull; {v.totalItems} Items
+                      </option>
+                    ))}
+                  </select>
+                  <span className="field-hint">
+                    Determines the category fields and maximum points according to the historical test administered.
+                  </span>
+                </div>
 
-                  {/* Stanine */}
-                  <div className="form-group">
-                    <label className="field-label">Stanine (1 to 9 Standard Nine) *</label>
-                    <select
-                      value={inputScoreForm.stanine}
-                      onChange={(e) => setInputScoreForm({ ...inputScoreForm, stanine: e.target.value })}
-                      className="select-input-lg tabular-nums"
-                    >
-                      <option value="1">Stanine 1 (Very Low / PR 0–4)</option>
-                      <option value="2">Stanine 2 (Low / PR 5–11)</option>
-                      <option value="3">Stanine 3 (Below Average / PR 12–22)</option>
-                      <option value="4">Stanine 4 (Low Average / PR 23–39)</option>
-                      <option value="5">Stanine 5 (Average / PR 40–59)</option>
-                      <option value="6">Stanine 6 (High Average / PR 60–76)</option>
-                      <option value="7">Stanine 7 (Above Average / PR 77–88)</option>
-                      <option value="8">Stanine 8 (Superior / PR 89–95)</option>
-                      <option value="9">Stanine 9 (Very Superior / PR 96–100)</option>
-                    </select>
+                {/* Dynamic Category Score Fields */}
+                <div className="category-scores-section">
+                  <h4 className="section-title">
+                    Scores Per Category ({activeInputVersion.categories.length} Categories)
+                  </h4>
+
+                  <div className="category-inputs-grid">
+                    {activeInputVersion.categories.map((cat) => (
+                      <div key={cat.id} className="category-input-card">
+                        <label className="cat-label">
+                          <span className="cat-name">{cat.name}</span>
+                          <span className="cat-max font-mono">Max: {cat.maxPoints} pts</span>
+                        </label>
+                        <input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          max={cat.maxPoints}
+                          placeholder={`0–${cat.maxPoints}`}
+                          value={categoryInputScores[cat.id] || ''}
+                          onChange={(e) =>
+                            setCategoryInputScores({
+                              ...categoryInputScores,
+                              [cat.id]: e.target.value,
+                            })
+                          }
+                          className="text-input-lg tabular-nums"
+                          required
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
 
+                {/* Live Tally Banner */}
+                <div className="live-tally-banner">
+                  <div className="tally-item">
+                    <span className="tally-label">Raw Total:</span>
+                    <span className="tally-val tabular-nums">
+                      <strong>{manualTally.rawSum}</strong> / {activeInputVersion.totalItems} pts
+                    </span>
+                  </div>
+                  <div className="tally-item">
+                    <span className="tally-label">Percentage:</span>
+                    <span className="tally-val tabular-nums highlight">
+                      {manualTally.pct}%
+                    </span>
+                  </div>
+                  <div className="tally-item">
+                    <span className="tally-label">Stanine Equivalent:</span>
+                    <span className="tally-val tabular-nums">
+                      Stanine <strong>{manualTally.stanine}</strong>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Date & Evaluator */}
                 <div className="form-grid-2col">
-                  {/* Test Date */}
                   <div className="form-group">
                     <label className="field-label">Examination Date *</label>
                     <input
                       type="date"
-                      value={inputScoreForm.testDate}
-                      onChange={(e) => setInputScoreForm({ ...inputScoreForm, testDate: e.target.value })}
+                      value={inputMetaForm.testDate}
+                      onChange={(e) => setInputMetaForm({ ...inputMetaForm, testDate: e.target.value })}
                       className="text-input"
                       required
                     />
                   </div>
 
-                  {/* Test Type */}
                   <div className="form-group">
-                    <label className="field-label">Test Battery *</label>
-                    <select
-                      value={inputScoreForm.examType}
-                      onChange={(e) => setInputScoreForm({ ...inputScoreForm, examType: e.target.value })}
-                      className="select-input"
-                    >
-                      <option value="Physical Paper Aptitude Battery">Physical Paper Aptitude Battery</option>
-                      <option value="SCMBT Freshman Entrance Exam (Legacy 80-Item)">SCMBT Freshman Entrance Exam (Legacy 80-Item)</option>
-                      <option value="Transferee Diagnostic Battery">Transferee Diagnostic Battery</option>
-                    </select>
+                    <label className="field-label">RPM Evaluator</label>
+                    <input
+                      type="text"
+                      value={inputMetaForm.evaluator}
+                      onChange={(e) => setInputMetaForm({ ...inputMetaForm, evaluator: e.target.value })}
+                      className="text-input"
+                    />
                   </div>
                 </div>
 
@@ -824,8 +1216,8 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                   <label className="field-label">Archival Notes / Justification</label>
                   <textarea
                     rows={2}
-                    value={inputScoreForm.remarks}
-                    onChange={(e) => setInputScoreForm({ ...inputScoreForm, remarks: e.target.value })}
+                    value={inputMetaForm.remarks}
+                    onChange={(e) => setInputMetaForm({ ...inputMetaForm, remarks: e.target.value })}
                     className="textarea-input"
                     placeholder="Physical document reference or Room 102 archive volume..."
                   />
@@ -843,7 +1235,7 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
 
                 <button type="submit" className="btn-primary-action">
                   <Check size={14} />
-                  <span>Save Student Score</span>
+                  <span>Save Versioned Scores</span>
                 </button>
               </div>
             </form>
@@ -875,50 +1267,66 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
               <div className="modal-body-scroll">
                 {/* Existing Record Notice */}
                 <div className="current-score-notice">
-                  <span className="notice-label">Currently Recorded Score:</span>
+                  <span className="notice-label">Locked Version Record:</span>
                   <div className="notice-val">
-                    <strong className="tabular-nums">{activeStudent.score}%</strong>
-                    {activeStudent.stanine && <span>(Stanine {activeStudent.stanine})</span>}
-                    <span className="record-date">&bull; Recorded on {activeStudent.testDate || 'Prior Session'}</span>
+                    <strong>{activeStudent.examVersionName || activeStudent.examVersionId || 'Version 2.0'}</strong>
+                    <span>&bull; Recorded Score: <strong>{activeStudent.score}%</strong> (Stanine {activeStudent.stanine})</span>
                   </div>
                 </div>
 
-                <div className="form-grid-2col">
-                  {/* New Score */}
-                  <div className="form-group">
-                    <label className="field-label">Corrected Score (0–100%) *</label>
-                    <input
-                      type="number"
-                      step="0.5"
-                      min="0"
-                      max="100"
-                      value={correctionForm.newScore}
-                      onChange={(e) => setCorrectionForm({ ...correctionForm, newScore: e.target.value })}
-                      placeholder="e.g. 84.0"
-                      className="text-input-lg tabular-nums"
-                      required
-                      autoFocus
-                    />
-                  </div>
+                {/* Category Fields to Adjust */}
+                <div className="category-scores-section">
+                  <h4 className="section-title">
+                    Adjust Category Scores ({correctionVersion.categories.length} Categories)
+                  </h4>
 
-                  {/* New Stanine */}
-                  <div className="form-group">
-                    <label className="field-label">Corrected Stanine (1 to 9) *</label>
-                    <select
-                      value={correctionForm.newStanine}
-                      onChange={(e) => setCorrectionForm({ ...correctionForm, newStanine: e.target.value })}
-                      className="select-input-lg tabular-nums"
-                    >
-                      <option value="1">Stanine 1 (Very Low)</option>
-                      <option value="2">Stanine 2 (Low)</option>
-                      <option value="3">Stanine 3 (Below Average)</option>
-                      <option value="4">Stanine 4 (Low Average)</option>
-                      <option value="5">Stanine 5 (Average)</option>
-                      <option value="6">Stanine 6 (High Average)</option>
-                      <option value="7">Stanine 7 (Above Average)</option>
-                      <option value="8">Stanine 8 (Superior)</option>
-                      <option value="9">Stanine 9 (Very Superior)</option>
-                    </select>
+                  <div className="category-inputs-grid">
+                    {correctionVersion.categories.map((cat) => (
+                      <div key={cat.id} className="category-input-card">
+                        <label className="cat-label">
+                          <span className="cat-name">{cat.name}</span>
+                          <span className="cat-max font-mono">Max: {cat.maxPoints} pts</span>
+                        </label>
+                        <input
+                          type="number"
+                          step="0.5"
+                          min="0"
+                          max={cat.maxPoints}
+                          placeholder={`0–${cat.maxPoints}`}
+                          value={correctionCategoryScores[cat.id] ?? ''}
+                          onChange={(e) =>
+                            setCorrectionCategoryScores({
+                              ...correctionCategoryScores,
+                              [cat.id]: e.target.value,
+                            })
+                          }
+                          className="text-input-lg tabular-nums"
+                          required
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Recalculated Banner */}
+                <div className="live-tally-banner">
+                  <div className="tally-item">
+                    <span className="tally-label">Corrected Raw Total:</span>
+                    <span className="tally-val tabular-nums">
+                      <strong>{correctionTally.rawSum}</strong> / {correctionVersion.totalItems} pts
+                    </span>
+                  </div>
+                  <div className="tally-item">
+                    <span className="tally-label">Corrected Percentage:</span>
+                    <span className="tally-val tabular-nums highlight">
+                      {correctionTally.pct}%
+                    </span>
+                  </div>
+                  <div className="tally-item">
+                    <span className="tally-label">Corrected Stanine:</span>
+                    <span className="tally-val tabular-nums">
+                      Stanine <strong>{correctionTally.stanine}</strong>
+                    </span>
                   </div>
                 </div>
 
@@ -927,10 +1335,10 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                   <label className="field-label">Administrative Reason for Correction *</label>
                   <textarea
                     rows={3}
-                    value={correctionForm.reason}
-                    onChange={(e) => setCorrectionForm({ ...correctionForm, reason: e.target.value })}
+                    value={correctionReason}
+                    onChange={(e) => setCorrectionReason(e.target.value)}
                     className="textarea-input"
-                    placeholder="Explain discrepancy (e.g. Typographical error during manual transcription from paper archive Form 137, re-scoring approved by Guidance Director)..."
+                    placeholder="Explain category discrepancy (e.g. Typographical error during manual transcription from paper archive Form 137, re-scoring approved by Guidance Director)..."
                     required
                   />
                   <span className="field-hint">Required for institutional auditing and transcript verification.</span>
