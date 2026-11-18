@@ -9,6 +9,7 @@ import {
   Filter,
   CheckCircle2,
   AlertTriangle,
+  AlertCircle,
   Calendar,
   Eye,
   ShieldCheck,
@@ -23,8 +24,9 @@ import {
   ArrowLeft,
   ClipboardList,
   GraduationCap,
-  UploadCloud,
-  FileCheck
+  Upload,
+  Download,
+  UploadCloud
 } from 'lucide-react';
 import './GuidanceAptitudeResults.css';
 
@@ -44,8 +46,12 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
   const [statusFilter, setStatusFilter] = useState('all');
   const [programFilter, setProgramFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [uploadTargetId, setUploadTargetId] = useState(null);
-  const fileInputRef = useRef(null);
+
+  // Batch Upload Modal State
+  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
+  const [batchFileName, setBatchFileName] = useState('');
+  const [batchPreviewData, setBatchPreviewData] = useState(null);
+  const batchFileInputRef = useRef(null);
 
   // Selected referral for encoding or view
   const [activeReferral, setActiveReferral] = useState(null);
@@ -88,10 +94,17 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
     return Array.from(progs);
   }, [referrals]);
 
-  // Filtered Referrals (Filtered by Status, Program, and Search Text)
+  // Filtered Referrals (Filtered by Status [Completed/Missing], Program, and Search Text)
   const filteredReferrals = useMemo(() => {
     return referrals.filter((item) => {
-      const matchStatus = statusFilter === 'all' || item.referralStatus === statusFilter;
+      const isCompleted = item.referralStatus === 'encoded' || item.referralStatus === 'released' || item.percentileRank !== null || item.evaluationMode === 'mode_b';
+      
+      let matchStatus = true;
+      if (statusFilter === 'completed') matchStatus = isCompleted;
+      else if (statusFilter === 'missing') matchStatus = !isCompleted;
+      else if (statusFilter === 'released') matchStatus = item.isReleasedToFaculty;
+      else if (statusFilter === 'restricted') matchStatus = !item.isReleasedToFaculty;
+
       const matchProgram = programFilter === 'all' || item.targetProgram === programFilter;
       const matchSearch =
         item.applicantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -102,26 +115,82 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
     });
   }, [referrals, statusFilter, programFilter, searchQuery]);
 
-  // Trigger Document Upload
-  const handleTriggerUpload = (referralId) => {
-    setUploadTargetId(referralId);
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
+  // Download Aptitude CSV Template
+  const handleDownloadTemplate = () => {
+    const missingStudents = referrals.filter((r) => r.referralStatus !== 'encoded' && r.referralStatus !== 'released');
+    const headers = ['Applicant Name', 'Referral Code', 'Application Number', 'Degree Program', 'Evaluation Mode', 'Percentile Rank', 'Stanine', 'Recommendation'];
+    const rows = missingStudents.map((s) => [
+      `"${s.applicantName}"`,
+      `"${s.referralCode}"`,
+      `"${s.applicationNumber}"`,
+      `"${s.targetProgram}"`,
+      'mode_a',
+      '80.0',
+      '7',
+      'recommended',
+    ]);
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((e) => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `SCMBT_Aptitude_Results_Template_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Aptitude batch template downloaded.', 'success');
+  };
+
+  // Handle Batch CSV File Selection
+  const handleBatchFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setBatchFileName(file.name);
+      // Simulate reading and parsing records
+      const missingStudents = referrals.filter((r) => r.referralStatus !== 'encoded' && r.referralStatus !== 'released');
+      const simulatedParsed = missingStudents.map((s, idx) => ({
+        id: s.id,
+        applicantName: s.applicantName,
+        referralCode: s.referralCode,
+        percentileRank: idx === 0 ? 82.5 : 79.0,
+        stanine: idx === 0 ? 7 : 6,
+        recommendation: 'recommended',
+        evaluationMode: 'mode_a',
+      }));
+      setBatchPreviewData(simulatedParsed);
+      showToast(`Loaded ${file.name} for preview.`, 'info');
+      e.target.value = '';
     }
   };
 
-  // Handle Document File Change
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file && uploadTargetId) {
-      setReferrals((prev) =>
-        prev.map((r) => (r.id === uploadTargetId ? { ...r, uploadedDocument: file.name } : r))
-      );
-      const student = referrals.find((r) => r.id === uploadTargetId);
-      showToast(`Document "${file.name}" uploaded for ${student?.applicantName || 'candidate'}.`, 'success');
-      e.target.value = '';
-      setUploadTargetId(null);
+  // Confirm Batch Upload and Update Status to Completed
+  const handleConfirmBatchUpload = () => {
+    if (!batchPreviewData || batchPreviewData.length === 0) {
+      alert('No preview records to import.');
+      return;
     }
+    const count = batchPreviewData.length;
+    setReferrals((prev) =>
+      prev.map((r) => {
+        const match = batchPreviewData.find((p) => p.id === r.id);
+        if (match) {
+          return {
+            ...r,
+            referralStatus: 'encoded',
+            evaluationMode: match.evaluationMode,
+            percentileRank: match.percentileRank,
+            stanine: match.stanine,
+            admissionRecommendation: match.recommendation,
+            encodedAt: new Date().toISOString(),
+            encodedByRpmName: CURRENT_STAFF_USER.name,
+          };
+        }
+        return r;
+      })
+    );
+    setIsBatchModalOpen(false);
+    setBatchPreviewData(null);
+    setBatchFileName('');
+    showToast(`Successfully imported ${count} aptitude records! Status updated to Completed.`, 'success');
   };
 
   // Open Schedule Modal
@@ -294,7 +363,6 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
         </div>
       )}
 
-      {/* Header Banner */}
       {/* Header Banner - Unsloped, Crisp & Direct */}
       <header className="aptitude-page-header">
         <div className="header-meta">
@@ -304,12 +372,24 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
           </p>
         </div>
 
-        {/* Current Officer Badge - Sleek & Compact */}
-        <div className="officer-identity-pill">
-          <ShieldCheck size={18} className="officer-pill-icon" />
-          <div className="officer-pill-text">
-            <span className="officer-name">{CURRENT_STAFF_USER.name}</span>
-            <span className="officer-license tabular-nums">PRC Lic. {CURRENT_STAFF_USER.rpmLicenseNumber}</span>
+        <div className="header-actions-right">
+          <button
+            type="button"
+            className="btn-batch-upload"
+            onClick={() => setIsBatchModalOpen(true)}
+            title="Batch upload written aptitude test results via CSV"
+          >
+            <Upload size={14} />
+            <span>Batch Upload</span>
+          </button>
+
+          {/* Current Officer Badge - Sleek & Compact */}
+          <div className="officer-identity-pill">
+            <ShieldCheck size={18} className="officer-pill-icon" />
+            <div className="officer-pill-text">
+              <span className="officer-name">{CURRENT_STAFF_USER.name}</span>
+              <span className="officer-license tabular-nums">PRC Lic. {CURRENT_STAFF_USER.rpmLicenseNumber}</span>
+            </div>
           </div>
         </div>
       </header>
@@ -318,39 +398,30 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
       <div className="aptitude-summary-bar">
         <div className="summary-item">
           <span className="summary-count tabular-nums">{referrals.length}</span>
-          <span className="summary-label">Total Referrals</span>
-        </div>
-        <div className="summary-divider" />
-        <div className="summary-item">
-          <span className="summary-count tabular-nums count-amber">
-            {referrals.filter((r) => r.referralStatus === 'pending_visit').length}
-          </span>
-          <span className="summary-label">Pending Intake</span>
-        </div>
-        <div className="summary-divider" />
-        <div className="summary-item">
-          <span className="summary-count tabular-nums count-blue">
-            {referrals.filter((r) => r.referralStatus === 'scheduled').length}
-          </span>
-          <span className="summary-label">Scheduled</span>
+          <span className="summary-label">Total Candidates</span>
         </div>
         <div className="summary-divider" />
         <div className="summary-item">
           <span className="summary-count tabular-nums count-emerald">
-            {referrals.filter((r) => r.referralStatus === 'released').length}
+            {referrals.filter((r) => r.referralStatus === 'encoded' || r.referralStatus === 'released').length}
+          </span>
+          <span className="summary-label">Completed</span>
+        </div>
+        <div className="summary-divider" />
+        <div className="summary-item">
+          <span className="summary-count tabular-nums count-amber">
+            {referrals.filter((r) => r.referralStatus !== 'encoded' && r.referralStatus !== 'released').length}
+          </span>
+          <span className="summary-label">Missing</span>
+        </div>
+        <div className="summary-divider" />
+        <div className="summary-item">
+          <span className="summary-count tabular-nums count-blue">
+            {referrals.filter((r) => r.isReleasedToFaculty).length}
           </span>
           <span className="summary-label">Released to Faculty</span>
         </div>
       </div>
-
-      {/* Hidden File Input for Physical Evaluation Document Upload */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        accept=".pdf,.png,.jpg,.jpeg,application/pdf"
-        style={{ display: 'none' }}
-      />
 
       {/* Referral Intake Table Card */}
       <div className="guidance-card aptitude-table-card">
@@ -367,7 +438,7 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
               <Search size={14} className="search-icon" />
               <input
                 type="text"
-                placeholder="Search applicant or REF code..."
+                placeholder="Search applicant name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="search-input-sm"
@@ -392,7 +463,7 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
               </select>
             </div>
 
-            {/* Status Filter */}
+            {/* Status Filter: Completed / Missing / Released / Restricted */}
             <div className="filter-dropdown-sm">
               <Filter size={13} className="filter-icon" />
               <select
@@ -401,10 +472,10 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                 className="filter-select-sm"
               >
                 <option value="all">All Statuses ({referrals.length})</option>
-                <option value="pending_visit">Pending Visit</option>
-                <option value="scheduled">Scheduled</option>
-                <option value="encoded">Encoded (Restricted)</option>
+                <option value="completed">Completed ({referrals.filter((r) => r.referralStatus === 'encoded' || r.referralStatus === 'released').length})</option>
+                <option value="missing">Missing ({referrals.filter((r) => r.referralStatus !== 'encoded' && r.referralStatus !== 'released').length})</option>
                 <option value="released">Released to Faculty</option>
+                <option value="restricted">Restricted</option>
               </select>
             </div>
           </div>
@@ -415,87 +486,46 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
             <table className="aptitude-intake-table">
               <thead>
                 <tr>
-                  <th style={{ width: '28%' }}>Name</th>
-                  <th style={{ width: '24%' }}>Status Of Result</th>
-                  <th style={{ width: '16%' }}>For Upload</th>
-                  <th style={{ width: '16%' }}>Released / Restricted</th>
-                  <th style={{ width: '16%', textAlign: 'right' }}>Actions</th>
+                  <th style={{ width: '36%' }}>Name</th>
+                  <th style={{ width: '22%' }}>Status Of Result</th>
+                  <th style={{ width: '22%' }}>Released / Restricted</th>
+                  <th style={{ width: '20%', textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredReferrals.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="empty-table-cell">
+                    <td colSpan={4} className="empty-table-cell">
                       <FileText size={28} className="text-slate-300" />
                       <p>No referrals found matching the selected filter criteria.</p>
                     </td>
                   </tr>
                 ) : (
                   filteredReferrals.map((item) => {
-                    const isEncoded = item.referralStatus === 'encoded' || item.referralStatus === 'released';
+                    const isCompleted = item.referralStatus === 'encoded' || item.referralStatus === 'released' || item.percentileRank !== null || item.evaluationMode === 'mode_b';
                     return (
                       <tr key={item.id} className={`table-row-${item.referralStatus}`}>
-                        {/* 1. Name */}
+                        {/* 1. Name - RETAIN ONLY NAME */}
                         <td className="candidate-cell">
                           <span className="cand-name">{item.applicantName}</span>
-                          <span className="cand-ref tabular-nums">{item.referralCode} &bull; {item.applicationNumber}</span>
                         </td>
 
-                        {/* 2. Status Of Result */}
+                        {/* 2. Status Of Result - ONLY Missing / Completed */}
                         <td className="result-status-cell">
-                          {isEncoded ? (
-                            <div className="result-status-lockup">
-                              {item.evaluationMode === 'mode_a' || item.evaluationMode === 'structured' || item.evaluationMode === 'comprehensive' ? (
-                                <span className="result-score-line tabular-nums">
-                                  <strong>{item.percentileRank ?? 75}%</strong> PR &bull; Stanine {item.stanine ?? 6}
-                                </span>
-                              ) : (
-                                <span className="result-score-line">
-                                  <strong>Clinical Report</strong> (Mode B)
-                                </span>
-                              )}
-                              <span className={`recommend-badge ${item.admissionRecommendation || 'recommended'}`}>
-                                {item.admissionRecommendation === 'recommended'
-                                  ? 'Recommended'
-                                  : item.admissionRecommendation === 'conditional'
-                                  ? 'Conditional'
-                                  : 'Not Recommended'}
-                              </span>
-                            </div>
-                          ) : item.referralStatus === 'scheduled' ? (
-                            <div className="result-status-lockup">
-                              <span className="status-chip chip-blue">Scheduled</span>
-                              <span className="sched-date-sub tabular-nums">{item.scheduledTestDate}</span>
-                            </div>
+                          {isCompleted ? (
+                            <span className="status-pill-completed">
+                              <CheckCircle2 size={13} />
+                              <span>Completed</span>
+                            </span>
                           ) : (
-                            <span className="status-chip chip-amber">Pending Intake</span>
+                            <span className="status-pill-missing">
+                              <AlertCircle size={13} />
+                              <span>Missing</span>
+                            </span>
                           )}
                         </td>
 
-                        {/* 3. For Upload */}
-                        <td className="upload-cell">
-                          {item.uploadedDocument ? (
-                            <div className="doc-uploaded-box" title={item.uploadedDocument}>
-                              <span className="doc-uploaded-badge">
-                                <FileCheck size={13} className="text-emerald-600" />
-                                <span>Uploaded</span>
-                              </span>
-                              <span className="doc-filename-sub font-mono">{item.uploadedDocument}</span>
-                            </div>
-                          ) : (
-                            <button
-                              type="button"
-                              className="btn-for-upload"
-                              onClick={() => handleTriggerUpload(item.id)}
-                              title="Upload physical scanned testing sheet"
-                            >
-                              <UploadCloud size={13} />
-                              <span>For Upload</span>
-                            </button>
-                          )}
-                        </td>
-
-                        {/* 4. Released / Restricted */}
+                        {/* 3. Released / Restricted */}
                         <td className="release-cell">
                           <button
                             type="button"
@@ -521,10 +551,10 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                           </button>
                         </td>
 
-                        {/* 5. Actions */}
+                        {/* 4. Actions */}
                         <td className="actions-cell" style={{ textAlign: 'right' }}>
                           <div className="action-buttons-group">
-                            {isEncoded ? (
+                            {isCompleted ? (
                               <>
                                 <button
                                   type="button"
@@ -1145,6 +1175,122 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                 onClick={() => setIsViewModalOpen(false)}
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================
+          BATCH UPLOAD MODAL (Bulk CSV Import for Missing Records)
+          ========================================================= */}
+      {isBatchModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-dialog batch-modal-dialog">
+            <div className="modal-header">
+              <div className="modal-title-lockup">
+                <Upload size={18} className="text-navy-900" />
+                <h3 className="modal-title">Batch Upload Aptitude Test Records</h3>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => {
+                  setIsBatchModalOpen(false);
+                  setBatchPreviewData(null);
+                  setBatchFileName('');
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="modal-body-scroll">
+              <div className="batch-step-card">
+                <span className="step-tag">Step 1: Download Official Template</span>
+                <p className="step-desc">
+                  Download a pre-formatted CSV containing candidates who currently lack encoded aptitude records.
+                </p>
+                <button
+                  type="button"
+                  className="btn-download-tpl"
+                  onClick={handleDownloadTemplate}
+                >
+                  <Download size={14} />
+                  <span>Download Aptitude CSV Template</span>
+                </button>
+              </div>
+
+              <div className="batch-step-card">
+                <span className="step-tag">Step 2: Upload Completed CSV</span>
+                <p className="step-desc">
+                  Upload the completed file to bulk encode results and update candidate status to <strong>Completed</strong>.
+                </p>
+                <input
+                  type="file"
+                  ref={batchFileInputRef}
+                  onChange={handleBatchFileChange}
+                  accept=".csv,text/csv"
+                  style={{ display: 'none' }}
+                />
+                <button
+                  type="button"
+                  className="btn-browse-file"
+                  onClick={() => batchFileInputRef.current?.click()}
+                >
+                  <UploadCloud size={16} />
+                  <span>{batchFileName ? `Selected: ${batchFileName}` : 'Select Completed CSV File'}</span>
+                </button>
+              </div>
+
+              {batchPreviewData && (
+                <div className="batch-preview-box">
+                  <span className="preview-heading">Preview Parsed Records ({batchPreviewData.length})</span>
+                  <table className="batch-preview-table">
+                    <thead>
+                      <tr>
+                        <th>Candidate Name</th>
+                        <th>Ref Code</th>
+                        <th>Percentile</th>
+                        <th>Stanine</th>
+                        <th>Recommendation</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {batchPreviewData.map((row) => (
+                        <tr key={row.id}>
+                          <td className="font-bold">{row.applicantName}</td>
+                          <td className="font-mono text-slate-500">{row.referralCode}</td>
+                          <td className="tabular-nums font-bold text-navy-900">{row.percentileRank}%</td>
+                          <td className="tabular-nums">Stanine {row.stanine}</td>
+                          <td><span className="badge-preview-rec">{row.recommendation}</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn-cancel"
+                onClick={() => {
+                  setIsBatchModalOpen(false);
+                  setBatchPreviewData(null);
+                  setBatchFileName('');
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={`btn-save-confirm ${!batchPreviewData ? 'disabled' : ''}`}
+                onClick={handleConfirmBatchUpload}
+                disabled={!batchPreviewData}
+              >
+                Import Batch Records
               </button>
             </div>
           </div>

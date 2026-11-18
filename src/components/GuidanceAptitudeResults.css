@@ -92,6 +92,34 @@
   max-width: 680px;
 }
 
+.header-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.btn-batch-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #042b4e;
+  color: #ffffff;
+  border: 1px solid #042b4e;
+  padding: 0.5rem 0.875rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.btn-batch-upload:hover {
+  background-color: #063a69;
+  border-color: #063a69;
+}
+
 /* Slim RPM Identity Pill */
 .officer-identity-pill {
   display: inline-flex;
@@ -404,27 +432,31 @@
   border: 1px solid #bfdbfe;
 }
 
-/* Status Of Result Cell */
-.result-status-lockup {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.result-score-line {
-  font-size: 0.8125rem;
-  color: #042b4e;
-}
-
-.result-score-line strong {
-  font-size: 0.875rem;
+/* Status Of Result Pills (Clean Missing / Completed) */
+.status-pill-completed {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
   font-weight: 700;
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
 }
 
-.sched-date-sub {
-  font-size: 0.6875rem;
-  color: #64748b;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+.status-pill-missing {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
 }
 
 /* Upload Cell */
@@ -1593,6 +1625,129 @@
   background-color: #042b4e;
   color: #ffffff;
   border-color: #042b4e;
+}
+
+/* =========================================================
+   BATCH UPLOAD MODAL
+   ========================================================= */
+.batch-modal-dialog {
+  max-width: 680px;
+  width: 100%;
+}
+
+.batch-step-card {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.batch-step-card .step-tag {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #042b4e;
+  margin-bottom: 0.35rem;
+}
+
+.batch-step-card .step-desc {
+  font-size: 0.8125rem;
+  color: #475569;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.45;
+}
+
+.btn-download-tpl {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.45rem 0.85rem;
+  background-color: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-download-tpl:hover {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.btn-browse-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.5rem 1rem;
+  background-color: #ffffff;
+  border: 1px dashed #042b4e;
+  color: #042b4e;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  justify-content: center;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-browse-file:hover {
+  background-color: #eff6ff;
+  border-color: #1e40af;
+}
+
+.batch-preview-box {
+  margin-top: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.preview-heading {
+  display: block;
+  padding: 0.5rem 0.85rem;
+  background-color: #f1f5f9;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.batch-preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+}
+
+.batch-preview-table th,
+.batch-preview-table td {
+  padding: 0.5rem 0.85rem;
+  border-bottom: 1px solid #f1f5f9;
+  text-align: left;
+}
+
+.batch-preview-table th {
+  background-color: #f8fafc;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.badge-preview-rec {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  background-color: #ecfdf5;
+  color: #065f46;
+  text-transform: capitalize;
 }
 
 /* Responsive adjustments */
