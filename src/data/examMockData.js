@@ -454,14 +454,14 @@ export const INITIAL_APTITUDE_REFERRALS = [
     scheduledTestDate: '2026-11-13',
     scheduledSession: 'Morning Session (09:00 AM - 11:30 AM)',
     testingRoom: 'Guidance Testing Hall Room 204',
-    evaluationMode: 'structured',
-    rawScore: 84,
+    evaluationMode: 'mode_a',
+    rawScore: 80,
     totalItems: 100,
-    percentileRank: 82.5,
-    stanine: 7,
-    iqEquivalent: '115 (Above Average)',
-    qualitativeInterpretation: 'Above Average',
-    narrativeEvaluationHtml: '',
+    percentileRank: 75.0,
+    stanine: 6,
+    iqEquivalent: '110 (High Average)',
+    qualitativeInterpretation: 'Average (Stanine 4–6 / PR 23–76)',
+    narrativeEvaluationHtml: `Candidate demonstrated solid cognitive focus and steady analytical problem-solving across all sections of the paper assessment battery. Spatial reasoning and quantitative comprehension meet institutional benchmarks for degree progression.`,
     admissionRecommendation: 'recommended',
     conditionalEndorsementBy: '',
     conditionalRemarks: '',
@@ -483,22 +483,14 @@ export const INITIAL_APTITUDE_REFERRALS = [
     scheduledTestDate: '2026-11-11',
     scheduledSession: 'Afternoon Session (01:30 PM - 04:00 PM)',
     testingRoom: 'Guidance Testing Hall Room 204',
-    evaluationMode: 'narrative',
+    evaluationMode: 'mode_b',
     rawScore: null,
     totalItems: 100,
     percentileRank: null,
     stanine: null,
     iqEquivalent: '',
     qualitativeInterpretation: '',
-    narrativeEvaluationHtml: `<h3>PSYCHOMETRIC CLINICAL IMPRESSION &amp; EVALUATION</h3>
-<p><strong>Candidate:</strong> Camille Rose Dizon &bull; <strong>Application:</strong> APP-2026-00712</p>
-<p>The candidate underwent the SCMBT Comprehensive Battery of Written Psychological &amp; Aptitude Instruments under standard proctored conditions on November 11, 2026.</p>
-<h4>1. Behavioral Observations &amp; Task Orientation</h4>
-<p>Candidate presented with adequate motivation and focused task orientation. Responses across abstract matrices and textual comprehension demonstrated deliberate reasoning, though paced deliberately in quantitative segments.</p>
-<h4>2. Cognitive &amp; Vocational Aptitude Evaluation</h4>
-<p>Qualitative assessment indicates solid perceptual organization, strong verbal comprehension, and sound ethical judgment. While computational speed scored within the moderate band, spatial reasoning and navigational chart comprehension reflect clear aptitude for maritime bridge watchkeeping.</p>
-<h4>3. Admissions Recommendation</h4>
-<p>Recommended for admission under <strong>Conditional Academic Support</strong> for introductory maritime navigational mathematics during the first academic term.</p>`,
+    narrativeEvaluationHtml: `PSYCHOMETRIC CLINICAL IMPRESSION & EVALUATION (LETTER-TYPE REPORT)\n\nCandidate: Camille Rose Dizon • Application: APP-2026-00712\n\nThe candidate underwent the SCMBT Comprehensive Battery of Written Psychological & Aptitude Instruments under standard proctored conditions on November 11, 2026.\n\n1. Behavioral Observations & Task Orientation:\nCandidate presented with adequate motivation and focused task orientation. Responses across abstract matrices and textual comprehension demonstrated deliberate reasoning, though paced deliberately in quantitative segments.\n\n2. Cognitive & Vocational Aptitude Evaluation:\nQualitative assessment indicates solid perceptual organization, strong verbal comprehension, and sound ethical judgment. While computational speed scored within the moderate band, spatial reasoning and navigational chart comprehension reflect clear aptitude for maritime bridge watchkeeping.\n\n3. Admissions Recommendation:\nRecommended for admission under Conditional Academic Support for introductory maritime navigational mathematics during the first academic term.`,
     admissionRecommendation: 'conditional',
     conditionalEndorsementBy: 'Capt. E. Morales (Dean, Maritime Education)',
     conditionalRemarks: 'Approved for BSMT freshman enrollment under academic monitoring for nautical calculation modules.',
