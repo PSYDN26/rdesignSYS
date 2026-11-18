@@ -119,7 +119,7 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
   const handleOpenEncodingModal = (referral) => {
     setActiveReferral(referral);
     setEncodingForm({
-      evaluationMode: referral.evaluationMode || 'structured',
+      evaluationMode: referral.evaluationMode || 'narrative', // Default to narrative paragraph editor
       rawScore: referral.rawScore ?? 80,
       totalItems: referral.totalItems ?? 100,
       percentileRank: referral.percentileRank ?? 75.0,
@@ -128,12 +128,45 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
       qualitativeInterpretation: referral.qualitativeInterpretation || 'Average',
       narrativeEvaluationHtml:
         referral.narrativeEvaluationHtml ||
-        `<p>Candidate demonstrated strong cognitive composure and systematic problem-solving during the proctored battery. Spatial and inductive aptitude meet institutional standards for collegiate nautical instruction.</p>`,
+        `PSYCHOLOGICAL ASSESSMENT & APTITUDE REPORT\n\nCandidate completed the proctored battery under Republic Act 10029 standards. Observation indicates steady cognitive pacing, consistent visual-spatial orientation, and analytical readiness suitable for collegiate maritime instruction.\n\nAdmissions Recommendation: Recommended for enrollment without reservation.`,
       admissionRecommendation: referral.admissionRecommendation || 'recommended',
       conditionalEndorsementBy: referral.conditionalEndorsementBy || '',
       conditionalRemarks: referral.conditionalRemarks || '',
     });
     setIsEncodingModalOpen(true);
+  };
+
+  // Insert standard templates into narrative paragraph editor
+  const handleInsertTemplate = (type) => {
+    if (type === 'standard') {
+      setEncodingForm((prev) => ({
+        ...prev,
+        narrativeEvaluationHtml: `PSYCHOLOGICAL ASSESSMENT REPORT & EVALUATION\n\nCandidate: ${activeReferral?.applicantName || 'Applicant'}\nTarget Program: ${activeReferral?.targetProgram || 'Collegiate Degree'}\nControl Ref: ${activeReferral?.referralCode || 'REF-2026'}\n\n1. CLINICAL OBSERVATIONS:\nCandidate demonstrated high cognitive composure and systematic problem-solving during proctored testing. Maintained sustained attention across all timed paper sections.\n\n2. PSYCHOMETRIC IMPRESSION:\nSpatial reasoning and deductive aptitude meet institutional benchmarks for collegiate nautical instruction. No psychological contraindications observed.\n\n3. ADMISSIONS RECOMMENDATION:\nCandidate is recommended for unconditional admission and program course selection.`,
+      }));
+    } else if (type === 'conditional') {
+      setEncodingForm((prev) => ({
+        ...prev,
+        narrativeEvaluationHtml: `PSYCHOLOGICAL ASSESSMENT REPORT (CONDITIONAL ENDORSEMENT)\n\nCandidate: ${activeReferral?.applicantName || 'Applicant'}\nTarget Program: ${activeReferral?.targetProgram || 'Collegiate Degree'}\nControl Ref: ${activeReferral?.referralCode || 'REF-2026'}\n\n1. CLINICAL OBSERVATIONS:\nCandidate exhibited minor cognitive fatigue during numeric battery items but compensated with strong abstract reasoning.\n\n2. PSYCHOMETRIC IMPRESSION:\nFoundational aptitude is adequate; academic tutorial monitoring is advised during the 1st semester.\n\n3. ADMISSIONS RECOMMENDATION:\nConditional admission granted under Dean / Guidance monitoring endorsement.`,
+        admissionRecommendation: 'conditional',
+      }));
+    }
+  };
+
+  // Formatting tools (Bold, Italic, Bullet)
+  const handleFormatText = (tag) => {
+    const textarea = document.getElementById('narrative-evaluation-textarea');
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = encodingForm.narrativeEvaluationHtml;
+    const selected = text.substring(start, end) || 'text';
+    let formatted = '';
+    if (tag === 'bold') formatted = `**${selected}**`;
+    else if (tag === 'italic') formatted = `*${selected}*`;
+    else if (tag === 'bullet') formatted = `\n• ${selected}`;
+
+    const newText = text.substring(0, start) + formatted + text.substring(end);
+    setEncodingForm((prev) => ({ ...prev, narrativeEvaluationHtml: newText }));
   };
 
   // Save RPM Results
@@ -143,18 +176,18 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
     setReferrals((prev) =>
       prev.map((r) => {
         if (r.id !== activeReferral.id) return r;
+        const hasStructured = encodingForm.evaluationMode === 'structured' || encodingForm.evaluationMode === 'comprehensive';
+        const hasNarrative = encodingForm.evaluationMode === 'narrative' || encodingForm.evaluationMode === 'comprehensive';
         return {
           ...r,
           evaluationMode: encodingForm.evaluationMode,
-          rawScore: encodingForm.evaluationMode === 'structured' ? parseInt(encodingForm.rawScore, 10) : null,
+          rawScore: hasStructured ? parseInt(encodingForm.rawScore, 10) : null,
           totalItems: encodingForm.totalItems,
-          percentileRank: encodingForm.evaluationMode === 'structured' ? parseFloat(encodingForm.percentileRank) : null,
-          stanine: encodingForm.evaluationMode === 'structured' ? parseInt(encodingForm.stanine, 10) : null,
-          iqEquivalent: encodingForm.evaluationMode === 'structured' ? encodingForm.iqEquivalent : '',
-          qualitativeInterpretation:
-            encodingForm.evaluationMode === 'structured' ? encodingForm.qualitativeInterpretation : '',
-          narrativeEvaluationHtml:
-            encodingForm.evaluationMode === 'narrative' ? encodingForm.narrativeEvaluationHtml : '',
+          percentileRank: hasStructured ? parseFloat(encodingForm.percentileRank) : null,
+          stanine: hasStructured ? parseInt(encodingForm.stanine, 10) : null,
+          iqEquivalent: hasStructured ? encodingForm.iqEquivalent : '',
+          qualitativeInterpretation: hasStructured ? encodingForm.qualitativeInterpretation : '',
+          narrativeEvaluationHtml: hasNarrative ? encodingForm.narrativeEvaluationHtml : '',
           admissionRecommendation: encodingForm.admissionRecommendation,
           conditionalEndorsementBy:
             encodingForm.admissionRecommendation === 'conditional'
@@ -369,6 +402,13 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                                 <span className="metric-secondary tabular-nums">
                                   Stanine {item.stanine} &bull; {item.qualitativeInterpretation}
                                 </span>
+                              </div>
+                            ) : item.evaluationMode === 'comprehensive' ? (
+                              <div className="metric-preview-structured">
+                                <span className="metric-primary tabular-nums">
+                                  <strong>{item.percentileRank}%</strong> PR (Stanine {item.stanine})
+                                </span>
+                                <span className="narrative-tag" style={{ marginTop: '3px' }}>Letter Attached</span>
                               </div>
                             ) : (
                               <div className="metric-preview-narrative">
@@ -619,29 +659,119 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                   <span className="ref-tag tabular-nums">{activeReferral.referralCode}</span>
                 </div>
 
-                {/* DUAL-MODE TOGGLE (Requested by user) */}
+                {/* DUAL-MODE FORMAT SELECTOR (Front and Center) */}
                 <div className="encoding-mode-selector-group">
-                  <label className="field-label">Psychometric Evaluation Format Mode</label>
+                  <div className="mode-selector-header">
+                    <label className="field-label">Psychometric Evaluation Format</label>
+                    <span className="mode-selector-hint">Select letter-type narrative or standardized metrics battery</span>
+                  </div>
                   <div className="segmented-toggle">
-                    <button
-                      type="button"
-                      className={`toggle-option ${encodingForm.evaluationMode === 'structured' ? 'active' : ''}`}
-                      onClick={() => setEncodingForm({ ...encodingForm, evaluationMode: 'structured' })}
-                    >
-                      Mode A: Structured Psychometric Metrics (Raw, PR, Stanine, IQ)
-                    </button>
                     <button
                       type="button"
                       className={`toggle-option ${encodingForm.evaluationMode === 'narrative' ? 'active' : ''}`}
                       onClick={() => setEncodingForm({ ...encodingForm, evaluationMode: 'narrative' })}
                     >
-                      Mode B: Narrative Evaluation (Rich Text / Letter-Type Paragraph)
+                      ✍️ Mode A: Narrative Paragraph Letter (No Numeric Fields)
+                    </button>
+                    <button
+                      type="button"
+                      className={`toggle-option ${encodingForm.evaluationMode === 'structured' ? 'active' : ''}`}
+                      onClick={() => setEncodingForm({ ...encodingForm, evaluationMode: 'structured' })}
+                    >
+                      📊 Mode B: Standardized Metrics Battery
+                    </button>
+                    <button
+                      type="button"
+                      className={`toggle-option ${encodingForm.evaluationMode === 'comprehensive' ? 'active' : ''}`}
+                      onClick={() => setEncodingForm({ ...encodingForm, evaluationMode: 'comprehensive' })}
+                    >
+                      📑 Mode C: Comprehensive (Both)
                     </button>
                   </div>
                 </div>
 
-                {/* MODE A: STRUCTURED PSYCHOMETRIC METRICS */}
-                {encodingForm.evaluationMode === 'structured' && (
+                {/* MODE A & C: NARRATIVE RICH TEXT PARAGRAPH / LETTER-TYPE EVALUATION */}
+                {(encodingForm.evaluationMode === 'narrative' || encodingForm.evaluationMode === 'comprehensive') && (
+                  <div className="narrative-editor-wrapper">
+                    <div className="editor-top-bar">
+                      <div className="editor-title-group">
+                        <label className="field-label">Narrative Psychological Evaluation &amp; Letter-Type Report *</label>
+                        <span className="editor-subtext">Clinical impression, cognitive observations, and official RPM write-up</span>
+                      </div>
+
+                      {/* Formatting & Template Quick Tools */}
+                      <div className="editor-toolbar-actions">
+                        <div className="format-btn-group">
+                          <button
+                            type="button"
+                            className="toolbar-btn"
+                            onClick={() => handleFormatText('bold')}
+                            title="Bold text (**text**)"
+                          >
+                            <strong>B</strong>
+                          </button>
+                          <button
+                            type="button"
+                            className="toolbar-btn"
+                            onClick={() => handleFormatText('italic')}
+                            title="Italic text (*text*)"
+                          >
+                            <em>I</em>
+                          </button>
+                          <button
+                            type="button"
+                            className="toolbar-btn"
+                            onClick={() => handleFormatText('bullet')}
+                            title="Bullet point (• item)"
+                          >
+                            &bull; List
+                          </button>
+                        </div>
+
+                        <div className="template-btn-group">
+                          <button
+                            type="button"
+                            className="btn-template-insert"
+                            onClick={() => handleInsertTemplate('standard')}
+                            title="Load Standard Official Assessment Template"
+                          >
+                            <span>Insert Assessment Template</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-template-insert"
+                            onClick={() => handleInsertTemplate('conditional')}
+                            title="Load Conditional Endorsement Letter Template"
+                          >
+                            <span>Insert Conditional Template</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="form-field-group no-margin">
+                      <textarea
+                        id="narrative-evaluation-textarea"
+                        rows={11}
+                        value={encodingForm.narrativeEvaluationHtml}
+                        onChange={(e) => setEncodingForm({ ...encodingForm, narrativeEvaluationHtml: e.target.value })}
+                        placeholder="Write the full psychological evaluation letter, cognitive aptitude analysis, behavioral observations, and programmatic suitability..."
+                        className="textarea-input narrative-textarea"
+                        required={encodingForm.evaluationMode === 'narrative'}
+                      />
+                      <div className="editor-footer-stats">
+                        <span className="editor-count tabular-nums">
+                          {encodingForm.narrativeEvaluationHtml.length} characters &bull;{' '}
+                          {encodingForm.narrativeEvaluationHtml.trim() ? encodingForm.narrativeEvaluationHtml.trim().split(/\s+/).length : 0} words
+                        </span>
+                        <span className="editor-cert-note">Official format for Guidance letterhead release</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* MODE B & C: STRUCTURED PSYCHOMETRIC METRICS BATTERY */}
+                {(encodingForm.evaluationMode === 'structured' || encodingForm.evaluationMode === 'comprehensive') && (
                   <div className="structured-fields-grid">
                     <div className="form-field-group">
                       <label className="field-label">Raw Score</label>
@@ -653,7 +783,7 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                           value={encodingForm.rawScore}
                           onChange={(e) => setEncodingForm({ ...encodingForm, rawScore: parseInt(e.target.value, 10) || 0 })}
                           className="text-input"
-                          required
+                          required={encodingForm.evaluationMode === 'structured'}
                         />
                         <span className="score-divider">/</span>
                         <input
@@ -675,7 +805,7 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                         value={encodingForm.percentileRank}
                         onChange={(e) => setEncodingForm({ ...encodingForm, percentileRank: parseFloat(e.target.value) || 0 })}
                         className="text-input"
-                        required
+                        required={encodingForm.evaluationMode === 'structured'}
                       />
                     </div>
 
@@ -685,7 +815,7 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                         value={encodingForm.stanine}
                         onChange={(e) => setEncodingForm({ ...encodingForm, stanine: parseInt(e.target.value, 10) })}
                         className="text-input"
-                        required
+                        required={encodingForm.evaluationMode === 'structured'}
                       >
                         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((s) => (
                           <option key={s} value={s}>Stanine {s}</option>
@@ -701,7 +831,7 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                         onChange={(e) => setEncodingForm({ ...encodingForm, iqEquivalent: e.target.value })}
                         placeholder="e.g. 115 (Above Average)"
                         className="text-input"
-                        required
+                        required={encodingForm.evaluationMode === 'structured'}
                       />
                     </div>
 
@@ -711,7 +841,7 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                         value={encodingForm.qualitativeInterpretation}
                         onChange={(e) => setEncodingForm({ ...encodingForm, qualitativeInterpretation: e.target.value })}
                         className="text-input"
-                        required
+                        required={encodingForm.evaluationMode === 'structured'}
                       >
                         <option value="Superior">Superior (Stanine 9 / PR 96+)</option>
                         <option value="Above Average">Above Average (Stanine 7–8 / PR 77–95)</option>
@@ -719,33 +849,6 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                         <option value="Below Average">Below Average (Stanine 2–3 / PR 4–22)</option>
                         <option value="Low">Low / Deficit (Stanine 1 / PR 1–3)</option>
                       </select>
-                    </div>
-                  </div>
-                )}
-
-                {/* MODE B: NARRATIVE RICH TEXT LETTER-TYPE EVALUATION */}
-                {encodingForm.evaluationMode === 'narrative' && (
-                  <div className="narrative-editor-wrapper">
-                    <div className="editor-lead-note">
-                      <Info size={15} />
-                      <span>
-                        Enter the psychological evaluation report in narrative letter format. This is suited for comprehensive clinical write-ups or paragraph-style psychometric evaluations.
-                      </span>
-                    </div>
-
-                    <div className="form-field-group">
-                      <label className="field-label">Narrative Psychological Evaluation &amp; Clinical Impression *</label>
-                      <textarea
-                        rows={10}
-                        value={encodingForm.narrativeEvaluationHtml}
-                        onChange={(e) => setEncodingForm({ ...encodingForm, narrativeEvaluationHtml: e.target.value })}
-                        placeholder="Write the full psychological assessment letter, clinical observations, cognitive aptitude analysis, and programmatic suitability..."
-                        className="textarea-input narrative-textarea"
-                        required
-                      />
-                      <span className="field-hint">
-                        Formatted in standard clinical reporting structure. Will be printed on official Guidance letterhead.
-                      </span>
                     </div>
                   </div>
                 )}
@@ -906,38 +1009,43 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                 </div>
 
                 {/* Evaluation Content */}
-                {activeReferral.evaluationMode === 'structured' ? (
+                {(activeReferral.evaluationMode === 'structured' || activeReferral.evaluationMode === 'comprehensive') && (
                   <div className="cert-metrics-box">
                     <h5>Standardized Battery Test Results</h5>
                     <div className="cert-scores-row">
                       <div className="score-box">
                         <span className="s-lbl">Raw Score</span>
-                        <span className="s-val tabular-nums">{activeReferral.rawScore} / {activeReferral.totalItems}</span>
+                        <span className="s-val tabular-nums">{activeReferral.rawScore ?? 0} / {activeReferral.totalItems ?? 100}</span>
                       </div>
                       <div className="score-box">
                         <span className="s-lbl">Percentile Rank</span>
-                        <span className="s-val tabular-nums">{activeReferral.percentileRank}%</span>
+                        <span className="s-val tabular-nums">{activeReferral.percentileRank ?? 0}%</span>
                       </div>
                       <div className="score-box">
                         <span className="s-lbl">Stanine</span>
-                        <span className="s-val tabular-nums">{activeReferral.stanine}</span>
+                        <span className="s-val tabular-nums">{activeReferral.stanine ?? 1}</span>
                       </div>
                       <div className="score-box">
                         <span className="s-lbl">IQ Equivalent</span>
-                        <span className="s-val">{activeReferral.iqEquivalent}</span>
+                        <span className="s-val">{activeReferral.iqEquivalent || 'Average'}</span>
                       </div>
                       <div className="score-box">
                         <span className="s-lbl">Interpretation</span>
-                        <span className="s-val">{activeReferral.qualitativeInterpretation}</span>
+                        <span className="s-val">{activeReferral.qualitativeInterpretation || 'Average'}</span>
                       </div>
                     </div>
                   </div>
-                ) : (
+                )}
+
+                {(activeReferral.evaluationMode === 'narrative' || activeReferral.evaluationMode === 'comprehensive') && (
                   <div className="cert-narrative-box">
+                    <h5>Official Psychological Evaluation Letter</h5>
                     <div
                       className="narrative-content-rendered"
-                      dangerouslySetInnerHTML={{ __html: activeReferral.narrativeEvaluationHtml }}
-                    />
+                      style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}
+                    >
+                      {activeReferral.narrativeEvaluationHtml}
+                    </div>
                   </div>
                 )}
 
@@ -1022,15 +1130,5 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
         </div>
       </div>
     </div>
-  );
-}
-
-function Info({ size = 16, className = '' }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <circle cx="12" cy="12" r="10"></circle>
-      <line x1="12" y1="16" x2="12" y2="12"></line>
-      <line x1="12" y1="8" x2="12.01" y2="8"></line>
-    </svg>
   );
 }
