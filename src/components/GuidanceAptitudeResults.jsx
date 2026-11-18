@@ -194,7 +194,7 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
   };
 
   // Open Schedule Modal
-  const handleOpenScheduleModal = (referral) => {
+  const _handleOpenScheduleModal = (referral) => {
     setActiveReferral(referral);
     setScheduleForm({
       scheduledTestDate: referral.scheduledTestDate || new Date().toISOString().split('T')[0],
@@ -510,17 +510,17 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                           <span className="cand-name">{item.applicantName}</span>
                         </td>
 
-                        {/* 2. Status Of Result - ONLY Missing / Completed */}
+                        {/* 2. Status Of Result - Strictly Encoded / No Result */}
                         <td className="result-status-cell">
                           {isCompleted ? (
                             <span className="status-pill-completed">
                               <CheckCircle2 size={13} />
-                              <span>Completed</span>
+                              <span>Encoded</span>
                             </span>
                           ) : (
                             <span className="status-pill-missing">
                               <AlertCircle size={13} />
-                              <span>Missing</span>
+                              <span>No Result</span>
                             </span>
                           )}
                         </td>
@@ -551,53 +551,29 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                           </button>
                         </td>
 
-                        {/* 4. Actions */}
+                        {/* 4. Actions: Strictly 1 Action Button 1 Col */}
                         <td className="actions-cell" style={{ textAlign: 'right' }}>
-                          <div className="action-buttons-group">
-                            {isCompleted ? (
-                              <>
-                                <button
-                                  type="button"
-                                  className="btn-action-primary view"
-                                  onClick={() => handleOpenViewModal(item)}
-                                  title="View Official Evaluation Sheet"
-                                >
-                                  <Eye size={13} />
-                                  <span>View</span>
-                                </button>
-                                <button
-                                  type="button"
-                                  className="btn-action-ghost edit"
-                                  onClick={() => handleOpenEncodingModal(item)}
-                                  title="Edit Psychological Evaluation"
-                                >
-                                  <Edit3 size={13} />
-                                  <span>Edit</span>
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <button
-                                  type="button"
-                                  className="btn-action-primary encode"
-                                  onClick={() => handleOpenEncodingModal(item)}
-                                  title="Encode Psychological & Aptitude Results"
-                                >
-                                  <Edit3 size={13} />
-                                  <span>Encode</span>
-                                </button>
-                                <button
-                                  type="button"
-                                  className="btn-action-ghost schedule"
-                                  onClick={() => handleOpenScheduleModal(item)}
-                                  title="Schedule Proctored Paper Test"
-                                >
-                                  <Calendar size={13} />
-                                  <span>Schedule</span>
-                                </button>
-                              </>
-                            )}
-                          </div>
+                          {isCompleted ? (
+                            <button
+                              type="button"
+                              className="btn-action-primary view"
+                              onClick={() => handleOpenViewModal(item)}
+                              title="View Official Evaluation Sheet"
+                            >
+                              <Eye size={13} />
+                              <span>View Report</span>
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="btn-action-primary encode"
+                              onClick={() => handleOpenEncodingModal(item)}
+                              title="Encode Psychological & Aptitude Results"
+                            >
+                              <Edit3 size={13} />
+                              <span>Encode Result</span>
+                            </button>
+                          )}
                         </td>
                       </tr>
                     );

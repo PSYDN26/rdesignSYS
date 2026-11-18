@@ -736,41 +736,21 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                         <span className="student-name text-slate-500">{s.middleName || '—'}</span>
                       </td>
 
-                      {/* Column 5: Entrance Exam (Only % or Input button) */}
+                      {/* Column 5: Entrance Exam (Score % or No Result) */}
                       <td className="td-entrance">
                         {hasEntrance ? (
                           <span className="score-val tabular-nums">{s.entranceExam.score}%</span>
                         ) : (
-                          <button
-                            type="button"
-                            className="btn-table-input"
-                            onClick={() => handleOpenEntranceModal(s, false)}
-                            title="Input Entrance Exam"
-                          >
-                            <Plus size={11} />
-                            <span>Input</span>
-                          </button>
+                          <span className="empty-val text-slate-400">No Result</span>
                         )}
                       </td>
 
-                      {/* Column 6: Aptitude Test (Only % or Input button) */}
+                      {/* Column 6: Aptitude Test (Encoded or No Result) */}
                       <td className="td-aptitude">
                         {hasAptitude ? (
-                          s.aptitudeTest.mode === 'mode_a' && s.aptitudeTest.percentileRank !== null ? (
-                            <span className="score-val tabular-nums aptitude">{s.aptitudeTest.percentileRank}%</span>
-                          ) : (
-                            <span className="modeb-letter-text">Letter</span>
-                          )
+                          <span className="status-pill-encoded">Encoded</span>
                         ) : (
-                          <button
-                            type="button"
-                            className="btn-table-input aptitude"
-                            onClick={() => handleOpenAptitudeModal(s, false)}
-                            title="Input Guidance Aptitude"
-                          >
-                            <Plus size={11} />
-                            <span>Input</span>
-                          </button>
+                          <span className="empty-val text-slate-400">No Result</span>
                         )}
                       </td>
 

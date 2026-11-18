@@ -423,6 +423,27 @@
   font-style: italic;
 }
 
+.status-pill-encoded {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.empty-val {
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  font-style: normal;
+}
+
 .modeb-letter-text {
   font-size: 12px;
   font-weight: 600;

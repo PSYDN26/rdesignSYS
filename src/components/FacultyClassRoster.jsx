@@ -507,23 +507,21 @@ export default function FacultyClassRoster({ onBackToGate5 }) {
                       <span className="section-badge font-mono">{cadet.program}</span>
                     </td>
 
-                    {/* Entrance Exam (Pure % Only) */}
+                    {/* Entrance Exam (Score % or No Result) */}
                     <td className="td-entrance">
                       {cadet.entranceScore != null ? (
                         <span className="score-val tabular-nums">{cadet.entranceScore}%</span>
                       ) : (
-                        <span className="pending-tag">Pending</span>
+                        <span className="empty-val text-slate-400">No Result</span>
                       )}
                     </td>
 
-                    {/* Aptitude Test (Pure % Only / Letter for Mode B) */}
+                    {/* Aptitude Test (Encoded or No Result) */}
                     <td className="td-aptitude">
-                      {cadet.aptitudeMode === 'mode_a' && cadet.percentileRank != null ? (
-                        <span className="score-val tabular-nums aptitude">{cadet.percentileRank}%</span>
-                      ) : cadet.aptitudeMode === 'mode_b' ? (
-                        <span className="modeb-letter-text">Letter</span>
+                      {cadet.aptitudeMode != null || cadet.percentileRank != null ? (
+                        <span className="status-pill-encoded">Encoded</span>
                       ) : (
-                        <span className="pending-tag">Pending</span>
+                        <span className="empty-val text-slate-400">No Result</span>
                       )}
                     </td>
 

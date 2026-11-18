@@ -4,17 +4,16 @@ import crestEmblem from '../assets/SCMBT_Crest.png';
 import { 
   LayoutGrid, 
   ClipboardCheck, 
-  Building2, 
   Users, 
   GraduationCap, 
-  Wallet, 
-  TrendingUp, 
-  SlidersHorizontal,
-  Anchor,
   HelpCircle,
   Settings,
   LogOut,
-  BookOpen
+  BookOpen,
+  Brain,
+  FileSpreadsheet,
+  FileText,
+  Anchor
 } from 'lucide-react';
 
 export default function Sidebar({ 
@@ -26,14 +25,13 @@ export default function Sidebar({
 }) {
   const mainNavItems = [
     { id: 'home', label: 'Dashboard', icon: LayoutGrid },
-    { id: 'exam-bank', label: 'Guidance', icon: BookOpen, badge: 'RPM' },
-    { id: 'todo', label: 'Tasks', icon: ClipboardCheck, badge: todoCount },
-    { id: 'campus', label: 'Campus', icon: Building2 },
-    { id: 'profile', label: 'Profile', icon: Users },
-    { id: 'academics', label: 'Academics', icon: GraduationCap },
-    { id: 'finance', label: 'Finance', icon: Wallet },
-    { id: 'analytics', label: 'Analytics', icon: TrendingUp },
-    { id: 'settings', label: 'Settings', icon: SlidersHorizontal },
+    { id: 'exam-bank', label: 'Exam Bank', icon: BookOpen },
+    { id: 'applicant-exam', label: 'Exam Runner', icon: ClipboardCheck },
+    { id: 'referral-slip', label: 'Referral Slip', icon: FileText },
+    { id: 'aptitude-results', label: 'Aptitude Results', icon: Brain },
+    { id: 'legacy-migration', label: 'Migration', icon: FileSpreadsheet },
+    { id: 'faculty-roster', label: 'Class Roster', icon: GraduationCap },
+    { id: 'profile', label: 'Student Profile', icon: Users },
   ];
 
   return (
