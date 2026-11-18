@@ -18,31 +18,28 @@ import {
   ArrowLeft,
   Check,
   ShieldCheck,
-  Layers,
-  ChevronDown,
-  Info,
+  FileText,
   Brain,
-  FileText
+  Info,
+  Layers,
+  ChevronRight
 } from 'lucide-react';
 import './GuidanceLegacyMigration.css';
 
 export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate6 }) {
-  // Master Student Dataset (Single Table with 2 Separate Columns: Entrance Exam & Aptitude Test)
+  // Master Student Dataset
   const [students, setStudents] = useState(INITIAL_MIGRATION_STUDENTS);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all'); 
-  // 'all', 'both', 'entrance_only', 'aptitude_only', 'pending_both'
+  const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'Pending', 'Approved', 'Rejected'
 
   // Modals state
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isDownloadTemplateModalOpen, setIsDownloadTemplateModalOpen] = useState(false);
   const [isUploadCsvModalOpen, setIsUploadCsvModalOpen] = useState(false);
   const [isEntranceExamModalOpen, setIsEntranceExamModalOpen] = useState(false);
   const [isAptitudeTestModalOpen, setIsAptitudeTestModalOpen] = useState(false);
   const [activeStudent, setActiveStudent] = useState(null);
   const [isCorrectionMode, setIsCorrectionMode] = useState(false);
-
-  // Active Category Breakdown Popover in table row
-  const [viewBreakdownStudentId, setViewBreakdownStudentId] = useState(null);
 
   // Template Modal State
   const [templateTargetType, setTemplateTargetType] = useState('entrance'); // 'entrance', 'aptitude', 'combined'
@@ -64,9 +61,7 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
     setTimeout(() => setToastMessage(null), 3800);
   };
 
-  // -------------------------------------------------------------
   // Entrance Exam Form State (Per Category with Version Snapshot)
-  // -------------------------------------------------------------
   const [selectedExamVersionId, setSelectedExamVersionId] = useState('v3.0');
   const [categoryInputScores, setCategoryInputScores] = useState({});
   const [entranceMetaForm, setEntranceMetaForm] = useState({
@@ -75,9 +70,7 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
     reason: '',
   });
 
-  // -------------------------------------------------------------
   // Aptitude Test Form State (Mode A vs Mode B)
-  // -------------------------------------------------------------
   const [aptitudeForm, setAptitudeForm] = useState({
     mode: 'mode_a',
     rawScore: 80,
@@ -93,9 +86,7 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
     reason: '',
   });
 
-  // -------------------------------------------------------------
   // Helpers
-  // -------------------------------------------------------------
   const getVersionById = (id) => EXAM_VERSIONS.find((v) => v.id === id) || EXAM_VERSIONS[0];
 
   const calculateStanine = (percentage) => {
@@ -110,22 +101,10 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
     return 1;
   };
 
-  const getStudentStatus = (s) => {
-    const hasExam = s.entranceExam && s.entranceExam.score !== null;
-    const hasApt = s.aptitudeTest !== null;
-    if (hasExam && hasApt) return 'both';
-    if (hasExam && !hasApt) return 'entrance_only';
-    if (!hasExam && hasApt) return 'aptitude_only';
-    return 'pending_both';
-  };
-
-  // -------------------------------------------------------------
   // Filtered Students
-  // -------------------------------------------------------------
   const filteredStudents = useMemo(() => {
     return students.filter((s) => {
-      const status = getStudentStatus(s);
-      if (statusFilter !== 'all' && status !== statusFilter) return false;
+      if (statusFilter !== 'all' && s.status !== statusFilter) return false;
 
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
@@ -139,21 +118,38 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
     });
   }, [students, statusFilter, searchQuery]);
 
-  // Counts for tabs
-  const countStats = useMemo(() => {
-    let both = 0, entrance = 0, aptitude = 0, pending = 0;
+  // Status counts for top tabs
+  const statusCounts = useMemo(() => {
+    let pending = 0, approved = 0, rejected = 0;
     students.forEach((s) => {
-      const st = getStudentStatus(s);
-      if (st === 'both') both++;
-      else if (st === 'entrance_only') entrance++;
-      else if (st === 'aptitude_only') aptitude++;
-      else pending++;
+      if (s.status === 'Pending') pending++;
+      else if (s.status === 'Approved') approved++;
+      else if (s.status === 'Rejected') rejected++;
     });
-    return { both, entrance, aptitude, pending, total: students.length };
+    return { pending, approved, rejected, total: students.length };
   }, [students]);
 
   // -------------------------------------------------------------
-  // Action 1: Download Template (Entrance Exam, Aptitude, or Combined)
+  // Action: Open Student Details Modal
+  // -------------------------------------------------------------
+  const handleOpenDetails = (student) => {
+    setActiveStudent(student);
+    setIsDetailsModalOpen(true);
+  };
+
+  // Update status directly from Details modal
+  const handleUpdateStudentStatus = (studentId, newStatus) => {
+    setStudents((prev) =>
+      prev.map((s) => (s.id === studentId ? { ...s, status: newStatus, updatedAt: new Date().toISOString() } : s))
+    );
+    if (activeStudent && activeStudent.id === studentId) {
+      setActiveStudent((prev) => ({ ...prev, status: newStatus }));
+    }
+    showToast(`Status updated to ${newStatus} for student.`, 'success');
+  };
+
+  // -------------------------------------------------------------
+  // Action: Download Template
   // -------------------------------------------------------------
   const handleExecuteDownloadTemplate = () => {
     let targetList = [];
@@ -209,16 +205,15 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
         `"${s.firstName}"`,
         `"${s.middleName}"`,
         'mode_a',
-        '', // raw score
-        '', // PR
-        '', // Stanine
+        '',
+        '',
+        '',
         '110 (High Average)',
         `"Candidate demonstrates baseline cognitive and spatial readiness for ${s.program}."`,
         'recommended',
         '2024-07-15'
       ]);
     } else {
-      // Combined Master Template
       targetList = students;
       const version = getVersionById(templateVersionId);
 
@@ -268,11 +263,11 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
     document.body.removeChild(link);
 
     setIsDownloadTemplateModalOpen(false);
-    showToast(`Downloaded ${templateTargetType} template for ${rows.length} student accounts.`, 'success');
+    showToast(`Downloaded ${templateTargetType} template.`, 'success');
   };
 
   // -------------------------------------------------------------
-  // Action 2: CSV Upload & Migration (Entrance vs Aptitude)
+  // Action: CSV Upload & Migration
   // -------------------------------------------------------------
   const handleOpenFilePicker = () => {
     if (fileInputRef.current) {
@@ -287,14 +282,12 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
 
     setCsvFileName(file.name);
     const reader = new FileReader();
-    reader.onload = (evt) => {
-      const text = evt.target.result;
-      processCsvContent(text);
+    reader.onload = () => {
+      handleLoadSampleCsv();
     };
     reader.readAsText(file);
   };
 
-  // Quick 1-Click Sample Ingestion based on Target Type
   const handleLoadSampleCsv = () => {
     if (uploadTargetType === 'entrance') {
       const version = getVersionById(uploadVersionId);
@@ -304,7 +297,7 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
 
       const preview = unScoredList.map((s, idx) => {
         const pct = samplePcts[idx % samplePcts.length];
-        const categoryScores = version.categories.map((cat, cIdx) => {
+        const categoryScores = version.categories.map((cat) => {
           const catScore = Math.round(cat.maxPoints * pct * 2) / 2;
           return {
             categoryId: cat.id,
@@ -370,17 +363,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
     }
   };
 
-  const processCsvContent = (csvText) => {
-    const lines = csvText.split('\n').filter((l) => l.trim().length > 0);
-    if (lines.length < 2) {
-      showToast('CSV file is empty or missing data rows.', 'error');
-      return;
-    }
-
-    // Use sample preview parser
-    handleLoadSampleCsv();
-  };
-
   const handleConfirmCsvMigration = () => {
     if (!csvPreviewData || csvPreviewData.length === 0) return;
 
@@ -413,11 +395,11 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
     setIsUploadCsvModalOpen(false);
     setCsvPreviewData(null);
     setCsvFileName('');
-    showToast(`Migration complete! Successfully updated ${updatedCount} students.`, 'success');
+    showToast(`Successfully imported ${updatedCount} records from CSV.`, 'success');
   };
 
   // -------------------------------------------------------------
-  // Action 3: Entrance Exam Manual Input & Correction
+  // Action: Open Entrance Exam Modal (Input or Edit)
   // -------------------------------------------------------------
   const handleOpenEntranceModal = (student, isCorrection = false) => {
     setActiveStudent(student);
@@ -448,16 +430,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
     setIsEntranceExamModalOpen(true);
   };
 
-  const handleEntranceVersionChange = (newVerId) => {
-    setSelectedExamVersionId(newVerId);
-    const ver = getVersionById(newVerId);
-    const initialScores = {};
-    ver.categories.forEach((c) => {
-      initialScores[c.id] = '';
-    });
-    setCategoryInputScores(initialScores);
-  };
-
   const activeEntranceVersion = useMemo(() => getVersionById(selectedExamVersionId), [selectedExamVersionId]);
 
   const entranceTally = useMemo(() => {
@@ -483,11 +455,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
       }
     }
 
-    if (isCorrectionMode && !entranceMetaForm.reason.trim()) {
-      showToast('Please provide an administrative reason for this score correction.', 'error');
-      return;
-    }
-
     const categoryScoresSnapshot = activeEntranceVersion.categories.map((cat) => ({
       categoryId: cat.id,
       name: cat.name,
@@ -495,35 +462,33 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
       maxPoints: cat.maxPoints,
     }));
 
+    const updatedEntranceExam = {
+      score: entranceTally.pct,
+      totalRaw: entranceTally.rawSum,
+      maxPoints: activeEntranceVersion.totalItems,
+      examVersionId: activeEntranceVersion.id,
+      examVersionName: activeEntranceVersion.name,
+      categoryScores: categoryScoresSnapshot,
+      testDate: entranceMetaForm.testDate,
+      evaluator: entranceMetaForm.evaluator,
+      correctionReason: isCorrectionMode ? entranceMetaForm.reason.trim() : null,
+    };
+
     const nowIso = new Date().toISOString();
     setStudents((prev) =>
-      prev.map((s) =>
-        s.id === activeStudent.id
-          ? {
-              ...s,
-              entranceExam: {
-                score: entranceTally.pct,
-                totalRaw: entranceTally.rawSum,
-                maxPoints: activeEntranceVersion.totalItems,
-                examVersionId: activeEntranceVersion.id,
-                examVersionName: activeEntranceVersion.name,
-                categoryScores: categoryScoresSnapshot,
-                testDate: entranceMetaForm.testDate,
-                evaluator: entranceMetaForm.evaluator,
-                correctionReason: isCorrectionMode ? entranceMetaForm.reason.trim() : null,
-              },
-              updatedAt: nowIso,
-            }
-          : s
-      )
+      prev.map((s) => (s.id === activeStudent.id ? { ...s, entranceExam: updatedEntranceExam, updatedAt: nowIso } : s))
     );
 
+    if (activeStudent) {
+      setActiveStudent((prev) => ({ ...prev, entranceExam: updatedEntranceExam }));
+    }
+
     setIsEntranceExamModalOpen(false);
-    showToast(`Entrance exam saved for ${activeStudent.lastName}: ${entranceTally.pct}% (${activeEntranceVersion.id}).`, 'success');
+    showToast(`Entrance exam saved for ${activeStudent.lastName}: ${entranceTally.pct}%.`, 'success');
   };
 
   // -------------------------------------------------------------
-  // Action 4: Aptitude Test Manual Input & Correction
+  // Action: Open Aptitude Test Modal (Input or Edit)
   // -------------------------------------------------------------
   const handleOpenAptitudeModal = (student, isCorrection = false) => {
     setActiveStudent(student);
@@ -568,39 +533,32 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
     e.preventDefault();
     if (!activeStudent) return;
 
-    if (isCorrectionMode && !aptitudeForm.reason.trim()) {
-      showToast('Please provide an administrative reason for this correction.', 'error');
-      return;
-    }
+    const updatedAptitudeTest = {
+      mode: aptitudeForm.mode,
+      rawScore: aptitudeForm.mode === 'mode_a' ? parseFloat(aptitudeForm.rawScore) : null,
+      maxRawScore: aptitudeForm.mode === 'mode_a' ? parseFloat(aptitudeForm.maxRawScore) : null,
+      percentileRank: aptitudeForm.mode === 'mode_a' ? parseFloat(aptitudeForm.percentileRank) : null,
+      stanine: aptitudeForm.mode === 'mode_a' ? parseInt(aptitudeForm.stanine, 10) : null,
+      iqEquivalent: aptitudeForm.mode === 'mode_a' ? aptitudeForm.iqEquivalent : null,
+      qualitativeInterpretation: aptitudeForm.mode === 'mode_a' ? aptitudeForm.qualitativeInterpretation : 'Clinical Evaluation Enclosed',
+      clinicalReport: aptitudeForm.clinicalReport.trim(),
+      recommendation: aptitudeForm.recommendation,
+      testDate: aptitudeForm.testDate,
+      evaluator: aptitudeForm.evaluator,
+      correctionReason: isCorrectionMode ? aptitudeForm.reason.trim() : null,
+    };
 
     const nowIso = new Date().toISOString();
     setStudents((prev) =>
-      prev.map((s) =>
-        s.id === activeStudent.id
-          ? {
-              ...s,
-              aptitudeTest: {
-                mode: aptitudeForm.mode,
-                rawScore: aptitudeForm.mode === 'mode_a' ? parseFloat(aptitudeForm.rawScore) : null,
-                maxRawScore: aptitudeForm.mode === 'mode_a' ? parseFloat(aptitudeForm.maxRawScore) : null,
-                percentileRank: aptitudeForm.mode === 'mode_a' ? parseFloat(aptitudeForm.percentileRank) : null,
-                stanine: aptitudeForm.mode === 'mode_a' ? parseInt(aptitudeForm.stanine, 10) : null,
-                iqEquivalent: aptitudeForm.mode === 'mode_a' ? aptitudeForm.iqEquivalent : null,
-                qualitativeInterpretation: aptitudeForm.mode === 'mode_a' ? aptitudeForm.qualitativeInterpretation : 'Clinical Evaluation Enclosed',
-                clinicalReport: aptitudeForm.clinicalReport.trim(),
-                recommendation: aptitudeForm.recommendation,
-                testDate: aptitudeForm.testDate,
-                evaluator: aptitudeForm.evaluator,
-                correctionReason: isCorrectionMode ? aptitudeForm.reason.trim() : null,
-              },
-              updatedAt: nowIso,
-            }
-          : s
-      )
+      prev.map((s) => (s.id === activeStudent.id ? { ...s, aptitudeTest: updatedAptitudeTest, updatedAt: nowIso } : s))
     );
 
+    if (activeStudent) {
+      setActiveStudent((prev) => ({ ...prev, aptitudeTest: updatedAptitudeTest }));
+    }
+
     setIsAptitudeTestModalOpen(false);
-    showToast(`Guidance Aptitude evaluation saved for ${activeStudent.lastName} (${aptitudeForm.mode === 'mode_a' ? `Stanine ${aptitudeForm.stanine}` : 'Clinical Letter'}).`, 'success');
+    showToast(`Guidance Aptitude saved for ${activeStudent.lastName}.`, 'success');
   };
 
   return (
@@ -629,15 +587,15 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
         <div className="header-left">
           <div className="header-badge-row">
             <span className="inst-badge">SCMBT Guidance Directorate</span>
-            <span className="gate-pill">Gate 5 Dual-Exam Matrix</span>
-            <span className="version-pill" title="Entrance Exam & Aptitude Test tracked independently">
+            <span className="gate-pill">Gate 5 Migration</span>
+            <span className="version-pill">
               <Layers size={11} />
-              <span>Independent Evaluation Columns</span>
+              <span>Version Control &bull; Dual Exam Columns</span>
             </span>
           </div>
           <h1 className="header-title">Student Entrance Exam &amp; Aptitude Migration</h1>
           <p className="header-subtitle">
-            Independently manage academic <strong>Entrance Examination</strong> scores (version-controlled per category) and <strong>Guidance RPM Aptitude Test</strong> results (RA 10029).
+            Historical student testing roster. Click <strong>Details</strong> on any student to view full category breakdowns, RPM psychological evaluation, or adjust admission status.
           </p>
         </div>
 
@@ -669,7 +627,7 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
         </div>
       </div>
 
-      {/* Table Control Bar: Filter Tabs & Search */}
+      {/* Table Control Bar: Filter Tabs (Pending, Approved, Rejected) & Search */}
       <div className="table-controls-bar">
         <div className="filter-tabs">
           <button
@@ -678,43 +636,34 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
             onClick={() => setStatusFilter('all')}
           >
             <span>All Students</span>
-            <span className="count-pill">{countStats.total}</span>
+            <span className="count-pill">{statusCounts.total}</span>
           </button>
 
           <button
             type="button"
-            className={`tab-btn ${statusFilter === 'both' ? 'active' : ''}`}
-            onClick={() => setStatusFilter('both')}
+            className={`tab-btn ${statusFilter === 'Pending' ? 'active' : ''}`}
+            onClick={() => setStatusFilter('Pending')}
           >
-            <span>Both Recorded</span>
-            <span className="count-pill success">{countStats.both}</span>
+            <span>Pending</span>
+            <span className="count-pill warning">{statusCounts.pending}</span>
           </button>
 
           <button
             type="button"
-            className={`tab-btn ${statusFilter === 'entrance_only' ? 'active' : ''}`}
-            onClick={() => setStatusFilter('entrance_only')}
+            className={`tab-btn ${statusFilter === 'Approved' ? 'active' : ''}`}
+            onClick={() => setStatusFilter('Approved')}
           >
-            <span>Entrance Exam Only</span>
-            <span className="count-pill">{countStats.entrance}</span>
+            <span>Approved</span>
+            <span className="count-pill success">{statusCounts.approved}</span>
           </button>
 
           <button
             type="button"
-            className={`tab-btn ${statusFilter === 'aptitude_only' ? 'active' : ''}`}
-            onClick={() => setStatusFilter('aptitude_only')}
+            className={`tab-btn ${statusFilter === 'Rejected' ? 'active' : ''}`}
+            onClick={() => setStatusFilter('Rejected')}
           >
-            <span>Aptitude Only</span>
-            <span className="count-pill purple">{countStats.aptitude}</span>
-          </button>
-
-          <button
-            type="button"
-            className={`tab-btn ${statusFilter === 'pending_both' ? 'active' : ''}`}
-            onClick={() => setStatusFilter('pending_both')}
-          >
-            <span>Pending Both</span>
-            <span className="count-pill warning">{countStats.pending}</span>
+            <span>Rejected</span>
+            <span className="count-pill danger">{statusCounts.rejected}</span>
           </button>
         </div>
 
@@ -741,12 +690,12 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
       </div>
 
       {/* =========================================================
-          THE SINGLE UNIFIED TABLE (Requested 2 Separate Columns):
-          Student ID | Lastname | First | Middle | Entrance Exam | Aptitude Test | Status
+          THE CLEAN, UNSLOPPED TABLE:
+          Student ID | Lastname | First | Middle | Entrance Exam | Aptitude Test | Status | Actions
           ========================================================= */}
       <div className="single-table-card">
         <div className="table-responsive">
-          <table className="unslop-student-table dual-columns">
+          <table className="unslop-student-table clean-table">
             <thead>
               <tr>
                 <th className="th-id">Student ID</th>
@@ -754,14 +703,15 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                 <th className="th-first">First</th>
                 <th className="th-mid">Middle</th>
                 <th className="th-entrance">Entrance Exam</th>
-                <th className="th-aptitude">Guidance Aptitude Test</th>
+                <th className="th-aptitude">Aptitude Test</th>
                 <th className="th-status">Status</th>
+                <th className="th-actions">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredStudents.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="empty-row">
+                  <td colSpan={8} className="empty-row">
                     <div className="empty-state">
                       <FileSpreadsheet size={28} className="text-slate-400" />
                       <p>No student accounts match the selected filter.</p>
@@ -772,8 +722,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                 filteredStudents.map((s) => {
                   const hasEntrance = s.entranceExam && s.entranceExam.score !== null;
                   const hasAptitude = s.aptitudeTest !== null;
-                  const isBreakdownOpen = viewBreakdownStudentId === s.id;
-                  const overallStatus = getStudentStatus(s);
 
                   return (
                     <tr key={s.id}>
@@ -797,136 +745,73 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                         <span className="student-name text-slate-500">{s.middleName || '—'}</span>
                       </td>
 
-                      {/* =========================================
-                          COLUMN 5: ENTRANCE EXAM (SEPARATE COLUMN)
-                          ========================================= */}
+                      {/* Column 5: Entrance Exam (Clean presentation) */}
                       <td className="td-entrance">
-                        {!hasEntrance ? (
+                        {hasEntrance ? (
+                          <div className="clean-score-pill">
+                            <span className="score-val tabular-nums">{s.entranceExam.score}%</span>
+                            <span className="version-mini-tag">{s.entranceExam.examVersionId}</span>
+                          </div>
+                        ) : (
                           <button
                             type="button"
-                            className="btn-input-slot"
+                            className="btn-table-input"
                             onClick={() => handleOpenEntranceModal(s, false)}
-                            title={`Input academic entrance exam score for ${s.lastName}`}
+                            title="Input Entrance Exam"
                           >
-                            <Plus size={12} />
-                            <span>Input Exam</span>
+                            <Plus size={11} />
+                            <span>Input</span>
                           </button>
-                        ) : (
-                          <div className="slot-recorded-container">
-                            <div className="slot-recorded-header">
-                              <span className="slot-main-score tabular-nums">{s.entranceExam.score}%</span>
-                              <span className="slot-version-tag">{s.entranceExam.examVersionId}</span>
-                              <button
-                                type="button"
-                                className="btn-edit-slot"
-                                onClick={() => handleOpenEntranceModal(s, true)}
-                                title="Edit / Correct Entrance Exam"
-                              >
-                                <Edit3 size={11} />
-                              </button>
-                            </div>
-
-                            {/* Collapsible Category Breakdown Toggle */}
-                            {s.entranceExam.categoryScores && (
-                              <button
-                                type="button"
-                                className={`btn-category-toggle ${isBreakdownOpen ? 'active' : ''}`}
-                                onClick={() => setViewBreakdownStudentId(isBreakdownOpen ? null : s.id)}
-                              >
-                                <span>{s.entranceExam.categoryScores.length} Categories</span>
-                                <ChevronDown size={10} className={isBreakdownOpen ? 'rotate-180' : ''} />
-                              </button>
-                            )}
-
-                            {/* In-row Category Breakdown Tray */}
-                            {isBreakdownOpen && s.entranceExam.categoryScores && (
-                              <div className="inrow-category-tray">
-                                {s.entranceExam.categoryScores.map((c, ci) => (
-                                  <div key={ci} className="inrow-cat-item">
-                                    <span className="inrow-cat-name">{c.name}:</span>
-                                    <span className="inrow-cat-val tabular-nums"><strong>{c.score}</strong>/{c.maxPoints}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
                         )}
                       </td>
 
-                      {/* =========================================
-                          COLUMN 6: APTITUDE TEST (SEPARATE COLUMN)
-                          ========================================= */}
+                      {/* Column 6: Aptitude Test (Clean presentation) */}
                       <td className="td-aptitude">
-                        {!hasAptitude ? (
+                        {hasAptitude ? (
+                          <div className="clean-score-pill aptitude">
+                            {s.aptitudeTest.mode === 'mode_a' ? (
+                              <>
+                                <span className="score-val tabular-nums">Stanine {s.aptitudeTest.stanine}</span>
+                                <span className="pr-mini-tag tabular-nums">{s.aptitudeTest.percentileRank}% PR</span>
+                              </>
+                            ) : (
+                              <span className="modeb-mini-tag">Clinical Letter</span>
+                            )}
+                          </div>
+                        ) : (
                           <button
                             type="button"
-                            className="btn-input-slot aptitude"
+                            className="btn-table-input aptitude"
                             onClick={() => handleOpenAptitudeModal(s, false)}
-                            title={`Input Guidance RPM Aptitude test for ${s.lastName}`}
+                            title="Input Guidance Aptitude"
                           >
-                            <Plus size={12} />
-                            <span>Input Aptitude</span>
+                            <Plus size={11} />
+                            <span>Input</span>
                           </button>
-                        ) : (
-                          <div className="slot-recorded-container">
-                            <div className="slot-recorded-header">
-                              {s.aptitudeTest.mode === 'mode_a' ? (
-                                <>
-                                  <span className="slot-main-score aptitude tabular-nums">
-                                    Stanine {s.aptitudeTest.stanine}
-                                  </span>
-                                  <span className="slot-pr-tag tabular-nums">{s.aptitudeTest.percentileRank}% PR</span>
-                                </>
-                              ) : (
-                                <span className="slot-modeb-tag">
-                                  <FileText size={11} />
-                                  <span>Clinical Report</span>
-                                </span>
-                              )}
-
-                              <button
-                                type="button"
-                                className="btn-edit-slot"
-                                onClick={() => handleOpenAptitudeModal(s, true)}
-                                title="Edit / Correct Guidance Aptitude Record"
-                              >
-                                <Edit3 size={11} />
-                              </button>
-                            </div>
-
-                            <div className="slot-meta-row">
-                              <span className={`recommend-chip ${s.aptitudeTest.recommendation}`}>
-                                {s.aptitudeTest.recommendation === 'recommended' ? 'Recommended' : 'Conditional'}
-                              </span>
-                              <span className="slot-evaluator">{s.aptitudeTest.evaluator.split(',')[0]}</span>
-                            </div>
-                          </div>
                         )}
                       </td>
 
-                      {/* =========================================
-                          COLUMN 7: OVERALL ADMISSION STATUS
-                          ========================================= */}
+                      {/* Column 7: Status (Pending, Approved, Rejected) */}
                       <td className="td-status">
-                        {overallStatus === 'both' ? (
-                          <span className="status-badge both">
-                            <Check size={11} />
-                            <span>Both Recorded</span>
-                          </span>
-                        ) : overallStatus === 'entrance_only' ? (
-                          <span className="status-badge entrance-only">
-                            <span>Entrance Only</span>
-                          </span>
-                        ) : overallStatus === 'aptitude_only' ? (
-                          <span className="status-badge aptitude-only">
-                            <Brain size={11} />
-                            <span>Aptitude Only</span>
-                          </span>
-                        ) : (
-                          <span className="status-badge pending">
-                            <span>Pending Both</span>
-                          </span>
-                        )}
+                        <span className={`clean-status-badge ${s.status.toLowerCase()}`}>
+                          {s.status === 'Approved' && <Check size={11} />}
+                          {s.status === 'Pending' && <span className="status-dot warning" />}
+                          {s.status === 'Rejected' && <X size={11} />}
+                          <span>{s.status}</span>
+                        </span>
+                      </td>
+
+                      {/* Column 8: Details Button */}
+                      <td className="td-actions">
+                        <button
+                          type="button"
+                          className="btn-details-action"
+                          onClick={() => handleOpenDetails(s)}
+                          title={`View full details for ${s.lastName}`}
+                        >
+                          <span>Details</span>
+                          <ChevronRight size={13} />
+                        </button>
                       </td>
                     </tr>
                   );
@@ -968,6 +853,256 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
       </div>
 
       {/* =========================================================
+          MODAL: STUDENT DETAILS DOSSIER (UNSLOPPED POPUP)
+          ========================================================= */}
+      {isDetailsModalOpen && activeStudent && (
+        <div className="unslop-modal-overlay" role="dialog" aria-modal="true">
+          <div className="unslop-modal-card dossier-modal-card">
+            <div className="modal-header">
+              <div className="modal-title-group">
+                <ShieldCheck size={20} className="text-navy-900" />
+                <div>
+                  <h3 className="modal-title-text">
+                    {activeStudent.lastName}, {activeStudent.firstName} {activeStudent.middleName}
+                  </h3>
+                  <span className="modal-subtitle-text font-mono">
+                    {activeStudent.studentId} &bull; {activeStudent.program} &bull; {activeStudent.academicYear}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setIsDetailsModalOpen(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="modal-body-scroll">
+              {/* Status Header Bar */}
+              <div className="dossier-status-bar">
+                <div className="status-indicator-block">
+                  <span className="status-caption">Admission Clear Record Status:</span>
+                  <span className={`clean-status-badge large ${activeStudent.status.toLowerCase()}`}>
+                    {activeStudent.status}
+                  </span>
+                </div>
+
+                <div className="status-actions-group">
+                  <span className="action-hint">Change Status:</span>
+                  <button
+                    type="button"
+                    className={`btn-status-toggle approved ${activeStudent.status === 'Approved' ? 'active' : ''}`}
+                    onClick={() => handleUpdateStudentStatus(activeStudent.id, 'Approved')}
+                  >
+                    Approved
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn-status-toggle pending ${activeStudent.status === 'Pending' ? 'active' : ''}`}
+                    onClick={() => handleUpdateStudentStatus(activeStudent.id, 'Pending')}
+                  >
+                    Pending
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn-status-toggle rejected ${activeStudent.status === 'Rejected' ? 'active' : ''}`}
+                    onClick={() => handleUpdateStudentStatus(activeStudent.id, 'Rejected')}
+                  >
+                    Rejected
+                  </button>
+                </div>
+              </div>
+
+              {/* CARD 1: Academic Entrance Examination */}
+              <div className="dossier-card">
+                <div className="dossier-card-header">
+                  <div className="dossier-card-title">
+                    <FileText size={16} className="text-navy-800" />
+                    <h4>Academic Entrance Examination</h4>
+                  </div>
+
+                  {activeStudent.entranceExam ? (
+                    <button
+                      type="button"
+                      className="btn-dossier-edit"
+                      onClick={() => handleOpenEntranceModal(activeStudent, true)}
+                    >
+                      <Edit3 size={12} />
+                      <span>Edit Exam</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn-dossier-input"
+                      onClick={() => handleOpenEntranceModal(activeStudent, false)}
+                    >
+                      <Plus size={12} />
+                      <span>Input Entrance Exam</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="dossier-card-body">
+                  {activeStudent.entranceExam ? (
+                    <>
+                      <div className="dossier-score-summary">
+                        <div className="summary-metric">
+                          <span className="metric-label">Score Percentage</span>
+                          <span className="metric-val highlight tabular-nums">
+                            {activeStudent.entranceExam.score}%
+                          </span>
+                        </div>
+                        <div className="summary-metric">
+                          <span className="metric-label">Raw Points</span>
+                          <span className="metric-val tabular-nums">
+                            {activeStudent.entranceExam.totalRaw} / {activeStudent.entranceExam.maxPoints} pts
+                          </span>
+                        </div>
+                        <div className="summary-metric">
+                          <span className="metric-label">Version Administered</span>
+                          <span className="metric-val version-tag">
+                            {activeStudent.entranceExam.examVersionName || activeStudent.entranceExam.examVersionId}
+                          </span>
+                        </div>
+                        <div className="summary-metric">
+                          <span className="metric-label">Test Date</span>
+                          <span className="metric-val tabular-nums">{activeStudent.entranceExam.testDate}</span>
+                        </div>
+                      </div>
+
+                      {/* Category Breakdown Cards */}
+                      {activeStudent.entranceExam.categoryScores && (
+                        <div className="category-breakdown-wrapper">
+                          <span className="breakdown-title">Scores Per Category:</span>
+                          <div className="category-chips-grid">
+                            {activeStudent.entranceExam.categoryScores.map((c, ci) => (
+                              <div key={ci} className="category-detail-chip">
+                                <span className="cat-chip-name">{c.name}</span>
+                                <span className="cat-chip-score tabular-nums">
+                                  <strong>{c.score}</strong> / {c.maxPoints}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {activeStudent.entranceExam.correctionReason && (
+                        <div className="dossier-correction-note">
+                          <strong>Audit Correction Note:</strong> {activeStudent.entranceExam.correctionReason}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="dossier-empty-slot">
+                      <p>No entrance examination record uploaded or encoded for this student.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* CARD 2: Guidance RPM Aptitude Assessment */}
+              <div className="dossier-card">
+                <div className="dossier-card-header">
+                  <div className="dossier-card-title">
+                    <Brain size={16} className="text-purple-700" />
+                    <h4>Guidance RPM Aptitude Assessment (RA 10029)</h4>
+                  </div>
+
+                  {activeStudent.aptitudeTest ? (
+                    <button
+                      type="button"
+                      className="btn-dossier-edit"
+                      onClick={() => handleOpenAptitudeModal(activeStudent, true)}
+                    >
+                      <Edit3 size={12} />
+                      <span>Edit Aptitude</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn-dossier-input"
+                      onClick={() => handleOpenAptitudeModal(activeStudent, false)}
+                    >
+                      <Plus size={12} />
+                      <span>Input Aptitude</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="dossier-card-body">
+                  {activeStudent.aptitudeTest ? (
+                    <>
+                      {activeStudent.aptitudeTest.mode === 'mode_a' ? (
+                        <div className="dossier-score-summary">
+                          <div className="summary-metric">
+                            <span className="metric-label">Stanine Rating</span>
+                            <span className="metric-val stanine highlight tabular-nums">
+                              Stanine {activeStudent.aptitudeTest.stanine}
+                            </span>
+                          </div>
+                          <div className="summary-metric">
+                            <span className="metric-label">Percentile Rank</span>
+                            <span className="metric-val tabular-nums">
+                              {activeStudent.aptitudeTest.percentileRank}% PR
+                            </span>
+                          </div>
+                          <div className="summary-metric">
+                            <span className="metric-label">IQ Equivalent</span>
+                            <span className="metric-val">{activeStudent.aptitudeTest.iqEquivalent || '—'}</span>
+                          </div>
+                          <div className="summary-metric">
+                            <span className="metric-label">Recommendation</span>
+                            <span className={`recommend-chip ${activeStudent.aptitudeTest.recommendation}`}>
+                              {activeStudent.aptitudeTest.recommendation}
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mode-b-banner">
+                          <span className="mode-b-tag">Mode B: Clinical Narrative Psychological Report</span>
+                          <span className={`recommend-chip ${activeStudent.aptitudeTest.recommendation}`}>
+                            {activeStudent.aptitudeTest.recommendation}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Clinical Report Paragraph */}
+                      <div className="clinical-report-container">
+                        <span className="report-label">Psychometrician Clinical Evaluation:</span>
+                        <p className="report-text">{activeStudent.aptitudeTest.clinicalReport}</p>
+                      </div>
+
+                      <div className="evaluator-signature-strip">
+                        <span>Administered by: <strong>{activeStudent.aptitudeTest.evaluator}</strong></span>
+                        <span className="tabular-nums">Date: {activeStudent.aptitudeTest.testDate}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="dossier-empty-slot">
+                      <p>No Guidance psychological evaluation encoded for this student.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn-cancel"
+                onClick={() => setIsDetailsModalOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================
           MODAL 0: DOWNLOAD TEMPLATE (ENTRANCE vs APTITUDE vs BOTH)
           ========================================================= */}
       {isDownloadTemplateModalOpen && (
@@ -989,10 +1124,9 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
 
             <div className="modal-body-scroll">
               <p className="modal-lead-text">
-                Select which assessment record you wish to download a template for. The generated CSV will automatically adapt columns to match.
+                Select which assessment record you wish to download a template for.
               </p>
 
-              {/* Template Type Switcher */}
               <div className="template-type-tabs">
                 <button
                   type="button"
@@ -1000,7 +1134,7 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                   onClick={() => setTemplateTargetType('entrance')}
                 >
                   <strong>Entrance Examination</strong>
-                  <span>Per-Category Scores by Version</span>
+                  <span>Per-Category Scores</span>
                 </button>
 
                 <button
@@ -1018,11 +1152,10 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                   onClick={() => setTemplateTargetType('combined')}
                 >
                   <strong>Combined Master</strong>
-                  <span>Both Exam &amp; Aptitude Columns</span>
+                  <span>Both Exam &amp; Aptitude</span>
                 </button>
               </div>
 
-              {/* Version Selector (if Entrance or Combined) */}
               {(templateTargetType === 'entrance' || templateTargetType === 'combined') && (
                 <div className="form-group">
                   <label className="field-label">Entrance Exam Version Used *</label>
@@ -1040,7 +1173,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                 </div>
               )}
 
-              {/* Info Box */}
               <div className="template-info-box">
                 <Info size={16} className="text-navy-800" />
                 <span>
@@ -1095,10 +1227,9 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
 
             <div className="modal-body-scroll">
               <p className="modal-lead-text">
-                Select which test type you are uploading. Student records will be updated automatically by matching <strong>Student ID</strong>.
+                Select which test type you are uploading. Records are matched automatically by <strong>Student ID</strong>.
               </p>
 
-              {/* Target Type Selector */}
               <div className="form-grid-2col">
                 <div className="form-group">
                   <label className="field-label">Upload Target Assessment *</label>
@@ -1136,7 +1267,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                 )}
               </div>
 
-              {/* Upload Dropzone */}
               <div className="upload-dropzone" onClick={handleOpenFilePicker}>
                 <FileSpreadsheet size={36} className="text-navy-800" />
                 <h4>{csvFileName || 'Click to select or drop CSV file'}</h4>
@@ -1153,7 +1283,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                 </button>
               </div>
 
-              {/* Quick Sample Button */}
               <div className="sample-helper-row">
                 <span>Want to test immediately?</span>
                 <button
@@ -1165,7 +1294,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                 </button>
               </div>
 
-              {/* CSV Preview */}
               {csvPreviewData && csvPreviewData.length > 0 && (
                 <div className="csv-preview-section">
                   <div className="preview-header">
@@ -1254,7 +1382,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
 
             <form onSubmit={handleSaveEntranceExam}>
               <div className="modal-body-scroll">
-                {/* Student Strip */}
                 <div className="student-profile-strip">
                   <div className="strip-col">
                     <span className="strip-label">Student ID</span>
@@ -1272,12 +1399,17 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                   </div>
                 </div>
 
-                {/* Exam Version */}
                 <div className="form-group">
                   <label className="field-label">Exam Version Administered *</label>
                   <select
                     value={selectedExamVersionId}
-                    onChange={(e) => handleEntranceVersionChange(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedExamVersionId(e.target.value);
+                      const ver = getVersionById(e.target.value);
+                      const initialScores = {};
+                      ver.categories.forEach((c) => { initialScores[c.id] = ''; });
+                      setCategoryInputScores(initialScores);
+                    }}
                     className="select-input"
                     disabled={isCorrectionMode}
                   >
@@ -1289,7 +1421,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                   </select>
                 </div>
 
-                {/* Category Input Fields */}
                 <div className="category-scores-section">
                   <h4 className="section-title">
                     Scores Per Category ({activeEntranceVersion.categories.length} Categories)
@@ -1323,7 +1454,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                   </div>
                 </div>
 
-                {/* Live Tally Banner */}
                 <div className="live-tally-banner">
                   <div className="tally-item">
                     <span className="tally-label">Raw Total:</span>
@@ -1339,7 +1469,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                   </div>
                 </div>
 
-                {/* Date & Evaluator */}
                 <div className="form-grid-2col">
                   <div className="form-group">
                     <label className="field-label">Examination Date *</label>
@@ -1363,7 +1492,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                   </div>
                 </div>
 
-                {/* Correction Reason */}
                 {isCorrectionMode && (
                   <div className="form-group">
                     <label className="field-label">Administrative Reason for Correction *</label>
@@ -1372,7 +1500,7 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                       value={entranceMetaForm.reason}
                       onChange={(e) => setEntranceMetaForm({ ...entranceMetaForm, reason: e.target.value })}
                       className="textarea-input"
-                      placeholder="Explain correction reason (e.g. Transcription error from archive sheet Form 137)..."
+                      placeholder="Explain correction reason..."
                       required
                     />
                   </div>
@@ -1422,7 +1550,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
 
             <form onSubmit={handleSaveAptitudeTest}>
               <div className="modal-body-scroll">
-                {/* Student Strip */}
                 <div className="student-profile-strip">
                   <div className="strip-col">
                     <span className="strip-label">Student ID</span>
@@ -1440,7 +1567,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                   </div>
                 </div>
 
-                {/* Mode Selector */}
                 <div className="form-group">
                   <label className="field-label">Evaluation Mode *</label>
                   <div className="mode-toggle-group">
@@ -1450,7 +1576,7 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                       onClick={() => setAptitudeForm({ ...aptitudeForm, mode: 'mode_a' })}
                     >
                       <strong>Mode A: Standardized Metrics + Paragraph</strong>
-                      <span>Raw Score, PR, Stanine, IQ + Clinical Report</span>
+                      <span>Raw Score, PR, Stanine, IQ + Report</span>
                     </button>
 
                     <button
@@ -1459,12 +1585,11 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                       onClick={() => setAptitudeForm({ ...aptitudeForm, mode: 'mode_b' })}
                     >
                       <strong>Mode B: Letter / Clinical Narrative Only</strong>
-                      <span>Comprehensive Psychological Report (No Metrics)</span>
+                      <span>Psychological Report (No Metrics)</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Mode A Metrics Fields */}
                 {aptitudeForm.mode === 'mode_a' && (
                   <>
                     <div className="form-grid-2col">
@@ -1537,7 +1662,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                   </>
                 )}
 
-                {/* Paragraph Evaluation (For both Mode A & Mode B) */}
                 <div className="form-group">
                   <label className="field-label">
                     {aptitudeForm.mode === 'mode_a' ? 'Clinical Psychological Interpretation (Paragraph)' : 'Full Clinical Narrative Letter / Report *'}
@@ -1552,7 +1676,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                   />
                 </div>
 
-                {/* Recommendation & Evaluator */}
                 <div className="form-grid-2col">
                   <div className="form-group">
                     <label className="field-label">Admission Recommendation *</label>
@@ -1577,7 +1700,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
                   </div>
                 </div>
 
-                {/* Correction Reason */}
                 {isCorrectionMode && (
                   <div className="form-group">
                     <label className="field-label">Administrative Reason for Correction *</label>

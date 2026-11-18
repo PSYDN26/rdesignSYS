@@ -745,6 +745,7 @@ export const INITIAL_MIGRATION_STUDENTS = [
       evaluator: 'Maria Elena Santos, RPM',
       correctionReason: null,
     },
+    status: 'Approved',
     updatedAt: '2026-11-10T09:30:00Z',
   },
   {
@@ -770,6 +771,7 @@ export const INITIAL_MIGRATION_STUDENTS = [
       evaluator: 'Maria Elena Santos, RPM',
       correctionReason: null,
     },
+    status: 'Pending',
     updatedAt: '2026-11-12T10:00:00Z',
   },
   {
@@ -797,6 +799,7 @@ export const INITIAL_MIGRATION_STUDENTS = [
       correctionReason: null,
     },
     aptitudeTest: null, // Pending Guidance Aptitude Test
+    status: 'Pending',
     updatedAt: '2026-11-13T11:20:00Z',
   },
   {
@@ -836,6 +839,7 @@ export const INITIAL_MIGRATION_STUDENTS = [
       evaluator: 'R. Ramos, RPM',
       correctionReason: null,
     },
+    status: 'Approved',
     updatedAt: '2026-11-12T14:15:00Z',
   },
   {
@@ -848,6 +852,7 @@ export const INITIAL_MIGRATION_STUDENTS = [
     academicYear: 'AY 2024–2025',
     entranceExam: null, // Pending Entrance Exam
     aptitudeTest: null, // Pending Guidance Aptitude Test
+    status: 'Pending',
     updatedAt: null,
   },
   {
@@ -888,6 +893,7 @@ export const INITIAL_MIGRATION_STUDENTS = [
       evaluator: 'Maria Elena Santos, RPM',
       correctionReason: null,
     },
+    status: 'Approved',
     updatedAt: '2026-11-14T11:00:00Z',
   },
   {
@@ -915,6 +921,7 @@ export const INITIAL_MIGRATION_STUDENTS = [
       correctionReason: null,
     },
     aptitudeTest: null, // Pending Guidance Aptitude Test
+    status: 'Pending',
     updatedAt: '2026-11-15T09:15:00Z',
   },
   {
@@ -954,6 +961,7 @@ export const INITIAL_MIGRATION_STUDENTS = [
       evaluator: 'L. Santos, RPM',
       correctionReason: null,
     },
+    status: 'Approved',
     updatedAt: '2026-11-16T15:20:00Z',
   },
   {
@@ -979,6 +987,7 @@ export const INITIAL_MIGRATION_STUDENTS = [
       evaluator: 'Maria Elena Santos, RPM',
       correctionReason: null,
     },
+    status: 'Rejected',
     updatedAt: '2026-11-16T16:00:00Z',
   },
   {
@@ -1006,6 +1015,7 @@ export const INITIAL_MIGRATION_STUDENTS = [
       correctionReason: null,
     },
     aptitudeTest: null, // Pending Guidance Aptitude Test
+    status: 'Pending',
     updatedAt: '2026-11-17T09:45:00Z',
   },
 ];
