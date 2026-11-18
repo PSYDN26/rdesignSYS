@@ -217,61 +217,51 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
       )}
 
       {/* Header Banner */}
+      {/* Header Banner - Unsloped, Crisp & Direct */}
       <header className="aptitude-page-header">
         <div className="header-meta">
-          <div className="dept-tag">
-            <span className="dept-dot"></span>
-            <span>SCMBT Guidance Testing Directorate &bull; RPM Assessment Desk</span>
-          </div>
-          <h1 className="header-title">Written Aptitude Test Results &amp; RPM Encoding</h1>
+          <h1 className="header-title">Written Aptitude Test Results</h1>
           <p className="header-subtitle">
-            Administered by Registered Psychometricians (RA 10029) &bull; Schedule test dates, encode structured or narrative psychological evaluations, assign admission endorsements, and manage faculty visibility.
+            Review psychometric referrals, record standardized battery or narrative evaluations, and manage faculty visibility.
           </p>
         </div>
 
-        {/* Current Officer Stamp */}
-        <div className="officer-identity-card">
-          <div className="officer-badge-icon">
-            <ShieldCheck size={24} className="text-navy-900" />
-          </div>
-          <div className="officer-info">
-            <span className="officer-label">Signed-in Psychometrician</span>
+        {/* Current Officer Badge - Sleek & Compact */}
+        <div className="officer-identity-pill">
+          <ShieldCheck size={18} className="officer-pill-icon" />
+          <div className="officer-pill-text">
             <span className="officer-name">{CURRENT_STAFF_USER.name}</span>
-            <span className="officer-license tabular-nums">PRC License: {CURRENT_STAFF_USER.rpmLicenseNumber}</span>
+            <span className="officer-license tabular-nums">PRC Lic. {CURRENT_STAFF_USER.rpmLicenseNumber}</span>
           </div>
         </div>
       </header>
 
-      {/* Metrics Strip */}
-      <div className="aptitude-stats-strip">
-        <div className="stat-card">
-          <span className="stat-lbl">Active Referrals</span>
-          <span className="stat-val tabular-nums">{referrals.length}</span>
-          <span className="stat-sub">From online exam retake exhaustion</span>
+      {/* Unsloped Summary Counter Bar (Replaces 4 chunky cards) */}
+      <div className="aptitude-summary-bar">
+        <div className="summary-item">
+          <span className="summary-count tabular-nums">{referrals.length}</span>
+          <span className="summary-label">Total Referrals</span>
         </div>
-
-        <div className="stat-card">
-          <span className="stat-lbl">Pending Visit / Intake</span>
-          <span className="stat-val tabular-nums font-bold text-amber-600">
+        <div className="summary-divider" />
+        <div className="summary-item">
+          <span className="summary-count tabular-nums count-amber">
             {referrals.filter((r) => r.referralStatus === 'pending_visit').length}
           </span>
-          <span className="stat-sub">Awaiting candidate appearance</span>
+          <span className="summary-label">Pending Intake</span>
         </div>
-
-        <div className="stat-card">
-          <span className="stat-lbl">Scheduled for Paper Test</span>
-          <span className="stat-val tabular-nums text-blue-700">
+        <div className="summary-divider" />
+        <div className="summary-item">
+          <span className="summary-count tabular-nums count-blue">
             {referrals.filter((r) => r.referralStatus === 'scheduled').length}
           </span>
-          <span className="stat-sub">Confirmed testing hall seats</span>
+          <span className="summary-label">Scheduled</span>
         </div>
-
-        <div className="stat-card">
-          <span className="stat-lbl">Encoded &amp; Released</span>
-          <span className="stat-val tabular-nums text-emerald-700">
+        <div className="summary-divider" />
+        <div className="summary-item">
+          <span className="summary-count tabular-nums count-emerald">
             {referrals.filter((r) => r.referralStatus === 'released').length}
           </span>
-          <span className="stat-sub">Visible to assigned class professors</span>
+          <span className="summary-label">Released to Faculty</span>
         </div>
       </div>
 
@@ -279,17 +269,18 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
       <div className="guidance-card aptitude-table-card">
         <div className="card-header-bar">
           <div className="bar-title">
-            <ClipboardList size={18} className="text-navy-900" />
-            <h2>Referral Intake &amp; Psychological Evaluation Queue</h2>
+            <ClipboardList size={17} className="text-navy-900" />
+            <h2>Applicant Referrals Queue</h2>
+            <span className="queue-count-badge tabular-nums">{filteredReferrals.length}</span>
           </div>
 
           <div className="table-header-controls">
             {/* Search Box */}
             <div className="search-box-sm">
-              <Search size={15} className="search-icon" />
+              <Search size={14} className="search-icon" />
               <input
                 type="text"
-                placeholder="Search candidate, program, or REF code..."
+                placeholder="Search applicant or REF code..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="search-input-sm"
@@ -298,7 +289,7 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
 
             {/* Status Filter */}
             <div className="filter-dropdown-sm">
-              <Filter size={14} className="filter-icon" />
+              <Filter size={13} className="filter-icon" />
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -319,20 +310,20 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
             <table className="aptitude-intake-table">
               <thead>
                 <tr>
-                  <th>Candidate / Application</th>
-                  <th>Target Degree Program</th>
-                  <th>Test Schedule</th>
-                  <th>Evaluation Mode &amp; Score</th>
-                  <th>Admission Recommendation</th>
-                  <th>Faculty Release</th>
-                  <th>Actions</th>
+                  <th style={{ width: '22%' }}>Applicant</th>
+                  <th style={{ width: '20%' }}>Degree Program</th>
+                  <th style={{ width: '15%' }}>Schedule</th>
+                  <th style={{ width: '16%' }}>Evaluation</th>
+                  <th style={{ width: '12%' }}>Recommendation</th>
+                  <th style={{ width: '10%' }}>Faculty</th>
+                  <th style={{ width: '15%', textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredReferrals.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="empty-table-cell">
-                      <FileText size={32} className="text-slate-300" />
+                      <FileText size={28} className="text-slate-300" />
                       <p>No referrals found matching the selected filter criteria.</p>
                     </td>
                   </tr>
@@ -340,34 +331,30 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                   filteredReferrals.map((item) => {
                     const isEncoded = item.referralStatus === 'encoded' || item.referralStatus === 'released';
                     return (
-                      <tr key={item.id} className={item.referralStatus}>
-                        {/* Candidate */}
+                      <tr key={item.id} className={`table-row-${item.referralStatus}`}>
+                        {/* Applicant */}
                         <td className="candidate-cell">
-                          <span className="cand-name font-bold">{item.applicantName}</span>
-                          <span className="cand-sub tabular-nums">
-                            {item.applicationNumber} &bull; <strong>{item.referralCode}</strong>
-                          </span>
+                          <span className="cand-name">{item.applicantName}</span>
+                          <span className="cand-ref tabular-nums">{item.referralCode}</span>
                         </td>
 
                         {/* Program */}
                         <td className="program-cell">
-                          <span className="prog-title font-semibold">{item.targetProgram}</span>
-                          <span className="prog-strand text-slate-500">{item.shsStrand}</span>
+                          <span className="prog-title">{item.targetProgram}</span>
+                          <span className="prog-strand">{item.shsStrand}</span>
                         </td>
 
                         {/* Schedule */}
                         <td className="schedule-cell">
                           {item.scheduledTestDate ? (
                             <div className="sched-info">
-                              <span className="sched-date tabular-nums font-semibold">
-                                {item.scheduledTestDate}
-                              </span>
-                              <span className="sched-session text-slate-500">
-                                {item.scheduledSession ? item.scheduledSession.split('(')[0] : 'Testing Hall'}
+                              <span className="sched-date tabular-nums">{item.scheduledTestDate}</span>
+                              <span className="sched-session">
+                                {item.scheduledSession ? item.scheduledSession.split('(')[0].trim() : 'Testing Hall'}
                               </span>
                             </div>
                           ) : (
-                            <span className="unscheduled-pill">Pending Visit</span>
+                            <span className="status-chip chip-amber">Pending Visit</span>
                           )}
                         </td>
 
@@ -376,19 +363,21 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                           {isEncoded ? (
                             item.evaluationMode === 'structured' ? (
                               <div className="metric-preview-structured">
-                                <span className="stanine-badge">Stanine {item.stanine}</span>
-                                <span className="score-text tabular-nums">
-                                  {item.percentileRank}% PR ({item.qualitativeInterpretation})
+                                <span className="metric-primary tabular-nums">
+                                  <strong>{item.percentileRank}%</strong> PR
+                                </span>
+                                <span className="metric-secondary tabular-nums">
+                                  Stanine {item.stanine} &bull; {item.qualitativeInterpretation}
                                 </span>
                               </div>
                             ) : (
                               <div className="metric-preview-narrative">
                                 <span className="narrative-tag">Narrative Letter</span>
-                                <span className="score-text">Clinical Report Encoded</span>
+                                <span className="narrative-sub">Clinical Report Encoded</span>
                               </div>
                             )
                           ) : (
-                            <span className="not-encoded-tag">Unencoded</span>
+                            <span className="empty-dash">&mdash;</span>
                           )}
                         </td>
 
@@ -403,7 +392,7 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                                 : 'Not Recommended'}
                             </span>
                           ) : (
-                            <span className="text-slate-400 font-medium">&mdash;</span>
+                            <span className="empty-dash">&mdash;</span>
                           )}
                         </td>
 
@@ -416,59 +405,82 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                               onClick={() => handleToggleFacultyRelease(item.id)}
                               title={
                                 item.isReleasedToFaculty
-                                  ? 'Click to retract visibility from faculty class roster'
-                                  : 'Click to release evaluation to assigned faculty class roster'
+                                  ? 'Click to restrict from faculty class roster'
+                                  : 'Click to release to assigned faculty class roster'
                               }
                             >
                               {item.isReleasedToFaculty ? (
                                 <>
-                                  <Unlock size={13} />
+                                  <Unlock size={12} />
                                   <span>Released</span>
                                 </>
                               ) : (
                                 <>
-                                  <Lock size={13} />
+                                  <Lock size={12} />
                                   <span>Restricted</span>
                                 </>
                               )}
                             </button>
                           ) : (
-                            <span className="text-slate-400 text-xs">Awaiting Result</span>
+                            <span className="empty-dash">&mdash;</span>
                           )}
                         </td>
 
                         {/* Actions */}
-                        <td className="actions-cell">
+                        <td className="actions-cell" style={{ textAlign: 'right' }}>
                           <div className="action-buttons-group">
-                            <button
-                              type="button"
-                              className="btn-table-action schedule"
-                              onClick={() => handleOpenScheduleModal(item)}
-                              title="Schedule / Reschedule Paper Test"
-                            >
-                              <Calendar size={14} />
-                              <span>Schedule</span>
-                            </button>
+                            {isEncoded ? (
+                              <>
+                                <button
+                                  type="button"
+                                  className="btn-action-primary edit"
+                                  onClick={() => handleOpenEncodingModal(item)}
+                                  title="Edit Psychological Evaluation"
+                                >
+                                  <Edit3 size={13} />
+                                  <span>Edit</span>
+                                </button>
 
-                            <button
-                              type="button"
-                              className="btn-table-action encode"
-                              onClick={() => handleOpenEncodingModal(item)}
-                              title="Encode Psychological & Aptitude Results"
-                            >
-                              <Edit3 size={14} />
-                              <span>{isEncoded ? 'Edit RPM Result' : 'Encode Result'}</span>
-                            </button>
+                                <button
+                                  type="button"
+                                  className="btn-action-icon"
+                                  onClick={() => handleOpenScheduleModal(item)}
+                                  title="Reschedule Paper Test"
+                                >
+                                  <Calendar size={13} />
+                                </button>
 
-                            {isEncoded && (
-                              <button
-                                type="button"
-                                className="btn-table-action view"
-                                onClick={() => handleOpenViewModal(item)}
-                                title="View Full Psychological Assessment Sheet"
-                              >
-                                <Eye size={14} />
-                              </button>
+                                <button
+                                  type="button"
+                                  className="btn-action-icon"
+                                  onClick={() => handleOpenViewModal(item)}
+                                  title="View Official Evaluation Sheet"
+                                >
+                                  <Eye size={13} />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  className="btn-action-primary encode"
+                                  onClick={() => handleOpenEncodingModal(item)}
+                                  title="Encode Psychological & Aptitude Results"
+                                >
+                                  <Edit3 size={13} />
+                                  <span>Encode</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  className="btn-action-ghost"
+                                  onClick={() => handleOpenScheduleModal(item)}
+                                  title="Schedule Proctored Paper Test"
+                                >
+                                  <Calendar size={13} />
+                                  <span>Schedule</span>
+                                </button>
+                              </>
                             )}
                           </div>
                         </td>
