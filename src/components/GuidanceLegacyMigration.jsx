@@ -1,1227 +1,960 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import {
-  INITIAL_LEGACY_MIGRATIONS,
-  CURRENT_STAFF_USER,
-  EVP_STAFF_USER
+  INITIAL_MIGRATION_STUDENTS,
+  CURRENT_STAFF_USER
 } from '../data/examMockData';
 import {
-  FileText,
   Upload,
+  Download,
   Plus,
-  CheckCircle2,
-  AlertTriangle,
-  Eye,
-  ShieldCheck,
   Edit3,
+  Search,
+  CheckCircle2,
+  AlertCircle,
+  FileSpreadsheet,
   X,
-  Award,
-  Printer,
   ArrowRight,
   ArrowLeft,
-  FileSpreadsheet,
-  Key,
-  BadgeCheck,
-  Search,
-  Filter
+  Check,
+  ShieldCheck,
+  RotateCcw
 } from 'lucide-react';
 import './GuidanceLegacyMigration.css';
 
 export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate6 }) {
-  // Perspective Role Tab: 'guidance' (Admissions/Guidance Desk) vs 'evp' (Executive VP Desk)
-  const [activeRoleView, setActiveRoleView] = useState('guidance');
-
-  // Batches dataset
-  const [batches, setBatches] = useState(INITIAL_LEGACY_MIGRATIONS);
+  // Master Student Dataset (Single Table)
+  const [students, setStudents] = useState(INITIAL_MIGRATION_STUDENTS);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'without_score', 'scored'
 
-  // Modals
-  const [isCreateBatchModalOpen, setIsCreateBatchModalOpen] = useState(false);
-  const [isAddStudentModalOpen, setIsAddStudentModalOpen] = useState(false);
-  const [isEvpReviewModalOpen, setIsEvpReviewModalOpen] = useState(false);
-  const [isViewCertificateModalOpen, setIsViewCertificateModalOpen] = useState(false);
-  const [activeBatch, setActiveBatch] = useState(null);
+  // Modals state
+  const [isUploadCsvModalOpen, setIsUploadCsvModalOpen] = useState(false);
+  const [isInputScoreModalOpen, setIsInputScoreModalOpen] = useState(false);
+  const [isCorrectionModalOpen, setIsCorrectionModalOpen] = useState(false);
+  const [activeStudent, setActiveStudent] = useState(null);
 
-  // Toast
+  // File input ref for CSV upload
+  const fileInputRef = useRef(null);
+
+  // Toast feedback
   const [toastMessage, setToastMessage] = useState(null);
   const showToast = (msg, type = 'success') => {
     setToastMessage({ msg, type });
     setTimeout(() => setToastMessage(null), 3800);
   };
 
-  // Form State for New Batch
-  const [newBatchForm, setNewBatchForm] = useState({
-    batchReference: `MIG-BATCH-2026-00${batches.length + 1}`,
-    sourceDescription: 'AY 2024–2025 Transferee & Returnee Paper Records',
-    submissionNotes: 'Transcribed from physical archives in Room 102. Transferee admission clearances verified.',
-  });
-
-  // Form State for Single Manual Student Entry
-  const [studentForm, setStudentForm] = useState({
-    studentNumber: 'SCMBT-2024-00299',
-    fullName: 'Villanueva, Paolo Marco',
-    programCode: 'BS Marine Transportation (BSMT)',
-    academicYear: 'AY 2024–2025',
-    testType: 'Written Aptitude Battery (Physical Paper)',
+  // Form state for Manual Input (for student without score)
+  const [inputScoreForm, setInputScoreForm] = useState({
+    score: '',
+    stanine: 6,
     testDate: '2026-11-18',
-    scorePct: 81.5,
-    stanine: 7,
-    recommendation: 'recommended',
-    originalRpmName: 'L. Santos, RPM',
-    remarks: 'Transferee clearance verified from registrar.',
+    examType: 'Physical Paper Aptitude Battery',
+    evaluator: CURRENT_STAFF_USER.name,
+    remarks: 'Encoded from verified physical archives in Room 102.',
   });
 
-  // EVP Sign-off Form
-  const [evpSignForm, setEvpSignForm] = useState({
-    evpPin: '',
-    evpRemarks: 'Verified against stamped Form 137 archives and Registrar cross-referencing. Transferee credit equivalence authorized.',
+  // Form state for Manual Correction (for student who already has score)
+  const [correctionForm, setCorrectionForm] = useState({
+    newScore: '',
+    newStanine: 6,
+    reason: '',
   });
 
-  // Filtered Batches
-  const filteredBatches = useMemo(() => {
-    return batches.filter((b) => {
-      const matchStatus = statusFilter === 'all' || b.status === statusFilter;
-      const matchSearch =
-        b.batchReference.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        b.sourceDescription.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        b.createdByName.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchStatus && matchSearch;
+  // Parsed CSV state for preview in Upload CSV modal
+  const [csvPreviewData, setCsvPreviewData] = useState(null);
+  const [csvFileName, setCsvFileName] = useState('');
+
+  // -------------------------------------------------------------
+  // Filtered Students
+  // -------------------------------------------------------------
+  const filteredStudents = useMemo(() => {
+    return students.filter((s) => {
+      // Status filter
+      if (statusFilter === 'without_score' && s.score !== null) return false;
+      if (statusFilter === 'scored' && s.score === null) return false;
+
+      // Search filter (Student ID, Lastname, First, Middle)
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matchId = s.studentId.toLowerCase().includes(q);
+        const matchLast = s.lastName.toLowerCase().includes(q);
+        const matchFirst = s.firstName.toLowerCase().includes(q);
+        const matchMiddle = s.middleName.toLowerCase().includes(q);
+        return matchId || matchLast || matchFirst || matchMiddle;
+      }
+      return true;
     });
-  }, [batches, statusFilter, searchQuery]);
+  }, [students, statusFilter, searchQuery]);
 
-  // Overall Statistics
-  const stats = useMemo(() => {
-    const totalBatches = batches.length;
-    const pendingEvp = batches.filter((b) => b.status === 'pending_evp').length;
-    const approved = batches.filter((b) => b.status === 'evp_approved').length;
-    const totalStudents = batches.reduce((sum, b) => sum + (b.records ? b.records.length : 0), 0);
-    return { totalBatches, pendingEvp, approved, totalStudents };
-  }, [batches]);
+  // Counts for tabs
+  const withoutScoreCount = useMemo(() => students.filter((s) => s.score === null).length, [students]);
+  const scoredCount = useMemo(() => students.filter((s) => s.score !== null).length, [students]);
 
-  // Handle Create New Batch
-  const handleCreateBatch = (e) => {
-    e.preventDefault();
-    const newBatch = {
-      id: `mig-batch-00${batches.length + 1}`,
-      batchReference: newBatchForm.batchReference,
-      sourceDescription: newBatchForm.sourceDescription,
-      createdByStaffId: CURRENT_STAFF_USER.id,
-      createdByName: CURRENT_STAFF_USER.name,
-      createdAt: new Date().toISOString(),
-      status: 'draft',
-      submissionNotes: newBatchForm.submissionNotes,
-      totalRecordsCount: 0,
-      approvedByEvpId: null,
-      approvedByEvpName: null,
-      evpDecisionAt: null,
-      evpRemarks: null,
-      evpDigitalSignatureHash: null,
-      records: [],
-    };
+  // -------------------------------------------------------------
+  // Action 1: Download Template (Students with account but without score)
+  // -------------------------------------------------------------
+  const handleDownloadTemplate = () => {
+    const unScoredList = students.filter((s) => s.score === null);
 
-    setBatches([newBatch, ...batches]);
-    setActiveBatch(newBatch);
-    setIsCreateBatchModalOpen(false);
-    showToast(`Batch ${newBatch.batchReference} created. You can now add student records.`, 'success');
+    if (unScoredList.length === 0) {
+      showToast('All registered students currently have scores recorded.', 'info');
+      return;
+    }
+
+    // Generate CSV Content
+    const headers = ['Student ID', 'Lastname', 'First', 'Middle', 'Score', 'Stanine', 'Test Date', 'Remarks'];
+    const rows = unScoredList.map((s) => [
+      s.studentId,
+      `"${s.lastName}"`,
+      `"${s.firstName}"`,
+      `"${s.middleName}"`,
+      '', // empty score for user to fill
+      '', // empty stanine
+      '2024-07-15',
+      `"Freshman/Transferee ${s.program}"`
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `SCMBT_Students_Without_Score_Template_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast(`Downloaded CSV template with ${unScoredList.length} unscored student accounts.`, 'success');
   };
 
-  // Handle Add Single Student to Active Batch
-  const handleAddStudentToBatch = (e) => {
-    e.preventDefault();
-    if (!activeBatch) return;
-
-    const newRecord = {
-      id: `rec-mig-${Date.now()}`,
-      studentNumber: studentForm.studentNumber,
-      fullName: studentForm.fullName,
-      programCode: studentForm.programCode,
-      academicYear: studentForm.academicYear,
-      testType: studentForm.testType,
-      testDate: studentForm.testDate,
-      scorePct: parseFloat(studentForm.scorePct),
-      stanine: parseInt(studentForm.stanine, 10),
-      recommendation: studentForm.recommendation,
-      originalRpmName: studentForm.originalRpmName,
-      remarks: studentForm.remarks,
-    };
-
-    setBatches((prev) =>
-      prev.map((b) => {
-        if (b.id !== activeBatch.id) return b;
-        const updatedRecords = [...b.records, newRecord];
-        return {
-          ...b,
-          records: updatedRecords,
-          totalRecordsCount: updatedRecords.length,
-        };
-      })
-    );
-
-    // Update activeBatch in state
-    setActiveBatch((prev) => ({
-      ...prev,
-      records: [...prev.records, newRecord],
-      totalRecordsCount: prev.records.length + 1,
-    }));
-
-    setIsAddStudentModalOpen(false);
-    showToast(`Added ${newRecord.fullName} to batch ${activeBatch.batchReference}.`, 'success');
+  // -------------------------------------------------------------
+  // Action 2: CSV Upload & Migration
+  // -------------------------------------------------------------
+  const handleOpenFilePicker = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+      fileInputRef.current.click();
+    }
   };
 
-  // Mock CSV Sample Load
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setCsvFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target.result;
+      processCsvContent(text);
+    };
+    reader.readAsText(file);
+  };
+
+  // Helper to load sample CSV instantly for quick review
   const handleLoadSampleCsv = () => {
-    if (!activeBatch) return;
+    setCsvFileName('SCMBT_Historical_Scores_AY2024.csv');
+    const unScoredList = students.filter((s) => s.score === null);
+    const sampleScores = [79.0, 83.5, 71.0, 88.0, 75.5];
+    const sampleStanines = [6, 7, 5, 8, 6];
 
-    const mockCsvRecords = [
-      {
-        id: `rec-mig-csv-1`,
-        studentNumber: 'SCMBT-2024-00401',
-        fullName: 'Gonzales, Juan Carlo',
-        programCode: 'BS Marine Transportation (BSMT)',
-        academicYear: 'AY 2024–2025',
-        testType: 'Written Aptitude Battery (Physical Paper)',
-        testDate: '2024-06-20',
-        scorePct: 83.5,
-        stanine: 7,
-        recommendation: 'recommended',
-        originalRpmName: 'A. Guinto, RPM',
-        remarks: 'CSV Bulk Import: Transferee transcript verified.',
-      },
-      {
-        id: `rec-mig-csv-2`,
-        studentNumber: 'SCMBT-2024-00402',
-        fullName: 'Soriano, Maria Angela',
-        programCode: 'BS Marine Engineering (BSMarE)',
-        academicYear: 'AY 2024–2025',
-        testType: 'SCMBT Freshman Entrance Exam (Legacy 80-Item)',
-        testDate: '2024-06-22',
-        scorePct: 78.0,
-        stanine: 6,
-        recommendation: 'recommended',
-        originalRpmName: 'A. Guinto, RPM',
-        remarks: 'CSV Bulk Import: Returnee reactivated.',
-      },
-      {
-        id: `rec-mig-csv-3`,
-        studentNumber: 'SCMBT-2024-00403',
-        fullName: 'Valdez, Sean Kendrick',
-        programCode: 'BS Customs Administration (BSCA)',
-        academicYear: 'AY 2024–2025',
-        testType: 'Entrance Exam & IQ Diagnostic',
-        testDate: '2024-06-25',
-        scorePct: 71.0,
-        stanine: 5,
-        recommendation: 'conditional',
-        originalRpmName: 'L. Santos, RPM',
-        remarks: 'CSV Bulk Import: Conditional endorsement by Dean.',
-      },
-    ];
-
-    setBatches((prev) =>
-      prev.map((b) => {
-        if (b.id !== activeBatch.id) return b;
-        const updatedRecords = [...b.records, ...mockCsvRecords];
-        return {
-          ...b,
-          records: updatedRecords,
-          totalRecordsCount: updatedRecords.length,
-        };
-      })
-    );
-
-    setActiveBatch((prev) => ({
-      ...prev,
-      records: [...prev.records, ...mockCsvRecords],
-      totalRecordsCount: prev.records.length + mockCsvRecords.length,
+    const preview = unScoredList.map((s, idx) => ({
+      studentId: s.studentId,
+      lastName: s.lastName,
+      firstName: s.firstName,
+      middleName: s.middleName,
+      score: sampleScores[idx % sampleScores.length],
+      stanine: sampleStanines[idx % sampleStanines.length],
+      testDate: '2024-07-15',
+      remarks: 'Batch imported from Guidance archive Form 137',
     }));
 
-    showToast(`Imported 3 legacy records from CSV into ${activeBatch.batchReference}.`, 'success');
+    setCsvPreviewData(preview);
   };
 
-  // Submit Batch for EVP Approval (Guidance Action)
-  const handleSubmitToEvp = (batchId) => {
-    setBatches((prev) =>
-      prev.map((b) => {
-        if (b.id !== batchId) return b;
-        return {
-          ...b,
-          status: 'pending_evp',
-        };
+  const processCsvContent = (csvText) => {
+    const lines = csvText.split('\n').filter((l) => l.trim().length > 0);
+    if (lines.length < 2) {
+      showToast('CSV file is empty or missing data rows.', 'error');
+      return;
+    }
+
+    const preview = [];
+    // Skip header line
+    for (let i = 1; i < lines.length; i++) {
+      const parts = lines[i].split(',').map((p) => p.replace(/^"|"$/g, '').trim());
+      if (parts.length >= 5) {
+        const [studentId, lastName, firstName, middleName, scoreStr, stanineStr, testDate, remarks] = parts;
+        const numScore = parseFloat(scoreStr);
+        if (studentId && !isNaN(numScore)) {
+          preview.push({
+            studentId,
+            lastName: lastName || '',
+            firstName: firstName || '',
+            middleName: middleName || '',
+            score: numScore,
+            stanine: parseInt(stanineStr, 10) || 6,
+            testDate: testDate || '2024-07-15',
+            remarks: remarks || 'Imported via CSV Migration',
+          });
+        }
+      }
+    }
+
+    if (preview.length === 0) {
+      showToast('No valid student score rows detected in CSV. Please verify column order.', 'error');
+      return;
+    }
+
+    setCsvPreviewData(preview);
+  };
+
+  const handleConfirmCsvMigration = () => {
+    if (!csvPreviewData || csvPreviewData.length === 0) return;
+
+    let updatedCount = 0;
+    const nowIso = new Date().toISOString();
+
+    setStudents((prev) =>
+      prev.map((s) => {
+        const match = csvPreviewData.find((p) => p.studentId === s.studentId);
+        if (match) {
+          updatedCount++;
+          return {
+            ...s,
+            score: match.score,
+            stanine: match.stanine,
+            testDate: match.testDate,
+            examType: 'Physical Paper Aptitude Exam (CSV Migrated)',
+            status: 'Scored',
+            evaluator: CURRENT_STAFF_USER.name,
+            updatedAt: nowIso,
+          };
+        }
+        return s;
       })
     );
-    const target = batches.find((b) => b.id === batchId);
-    showToast(`Batch ${target.batchReference} submitted to Executive VP for formal sign-off.`, 'info');
+
+    setIsUploadCsvModalOpen(false);
+    setCsvPreviewData(null);
+    setCsvFileName('');
+    showToast(`Migration complete! Successfully updated ${updatedCount} student records from CSV.`, 'success');
   };
 
-  // Open EVP Review Modal
-  const handleOpenEvpReview = (batch) => {
-    setActiveBatch(batch);
-    setEvpSignForm({
-      evpPin: '',
-      evpRemarks:
-        batch.evpRemarks ||
-        'Verified against historical paper archives and certified student records. Transferee credit equivalence authorized.',
+  // -------------------------------------------------------------
+  // Action 3: Manual Input Per Student (Only Without Score)
+  // -------------------------------------------------------------
+  const handleOpenInputScore = (student) => {
+    setActiveStudent(student);
+    setInputScoreForm({
+      score: '',
+      stanine: 6,
+      testDate: '2024-07-15',
+      examType: 'Physical Paper Aptitude Battery',
+      evaluator: CURRENT_STAFF_USER.name,
+      remarks: 'Transcribed from verified archives in Records Room 102.',
     });
-    setIsEvpReviewModalOpen(true);
+    setIsInputScoreModalOpen(true);
   };
 
-  // EVP Sign and Authorize
-  const handleEvpAuthorize = (e) => {
+  const handleSaveInputScore = (e) => {
     e.preventDefault();
-    if (!activeBatch) return;
+    if (!activeStudent) return;
 
-    const signatureHash = `SHA256:${Math.random().toString(16).substring(2, 10)}${Math.random().toString(16).substring(2, 10)}${Math.random().toString(16).substring(2, 10)}`;
+    const numericScore = parseFloat(inputScoreForm.score);
+    if (isNaN(numericScore) || numericScore < 0 || numericScore > 100) {
+      showToast('Please enter a valid percentage score between 0 and 100.', 'error');
+      return;
+    }
 
-    setBatches((prev) =>
-      prev.map((b) => {
-        if (b.id !== activeBatch.id) return b;
-        return {
-          ...b,
-          status: 'evp_approved',
-          approvedByEvpId: EVP_STAFF_USER.id,
-          approvedByEvpName: EVP_STAFF_USER.name,
-          evpDecisionAt: new Date().toISOString(),
-          evpRemarks: evpSignForm.evpRemarks,
-          evpDigitalSignatureHash: signatureHash,
-        };
-      })
+    const nowIso = new Date().toISOString();
+    setStudents((prev) =>
+      prev.map((s) =>
+        s.id === activeStudent.id
+          ? {
+              ...s,
+              score: numericScore,
+              stanine: parseInt(inputScoreForm.stanine, 10),
+              testDate: inputScoreForm.testDate,
+              examType: inputScoreForm.examType,
+              evaluator: inputScoreForm.evaluator,
+              status: 'Scored',
+              updatedAt: nowIso,
+            }
+          : s
+      )
     );
 
-    setIsEvpReviewModalOpen(false);
-    showToast(`Batch ${activeBatch.batchReference} digitally signed & authorized by Executive VP.`, 'success');
+    setIsInputScoreModalOpen(false);
+    showToast(`Score recorded for ${activeStudent.lastName}, ${activeStudent.firstName}: ${numericScore}% (Stanine ${inputScoreForm.stanine}).`, 'success');
   };
 
-  // EVP Reject / Return for Correction
-  const handleEvpReject = () => {
-    if (!activeBatch) return;
-    setBatches((prev) =>
-      prev.map((b) => {
-        if (b.id !== activeBatch.id) return b;
-        return {
-          ...b,
-          status: 'evp_rejected',
-          evpRemarks: evpSignForm.evpRemarks || 'Returned for missing registrar transcript seals.',
-          evpDecisionAt: new Date().toISOString(),
-        };
-      })
+  // -------------------------------------------------------------
+  // Action 4: Manual Input For Correction (For Students With Score)
+  // -------------------------------------------------------------
+  const handleOpenCorrection = (student) => {
+    setActiveStudent(student);
+    setCorrectionForm({
+      newScore: student.score !== null ? student.score : '',
+      newStanine: student.stanine || 6,
+      reason: '',
+    });
+    setIsCorrectionModalOpen(true);
+  };
+
+  const handleSaveCorrection = (e) => {
+    e.preventDefault();
+    if (!activeStudent) return;
+
+    const numericScore = parseFloat(correctionForm.newScore);
+    if (isNaN(numericScore) || numericScore < 0 || numericScore > 100) {
+      showToast('Please enter a valid percentage score between 0 and 100.', 'error');
+      return;
+    }
+
+    if (!correctionForm.reason.trim()) {
+      showToast('Please provide an administrative reason for this score correction.', 'error');
+      return;
+    }
+
+    const nowIso = new Date().toISOString();
+    setStudents((prev) =>
+      prev.map((s) =>
+        s.id === activeStudent.id
+          ? {
+              ...s,
+              score: numericScore,
+              stanine: parseInt(correctionForm.newStanine, 10),
+              status: 'Corrected',
+              correctionReason: correctionForm.reason.trim(),
+              updatedAt: nowIso,
+            }
+          : s
+      )
     );
-    setIsEvpReviewModalOpen(false);
-    showToast(`Batch ${activeBatch.batchReference} returned for revision.`, 'error');
-  };
 
-  // Open View Certificate Sheet Modal
-  const handleOpenCertificate = (batch) => {
-    setActiveBatch(batch);
-    setIsViewCertificateModalOpen(true);
+    setIsCorrectionModalOpen(false);
+    showToast(`Score correction saved for ${activeStudent.lastName}: ${numericScore}% with audit justification.`, 'success');
   };
 
   return (
-    <div className="guidance-migration-canvas">
-      {/* Toast Notification */}
+    <div className="migration-unslop-container">
+      {/* Toast Alert */}
       {toastMessage && (
-        <div className={`guidance-toast ${toastMessage.type}`}>
-          {toastMessage.type === 'success' ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
+        <div className={`unslop-toast ${toastMessage.type}`}>
+          {toastMessage.type === 'success' && <CheckCircle2 size={16} />}
+          {toastMessage.type === 'error' && <AlertCircle size={16} />}
+          {toastMessage.type === 'info' && <ShieldCheck size={16} />}
           <span>{toastMessage.msg}</span>
         </div>
       )}
 
-      {/* Header Banner - Unsloped & Crisp */}
-      <header className="migration-header">
-        <div className="header-meta">
-          <h1 className="header-title">Legacy Student Exam Migration &amp; EVP Approval</h1>
+      {/* Hidden File Input for CSV */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept=".csv,text/csv"
+        style={{ display: 'none' }}
+      />
+
+      {/* Header Section */}
+      <div className="migration-header-card">
+        <div className="header-left">
+          <div className="header-badge-row">
+            <span className="inst-badge">SCMBT Guidance Directorate</span>
+            <span className="gate-pill">Gate 5 Migration</span>
+          </div>
+          <h1 className="header-title">Student Entrance Exam Migration</h1>
           <p className="header-subtitle">
-            Transcribe historical entrance scores for transferees and returnees. Manual and CSV bulk uploads require formal digital authorization by the Executive Vice President.
+            Upload historical aptitude scores via CSV or manually encode/correct records for registered students with accounts.
           </p>
         </div>
 
-        {/* Dual-Perspective Desk Switcher */}
-        <div className="perspective-toggle-card">
-          <span className="perspective-label">Signed-in Perspective:</span>
-          <div className="segmented-perspective">
-            <button
-              type="button"
-              className={`btn-persp ${activeRoleView === 'guidance' ? 'active' : ''}`}
-              onClick={() => setActiveRoleView('guidance')}
-            >
-              <ShieldCheck size={14} />
-              <span>Guidance Desk (M. Santos, RPM)</span>
-            </button>
-            <button
-              type="button"
-              className={`btn-persp ${activeRoleView === 'evp' ? 'active evp' : ''}`}
-              onClick={() => setActiveRoleView('evp')}
-            >
-              <BadgeCheck size={14} />
-              <span>Executive VP Desk (Dr. Villanueva)</span>
-            </button>
-          </div>
-        </div>
-      </header>
+        {/* Primary Header Action Buttons */}
+        <div className="header-actions">
+          <button
+            type="button"
+            className="btn-download-template"
+            onClick={handleDownloadTemplate}
+            title="Download CSV containing students who currently do not have scores recorded"
+          >
+            <Download size={15} />
+            <span>Download Template (Students without score)</span>
+          </button>
 
-      {/* Summary Counter Ribbon */}
-      <div className="migration-summary-bar">
-        <div className="summary-item">
-          <span className="summary-count tabular-nums">{stats.totalBatches}</span>
-          <span className="summary-label">Total Batches</span>
-        </div>
-        <div className="summary-divider" />
-        <div className="summary-item">
-          <span className="summary-count tabular-nums count-amber">{stats.pendingEvp}</span>
-          <span className="summary-label">Pending EVP Sign-off</span>
-        </div>
-        <div className="summary-divider" />
-        <div className="summary-item">
-          <span className="summary-count tabular-nums count-emerald">{stats.approved}</span>
-          <span className="summary-label">EVP Approved</span>
-        </div>
-        <div className="summary-divider" />
-        <div className="summary-item">
-          <span className="summary-count tabular-nums count-blue">{stats.totalStudents}</span>
-          <span className="summary-label">Migrated Students</span>
+          <button
+            type="button"
+            className="btn-migration-csv"
+            onClick={() => {
+              setCsvPreviewData(null);
+              setCsvFileName('');
+              setIsUploadCsvModalOpen(true);
+            }}
+            title="Upload CSV to migrate scores in bulk"
+          >
+            <Upload size={15} />
+            <span>Migration (Upload CSV)</span>
+          </button>
         </div>
       </div>
 
-      {/* Main Migration Batches Card */}
-      <div className="guidance-card migration-table-card">
-        <div className="card-header-bar">
-          <div className="bar-title">
-            <FileSpreadsheet size={17} className="text-navy-900" />
-            <h2>
-              {activeRoleView === 'guidance'
-                ? 'Guidance Transcription Batches'
-                : 'Executive VP Approval Queue'}
-            </h2>
-            <span className="queue-count-badge tabular-nums">{filteredBatches.length}</span>
-          </div>
+      {/* Table Control Bar: Filter Tabs & Search */}
+      <div className="table-controls-bar">
+        <div className="filter-tabs">
+          <button
+            type="button"
+            className={`tab-btn ${statusFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setStatusFilter('all')}
+          >
+            <span>All Students</span>
+            <span className="count-pill">{students.length}</span>
+          </button>
 
-          <div className="table-header-controls">
-            {/* Search Box */}
-            <div className="search-box-sm">
-              <Search size={14} className="search-icon" />
-              <input
-                type="text"
-                placeholder="Search batch or description..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="search-input-sm"
-              />
-            </div>
+          <button
+            type="button"
+            className={`tab-btn ${statusFilter === 'without_score' ? 'active' : ''}`}
+            onClick={() => setStatusFilter('without_score')}
+          >
+            <span>Without Score</span>
+            <span className={`count-pill ${withoutScoreCount > 0 ? 'warning' : ''}`}>
+              {withoutScoreCount}
+            </span>
+          </button>
 
-            {/* Status Filter */}
-            <div className="filter-dropdown-sm">
-              <Filter size={13} className="filter-icon" />
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="filter-select-sm"
-              >
-                <option value="all">All Batches ({batches.length})</option>
-                <option value="draft">Draft (Guidance)</option>
-                <option value="pending_evp">Pending EVP Approval</option>
-                <option value="evp_approved">EVP Approved</option>
-                <option value="evp_rejected">Returned / Rejected</option>
-              </select>
-            </div>
-
-            {/* Create Batch Button (Guidance Desk) */}
-            {activeRoleView === 'guidance' && (
-              <button
-                type="button"
-                className="btn-create-batch"
-                onClick={() => setIsCreateBatchModalOpen(true)}
-              >
-                <Plus size={14} />
-                <span>New Batch</span>
-              </button>
-            )}
-          </div>
+          <button
+            type="button"
+            className={`tab-btn ${statusFilter === 'scored' ? 'active' : ''}`}
+            onClick={() => setStatusFilter('scored')}
+          >
+            <span>Scored</span>
+            <span className="count-pill success">{scoredCount}</span>
+          </button>
         </div>
 
-        <div className="card-body no-padding">
-          <div className="migration-table-container">
-            <table className="migration-intake-table">
-              <thead>
+        {/* Search Input */}
+        <div className="search-input-wrapper">
+          <Search size={14} className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search by Student ID or Name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="unslop-search-input"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              className="clear-search-btn"
+              onClick={() => setSearchQuery('')}
+            >
+              <X size={12} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* =========================================================
+          THE SINGLE UNIFIED TABLE (Exact Columns Requested):
+          Student ID | Lastname | First | Middle | Score (action button) | Status
+          ========================================================= */}
+      <div className="single-table-card">
+        <div className="table-responsive">
+          <table className="unslop-student-table">
+            <thead>
+              <tr>
+                <th className="th-id">Student ID</th>
+                <th className="th-last">Lastname</th>
+                <th className="th-first">First</th>
+                <th className="th-mid">Middle</th>
+                <th className="th-score">Score</th>
+                <th className="th-status">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredStudents.length === 0 ? (
                 <tr>
-                  <th style={{ width: '18%' }}>Batch Reference</th>
-                  <th style={{ width: '28%' }}>Source Description</th>
-                  <th style={{ width: '12%' }}>Records</th>
-                  <th style={{ width: '14%' }}>Status</th>
-                  <th style={{ width: '14%' }}>Sign-off Stamp</th>
-                  <th style={{ width: '14%', textAlign: 'right' }}>Actions</th>
+                  <td colSpan={6} className="empty-row">
+                    <div className="empty-state">
+                      <FileSpreadsheet size={28} className="text-slate-400" />
+                      <p>No student accounts found matching your filter criteria.</p>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredBatches.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="empty-table-cell">
-                      <FileText size={28} className="text-slate-300" />
-                      <p>No migration batches found matching the filter criteria.</p>
-                    </td>
-                  </tr>
-                ) : (
-                  filteredBatches.map((batch) => {
-                    return (
-                      <tr key={batch.id} className={`batch-row-${batch.status}`}>
-                        {/* Batch Reference */}
-                        <td className="batch-cell">
-                          <span className="batch-code tabular-nums">{batch.batchReference}</span>
-                          <span className="batch-date tabular-nums">
-                            {new Date(batch.createdAt).toLocaleDateString()}
-                          </span>
-                        </td>
+              ) : (
+                filteredStudents.map((s) => {
+                  const hasScore = s.score !== null;
 
-                        {/* Description */}
-                        <td className="desc-cell">
-                          <span className="batch-desc">{batch.sourceDescription}</span>
-                          <span className="batch-creator">Encoder: {batch.createdByName}</span>
-                        </td>
+                  return (
+                    <tr key={s.id} className={hasScore ? 'row-scored' : 'row-unscored'}>
+                      {/* Column 1: Student ID */}
+                      <td className="td-id">
+                        <span className="student-id-text tabular-nums">{s.studentId}</span>
+                      </td>
 
-                        {/* Records Count */}
-                        <td className="records-cell">
-                          <span className="record-count-pill tabular-nums">
-                            {batch.records ? batch.records.length : 0} Students
-                          </span>
-                        </td>
+                      {/* Column 2: Lastname */}
+                      <td className="td-last">
+                        <span className="student-name font-semibold">{s.lastName}</span>
+                      </td>
 
-                        {/* Status */}
-                        <td className="status-cell">
-                          <span className={`status-badge-mig ${batch.status}`}>
-                            {batch.status === 'draft'
-                              ? 'Draft (Guidance)'
-                              : batch.status === 'pending_evp'
-                              ? 'Pending EVP Sign-off'
-                              : batch.status === 'evp_approved'
-                              ? 'EVP Approved'
-                              : 'Returned'}
-                          </span>
-                        </td>
+                      {/* Column 3: First */}
+                      <td className="td-first">
+                        <span className="student-name">{s.firstName}</span>
+                      </td>
 
-                        {/* Sign-off Stamp */}
-                        <td className="sign-cell">
-                          {batch.status === 'evp_approved' ? (
-                            <div className="signed-stamp-info">
-                              <span className="sign-evp-name font-semibold">{batch.approvedByEvpName}</span>
-                              <span className="sign-hash-mini tabular-nums" title={batch.evpDigitalSignatureHash}>
-                                {batch.evpDigitalSignatureHash?.substring(0, 16)}...
-                              </span>
+                      {/* Column 4: Middle */}
+                      <td className="td-mid">
+                        <span className="student-name text-slate-500">{s.middleName || '—'}</span>
+                      </td>
+
+                      {/* Column 5: Score (with Action Buttons) */}
+                      <td className="td-score">
+                        {!hasScore ? (
+                          /* Manual input per student (only without score) */
+                          <button
+                            type="button"
+                            className="btn-input-score"
+                            onClick={() => handleOpenInputScore(s)}
+                            title={`Manually encode exam score for ${s.lastName}, ${s.firstName}`}
+                          >
+                            <Plus size={13} />
+                            <span>Input Score</span>
+                          </button>
+                        ) : (
+                          /* Score Display + Option for manual input (for correction) */
+                          <div className="score-with-action">
+                            <div className="score-value-group">
+                              <span className="score-number tabular-nums">{s.score}%</span>
+                              {s.stanine && (
+                                <span className="stanine-pill">S{s.stanine}</span>
+                              )}
                             </div>
-                          ) : batch.status === 'pending_evp' ? (
-                            <span className="text-amber-600 text-xs font-semibold">Awaiting EVP Sign-off</span>
-                          ) : (
-                            <span className="empty-dash">&mdash;</span>
-                          )}
-                        </td>
 
-                        {/* Actions */}
-                        <td className="actions-cell" style={{ textAlign: 'right' }}>
-                          <div className="action-buttons-group">
-                            {/* EVP Perspective Action */}
-                            {activeRoleView === 'evp' ? (
-                              batch.status === 'pending_evp' ? (
-                                <button
-                                  type="button"
-                                  className="btn-action-primary evp-sign"
-                                  onClick={() => handleOpenEvpReview(batch)}
-                                >
-                                  <BadgeCheck size={13} />
-                                  <span>Review &amp; Authorize</span>
-                                </button>
-                              ) : (
-                                <button
-                                  type="button"
-                                  className="btn-action-ghost"
-                                  onClick={() => handleOpenCertificate(batch)}
-                                  title="View Official EVP Certificate"
-                                >
-                                  <Eye size={13} />
-                                  <span>View Audit Slip</span>
-                                </button>
-                              )
-                            ) : (
-                              /* Guidance Perspective Actions */
-                              <>
-                                {batch.status === 'draft' && (
-                                  <>
-                                    <button
-                                      type="button"
-                                      className="btn-action-ghost"
-                                      onClick={() => {
-                                        setActiveBatch(batch);
-                                        setIsAddStudentModalOpen(true);
-                                      }}
-                                      title="Add manual record"
-                                    >
-                                      <Plus size={13} />
-                                      <span>Add Record</span>
-                                    </button>
-
-                                    <button
-                                      type="button"
-                                      className="btn-action-primary submit-evp"
-                                      onClick={() => handleSubmitToEvp(batch.id)}
-                                      disabled={!batch.records || batch.records.length === 0}
-                                      title={
-                                        !batch.records || batch.records.length === 0
-                                          ? 'Add at least one record before submitting'
-                                          : 'Submit batch to Executive VP for approval'
-                                      }
-                                    >
-                                      <span>Submit to EVP</span>
-                                    </button>
-                                  </>
-                                )}
-
-                                {batch.status === 'pending_evp' && (
-                                  <span className="text-slate-500 text-xs italic">Submitted to EVP</span>
-                                )}
-
-                                {batch.status === 'evp_approved' && (
-                                  <button
-                                    type="button"
-                                    className="btn-action-ghost"
-                                    onClick={() => handleOpenCertificate(batch)}
-                                    title="View Official EVP Certified Audit Slip"
-                                  >
-                                    <Award size={13} />
-                                    <span>Audit Slip</span>
-                                  </button>
-                                )}
-                              </>
-                            )}
+                            <button
+                              type="button"
+                              className="btn-correct-score"
+                              onClick={() => handleOpenCorrection(s)}
+                              title={`Correct or adjust score for ${s.lastName}`}
+                            >
+                              <Edit3 size={12} />
+                              <span>Correct</span>
+                            </button>
                           </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+                        )}
+                      </td>
 
-      {/* Selected Batch Records Detail Table (When a batch is active or open) */}
-      {activeBatch && (
-        <div className="guidance-card batch-detail-card">
-          <div className="card-header-bar detail-bar">
-            <div>
-              <h3>
-                Batch Records: <strong>{activeBatch.batchReference}</strong>
-              </h3>
-              <p className="detail-sub">{activeBatch.sourceDescription}</p>
-            </div>
-
-            <div className="detail-controls">
-              {activeBatch.status === 'draft' && activeRoleView === 'guidance' && (
-                <>
-                  <button
-                    type="button"
-                    className="btn-sub-action"
-                    onClick={handleLoadSampleCsv}
-                  >
-                    <Upload size={13} />
-                    <span>Upload / Import Sample CSV</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="btn-sub-action primary"
-                    onClick={() => setIsAddStudentModalOpen(true)}
-                  >
-                    <Plus size={13} />
-                    <span>Encode Single Record</span>
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className="card-body no-padding">
-            <div className="migration-table-container">
-              <table className="migration-intake-table inner">
-                <thead>
-                  <tr>
-                    <th>Student ID</th>
-                    <th>Full Name</th>
-                    <th>Degree Program</th>
-                    <th>Academic Year</th>
-                    <th>Test Type &amp; Date</th>
-                    <th>Score / Stanine</th>
-                    <th>Recommendation</th>
-                    <th>Archival Notes</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {!activeBatch.records || activeBatch.records.length === 0 ? (
-                    <tr>
-                      <td colSpan={8} className="empty-table-cell">
-                        <p>No student records added to this batch yet. Click "Encode Single Record" or "Upload CSV".</p>
+                      {/* Column 6: Status */}
+                      <td className="td-status">
+                        {!hasScore ? (
+                          <span className="status-badge without-score">
+                            Without Score
+                          </span>
+                        ) : s.status === 'Corrected' ? (
+                          <span className="status-badge corrected" title={s.correctionReason || 'Score adjusted'}>
+                            <RotateCcw size={11} />
+                            <span>Corrected</span>
+                          </span>
+                        ) : (
+                          <span className="status-badge scored">
+                            <Check size={11} />
+                            <span>Scored</span>
+                          </span>
+                        )}
                       </td>
                     </tr>
-                  ) : (
-                    activeBatch.records.map((r) => (
-                      <tr key={r.id}>
-                        <td className="font-mono text-xs">{r.studentNumber}</td>
-                        <td className="font-semibold text-navy-900">{r.fullName}</td>
-                        <td>{r.programCode}</td>
-                        <td className="text-slate-500 tabular-nums">{r.academicYear}</td>
-                        <td>
-                          <div className="test-meta-cell">
-                            <span>{r.testType}</span>
-                            <span className="text-slate-400 text-xs tabular-nums">{r.testDate}</span>
-                          </div>
-                        </td>
-                        <td className="tabular-nums font-semibold">
-                          {r.scorePct}% (Stanine {r.stanine})
-                        </td>
-                        <td>
-                          <span className={`recommend-badge ${r.recommendation}`}>
-                            {r.recommendation === 'recommended' ? 'Recommended' : 'Conditional'}
-                          </span>
-                        </td>
-                        <td className="text-slate-500 text-xs">{r.remarks}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Table Footer / Summary */}
+        <div className="table-footer-bar">
+          <div className="footer-left text-slate-500 text-xs">
+            Showing <strong className="tabular-nums">{filteredStudents.length}</strong> of{' '}
+            <strong className="tabular-nums">{students.length}</strong> registered students
+          </div>
+
+          <div className="footer-right">
+            <button
+              type="button"
+              className="btn-nav-prev"
+              onClick={onBackToGate4}
+              title="Return to Gate 4: RPM Aptitude Encoding"
+            >
+              <ArrowLeft size={14} />
+              <span>Back to Gate 4</span>
+            </button>
+
+            <button
+              type="button"
+              className="btn-nav-next"
+              onClick={onProceedToGate6}
+              title="Proceed to Gate 6: Faculty Class Roster"
+            >
+              <span>Proceed to Gate 6</span>
+              <ArrowRight size={14} />
+            </button>
           </div>
         </div>
-      )}
+      </div>
 
       {/* =========================================================
-          MODAL 1: CREATE NEW MIGRATION BATCH
+          MODAL 1: MIGRATION (UPLOAD CSV)
           ========================================================= */}
-      {isCreateBatchModalOpen && (
-        <div className="guidance-modal-overlay" role="dialog" aria-modal="true">
-          <div className="guidance-modal-card schedule-modal-card">
+      {isUploadCsvModalOpen && (
+        <div className="unslop-modal-overlay" role="dialog" aria-modal="true">
+          <div className="unslop-modal-card csv-modal-card">
             <div className="modal-header">
               <div className="modal-title-group">
-                <FileSpreadsheet size={18} className="text-navy-900" />
-                <h3>Create Legacy Exam Migration Batch</h3>
+                <Upload size={18} className="text-navy-900" />
+                <h3>Migration: Upload from CSV File</h3>
               </div>
               <button
                 type="button"
                 className="modal-close-btn"
-                onClick={() => setIsCreateBatchModalOpen(false)}
+                onClick={() => setIsUploadCsvModalOpen(false)}
               >
                 <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleCreateBatch}>
-              <div className="modal-body-scroll">
-                <div className="form-field-group">
-                  <label className="field-label">Batch Reference Code *</label>
-                  <input
-                    type="text"
-                    value={newBatchForm.batchReference}
-                    onChange={(e) => setNewBatchForm({ ...newBatchForm, batchReference: e.target.value })}
-                    className="text-input font-mono"
-                    required
-                  />
-                  <span className="field-hint">Unique institutional tracking identifier.</span>
-                </div>
+            <div className="modal-body-scroll">
+              <p className="modal-lead-text">
+                Upload a completed CSV file matching the SCMBT template. Scores will be automatically linked to student accounts by <strong>Student ID</strong>.
+              </p>
 
-                <div className="form-field-group">
-                  <label className="field-label">Source Document Description *</label>
-                  <input
-                    type="text"
-                    value={newBatchForm.sourceDescription}
-                    onChange={(e) => setNewBatchForm({ ...newBatchForm, sourceDescription: e.target.value })}
-                    placeholder="e.g. AY 2024-2025 Transferees & Returnees Paper Archive"
-                    className="text-input"
-                    required
-                  />
-                </div>
-
-                <div className="form-field-group">
-                  <label className="field-label">Auditing &amp; Submission Justification *</label>
-                  <textarea
-                    rows={3}
-                    value={newBatchForm.submissionNotes}
-                    onChange={(e) => setNewBatchForm({ ...newBatchForm, submissionNotes: e.target.value })}
-                    className="textarea-input"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="modal-footer">
+              {/* Upload Dropzone */}
+              <div className="upload-dropzone" onClick={handleOpenFilePicker}>
+                <FileSpreadsheet size={36} className="text-navy-800" />
+                <h4>{csvFileName || 'Click to select or drop CSV file'}</h4>
+                <p>Accepts standard .csv exports with Student ID and Score columns</p>
                 <button
                   type="button"
-                  className="btn-cancel"
-                  onClick={() => setIsCreateBatchModalOpen(false)}
+                  className="btn-select-file"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenFilePicker();
+                  }}
                 >
-                  Cancel
-                </button>
-                <button type="submit" className="btn-confirm-publish">
-                  <span>Create Batch</span>
+                  Choose Local File
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
 
-      {/* =========================================================
-          MODAL 2: ADD SINGLE STUDENT RECORD (MANUAL INGESTION)
-          ========================================================= */}
-      {isAddStudentModalOpen && activeBatch && (
-        <div className="guidance-modal-overlay" role="dialog" aria-modal="true">
-          <div className="guidance-modal-card rpm-encoding-card">
-            <div className="modal-header">
-              <div className="modal-title-group">
-                <Edit3 size={18} className="text-navy-900" />
-                <h3>Encode Historical Student Exam &bull; {activeBatch.batchReference}</h3>
-              </div>
-              <button
-                type="button"
-                className="modal-close-btn"
-                onClick={() => setIsAddStudentModalOpen(false)}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleAddStudentToBatch}>
-              <div className="modal-body-scroll">
-                <div className="structured-fields-grid">
-                  <div className="form-field-group">
-                    <label className="field-label">Student ID Number *</label>
-                    <input
-                      type="text"
-                      value={studentForm.studentNumber}
-                      onChange={(e) => setStudentForm({ ...studentForm, studentNumber: e.target.value })}
-                      className="text-input font-mono"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-field-group">
-                    <label className="field-label">Full Name (Last, First Middle) *</label>
-                    <input
-                      type="text"
-                      value={studentForm.fullName}
-                      onChange={(e) => setStudentForm({ ...studentForm, fullName: e.target.value })}
-                      className="text-input"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-field-group">
-                    <label className="field-label">Degree Program *</label>
-                    <select
-                      value={studentForm.programCode}
-                      onChange={(e) => setStudentForm({ ...studentForm, programCode: e.target.value })}
-                      className="text-input"
-                      required
-                    >
-                      <option value="BS Marine Transportation (BSMT)">BS Marine Transportation (BSMT)</option>
-                      <option value="BS Marine Engineering (BSMarE)">BS Marine Engineering (BSMarE)</option>
-                      <option value="BS Customs Administration (BSCA)">BS Customs Administration (BSCA)</option>
-                      <option value="BS Business Administration (BSBA)">BS Business Administration (BSBA)</option>
-                    </select>
-                  </div>
-
-                  <div className="form-field-group">
-                    <label className="field-label">Academic Year Taken *</label>
-                    <input
-                      type="text"
-                      value={studentForm.academicYear}
-                      onChange={(e) => setStudentForm({ ...studentForm, academicYear: e.target.value })}
-                      className="text-input"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-field-group">
-                    <label className="field-label">Historical Test Type *</label>
-                    <input
-                      type="text"
-                      value={studentForm.testType}
-                      onChange={(e) => setStudentForm({ ...studentForm, testType: e.target.value })}
-                      className="text-input"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-field-group">
-                    <label className="field-label">Original Test Administration Date *</label>
-                    <input
-                      type="date"
-                      value={studentForm.testDate}
-                      onChange={(e) => setStudentForm({ ...studentForm, testDate: e.target.value })}
-                      className="text-input"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-field-group">
-                    <label className="field-label">Historical Score Percentage (%) *</label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="100"
-                      value={studentForm.scorePct}
-                      onChange={(e) => setStudentForm({ ...studentForm, scorePct: e.target.value })}
-                      className="text-input tabular-nums"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-field-group">
-                    <label className="field-label">Stanine (1 to 9)</label>
-                    <select
-                      value={studentForm.stanine}
-                      onChange={(e) => setStudentForm({ ...studentForm, stanine: e.target.value })}
-                      className="text-input"
-                      required
-                    >
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((s) => (
-                        <option key={s} value={s}>Stanine {s}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-field-group">
-                    <label className="field-label">Admissions Recommendation *</label>
-                    <select
-                      value={studentForm.recommendation}
-                      onChange={(e) => setStudentForm({ ...studentForm, recommendation: e.target.value })}
-                      className="text-input"
-                      required
-                    >
-                      <option value="recommended">Recommended (Full Admission)</option>
-                      <option value="conditional">Conditional (Under Probation)</option>
-                    </select>
-                  </div>
-
-                  <div className="form-field-group">
-                    <label className="field-label">Original Psychometrician / Examiner *</label>
-                    <input
-                      type="text"
-                      value={studentForm.originalRpmName}
-                      onChange={(e) => setStudentForm({ ...studentForm, originalRpmName: e.target.value })}
-                      className="text-input"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-field-group full-width">
-                    <label className="field-label">Archival Notes &amp; Equivalency Justification *</label>
-                    <textarea
-                      rows={3}
-                      value={studentForm.remarks}
-                      onChange={(e) => setStudentForm({ ...studentForm, remarks: e.target.value })}
-                      className="textarea-input"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="modal-footer">
+              {/* Quick Sample Button */}
+              <div className="sample-helper-row">
+                <span>Want to test immediately?</span>
                 <button
                   type="button"
-                  className="btn-cancel"
-                  onClick={() => setIsAddStudentModalOpen(false)}
+                  className="btn-link-sample"
+                  onClick={handleLoadSampleCsv}
                 >
-                  Cancel
-                </button>
-                <button type="submit" className="btn-confirm-publish">
-                  <span>Save Student Record to Batch</span>
+                  Load Sample Roster Data ({withoutScoreCount} students)
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
 
-      {/* =========================================================
-          MODAL 3: EXECUTIVE VP DIGITAL APPROVAL & SIGN-OFF MODAL
-          ========================================================= */}
-      {isEvpReviewModalOpen && activeBatch && (
-        <div className="guidance-modal-overlay" role="dialog" aria-modal="true">
-          <div className="guidance-modal-card rpm-encoding-card">
-            <div className="modal-header">
-              <div className="modal-title-group">
-                <BadgeCheck size={20} className="text-navy-900" />
-                <div>
-                  <h3>Executive Vice President Digital Authorization</h3>
-                  <span className="modal-sub">
-                    Authorized Officer: {EVP_STAFF_USER.name} &bull; {EVP_STAFF_USER.title}
-                  </span>
-                </div>
-              </div>
-              <button
-                type="button"
-                className="modal-close-btn"
-                onClick={() => setIsEvpReviewModalOpen(false)}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleEvpAuthorize}>
-              <div className="modal-body-scroll">
-                {/* Batch Overview Strip */}
-                <div className="candidate-brief-strip">
-                  <div>
-                    <strong>{activeBatch.batchReference}</strong>
-                    <p>{activeBatch.sourceDescription}</p>
+              {/* CSV Preview Table */}
+              {csvPreviewData && csvPreviewData.length > 0 && (
+                <div className="csv-preview-section">
+                  <div className="preview-header">
+                    <h4>Preview Validated Records ({csvPreviewData.length})</h4>
+                    <span className="ready-badge">Ready for Migration</span>
                   </div>
-                  <span className="ref-tag tabular-nums">{activeBatch.records?.length || 0} Records</span>
-                </div>
 
-                {/* Candidate Records Roster Preview */}
-                <div className="evp-review-records-box">
-                  <h4 className="box-title">Records To Be Certified for Enrollment</h4>
-                  <table className="mini-roster-table">
-                    <thead>
-                      <tr>
-                        <th>Student ID</th>
-                        <th>Student Full Name</th>
-                        <th>Target Program</th>
-                        <th>Historical Score</th>
-                        <th>Recommendation</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {activeBatch.records?.map((r) => (
-                        <tr key={r.id}>
-                          <td className="font-mono text-xs">{r.studentNumber}</td>
-                          <td className="font-semibold">{r.fullName}</td>
-                          <td>{r.programCode}</td>
-                          <td className="tabular-nums">{r.scorePct}% (Stanine {r.stanine})</td>
-                          <td>
-                            <span className={`recommend-badge ${r.recommendation}`}>
-                              {r.recommendation}
-                            </span>
-                          </td>
+                  <div className="preview-table-container">
+                    <table className="preview-table">
+                      <thead>
+                        <tr>
+                          <th>Student ID</th>
+                          <th>Full Name</th>
+                          <th>Score</th>
+                          <th>Stanine</th>
+                          <th>Test Date</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* EVP Authorization Credentials */}
-                <div className="evp-auth-box">
-                  <div className="form-field-group">
-                    <label className="field-label">Executive Vice President Authorization Passcode *</label>
-                    <div className="pin-input-group">
-                      <Key size={15} className="pin-icon" />
-                      <input
-                        type="password"
-                        placeholder="Enter EVP Authorization PIN (demo: EVP-2026)"
-                        value={evpSignForm.evpPin}
-                        onChange={(e) => setEvpSignForm({ ...evpSignForm, evpPin: e.target.value })}
-                        className="text-input pin-field"
-                        required
-                      />
-                    </div>
-                    <span className="field-hint">
-                      Requires Executive Vice President credentials. Signs audit ledger with SHA-256 seal.
-                    </span>
-                  </div>
-
-                  <div className="form-field-group">
-                    <label className="field-label">Executive Approval Remarks &amp; Certification Statement *</label>
-                    <textarea
-                      rows={3}
-                      value={evpSignForm.evpRemarks}
-                      onChange={(e) => setEvpSignForm({ ...evpSignForm, evpRemarks: e.target.value })}
-                      className="textarea-input"
-                      required
-                    />
+                      </thead>
+                      <tbody>
+                        {csvPreviewData.map((row, idx) => (
+                          <tr key={idx}>
+                            <td className="font-mono text-xs">{row.studentId}</td>
+                            <td>{row.lastName}, {row.firstName}</td>
+                            <td className="font-bold tabular-nums">{row.score}%</td>
+                            <td className="tabular-nums">Stanine {row.stanine}</td>
+                            <td className="tabular-nums text-slate-500">{row.testDate}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
-              </div>
-
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn-cancel text-red-600"
-                  onClick={handleEvpReject}
-                >
-                  Return for Correction
-                </button>
-                <button type="submit" className="btn-confirm-publish evp-seal-btn">
-                  <BadgeCheck size={16} />
-                  <span>Authorize &amp; Digitally Sign Batch</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* =========================================================
-          MODAL 4: VIEW OFFICIAL EVP CERTIFICATE & AUDIT SLIP
-          ========================================================= */}
-      {isViewCertificateModalOpen && activeBatch && (
-        <div className="guidance-modal-overlay" role="dialog" aria-modal="true">
-          <div className="guidance-modal-card view-cert-card">
-            <div className="modal-header">
-              <div className="modal-title-group">
-                <Award size={18} className="text-navy-900" />
-                <h3>Official EVP Migration Certification Slip &bull; {activeBatch.batchReference}</h3>
-              </div>
-              <div className="header-controls-group">
-                <button
-                  type="button"
-                  className="btn-print-mini"
-                  onClick={() => window.print()}
-                >
-                  <Printer size={14} />
-                  <span>Print Audit Slip</span>
-                </button>
-                <button
-                  type="button"
-                  className="modal-close-btn"
-                  onClick={() => setIsViewCertificateModalOpen(false)}
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            </div>
-
-            <div className="modal-body-scroll cert-body">
-              <div className="cert-sheet">
-                <div className="cert-header">
-                  <h4>SOUTHWESTERN COLLEGE OF MARITIME, BUSINESS AND TECHNOLOGY</h4>
-                  <p>Office of the Executive Vice President &bull; Institutional Admissions Directorate</p>
-                  <h3>CERTIFICATE OF HISTORICAL EXAM MIGRATION &amp; ADMISSION EQUIVALENCY</h3>
-                  <span className="cert-code tabular-nums">Ref: {activeBatch.batchReference}</span>
-                </div>
-
-                <div className="cert-meta-grid">
-                  <div>
-                    <span>Batch Reference:</span>
-                    <strong>{activeBatch.batchReference}</strong>
-                  </div>
-                  <div>
-                    <span>Archival Source:</span>
-                    <strong>{activeBatch.sourceDescription}</strong>
-                  </div>
-                  <div>
-                    <span>Transcribed By:</span>
-                    <strong>{activeBatch.createdByName}</strong>
-                  </div>
-                  <div>
-                    <span>EVP Decision Date:</span>
-                    <strong>{activeBatch.evpDecisionAt ? new Date(activeBatch.evpDecisionAt).toLocaleDateString() : 'Pending'}</strong>
-                  </div>
-                </div>
-
-                {/* Migrated Students List */}
-                <div className="cert-records-table-wrapper">
-                  <h5>Certified Student Records</h5>
-                  <table className="cert-records-table">
-                    <thead>
-                      <tr>
-                        <th>Student ID</th>
-                        <th>Name</th>
-                        <th>Program</th>
-                        <th>AY</th>
-                        <th>Score</th>
-                        <th>Outcome</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {activeBatch.records?.map((r) => (
-                        <tr key={r.id}>
-                          <td className="font-mono">{r.studentNumber}</td>
-                          <td><strong>{r.fullName}</strong></td>
-                          <td>{r.programCode}</td>
-                          <td>{r.academicYear}</td>
-                          <td>{r.scorePct}% (Stanine {r.stanine})</td>
-                          <td>{r.recommendation?.toUpperCase()}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* EVP Certification Seal Block */}
-                <div className="cert-recommendation-block evp-block">
-                  <span className="rec-lbl">Executive VP Authorization:</span>
-                  <span className="rec-val approved">OFFICIALLY AUTHORIZED FOR ENROLLMENT</span>
-                  <p className="rec-remarks">
-                    <strong>Certification Remarks:</strong> {activeBatch.evpRemarks}
-                  </p>
-                  <p className="evp-hash-line font-mono tabular-nums">
-                    Digital Signature Cryptographic Hash: {activeBatch.evpDigitalSignatureHash}
-                  </p>
-                </div>
-
-                {/* Dual Signatures */}
-                <div className="cert-sig-row">
-                  <div className="sig-item">
-                    <span className="sig-name">{activeBatch.createdByName}</span>
-                    <span className="sig-title">Guidance Admissions Officer</span>
-                    <span className="sig-lic">Transcriber</span>
-                  </div>
-                  <div className="sig-item seal">
-                    <div className="mini-seal">OFFICIAL EVP SEAL</div>
-                  </div>
-                  <div className="sig-item">
-                    <span className="sig-name">{activeBatch.approvedByEvpName || EVP_STAFF_USER.name}</span>
-                    <span className="sig-title">Executive Vice President</span>
-                    <span className="sig-lic">Academic &amp; Institutional Affairs</span>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
 
             <div className="modal-footer">
-              <span className="footer-release-status">
-                Status: <strong>EVP Digitally Certified</strong>
-              </span>
               <button
                 type="button"
                 className="btn-cancel"
-                onClick={() => setIsViewCertificateModalOpen(false)}
+                onClick={() => setIsUploadCsvModalOpen(false)}
               >
-                Close
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className="btn-primary-action"
+                onClick={handleConfirmCsvMigration}
+                disabled={!csvPreviewData || csvPreviewData.length === 0}
+              >
+                <Check size={14} />
+                <span>Confirm Migration ({csvPreviewData ? csvPreviewData.length : 0} Students)</span>
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Reviewer Navigation Bar */}
-      <div className="reviewer-nav-bar no-print">
-        <div className="nav-info">
-          <span className="nav-step-badge">Gate 5 Deliverable</span>
-          <span className="nav-step-text">
-            Guidance &amp; EVP Legacy Student Migration is active. Next in the roadmap is Gate 6: Faculty Class Roster Sheet.
-          </span>
-        </div>
+      {/* =========================================================
+          MODAL 2: MANUAL INPUT PER STUDENT (ONLY WITHOUT SCORE)
+          ========================================================= */}
+      {isInputScoreModalOpen && activeStudent && (
+        <div className="unslop-modal-overlay" role="dialog" aria-modal="true">
+          <div className="unslop-modal-card single-input-card">
+            <div className="modal-header">
+              <div className="modal-title-group">
+                <Plus size={18} className="text-navy-900" />
+                <h3>Manual Score Input &bull; {activeStudent.studentId}</h3>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setIsInputScoreModalOpen(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
 
-        <div className="reviewer-bar-actions" style={{ display: 'flex', gap: '0.75rem' }}>
-          <button
-            type="button"
-            className="btn-jump-gate"
-            onClick={onBackToGate4}
-            title="Return to Gate 4 Aptitude Results"
-          >
-            <ArrowLeft size={16} />
-            <span>Back to Gate 4 RPM</span>
-          </button>
+            <form onSubmit={handleSaveInputScore}>
+              <div className="modal-body-scroll">
+                {/* Student Identity Card */}
+                <div className="student-profile-strip">
+                  <div className="strip-col">
+                    <span className="strip-label">Student ID</span>
+                    <span className="strip-val font-mono">{activeStudent.studentId}</span>
+                  </div>
+                  <div className="strip-col">
+                    <span className="strip-label">Full Name</span>
+                    <span className="strip-val font-semibold">
+                      {activeStudent.lastName}, {activeStudent.firstName} {activeStudent.middleName}
+                    </span>
+                  </div>
+                  <div className="strip-col">
+                    <span className="strip-label">Degree Program</span>
+                    <span className="strip-val text-navy-800">{activeStudent.program}</span>
+                  </div>
+                </div>
 
-          <button
-            type="button"
-            className="btn-jump-gate"
-            onClick={onProceedToGate6}
-          >
-            <span>Proceed to Gate 6 Faculty Roster</span>
-            <ArrowRight size={16} />
-          </button>
+                <div className="form-grid-2col">
+                  {/* Score */}
+                  <div className="form-group">
+                    <label className="field-label">Percentage Score (0–100%) *</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      max="100"
+                      value={inputScoreForm.score}
+                      onChange={(e) => setInputScoreForm({ ...inputScoreForm, score: e.target.value })}
+                      placeholder="e.g. 82.5"
+                      className="text-input-lg tabular-nums"
+                      required
+                      autoFocus
+                    />
+                  </div>
+
+                  {/* Stanine */}
+                  <div className="form-group">
+                    <label className="field-label">Stanine (1 to 9 Standard Nine) *</label>
+                    <select
+                      value={inputScoreForm.stanine}
+                      onChange={(e) => setInputScoreForm({ ...inputScoreForm, stanine: e.target.value })}
+                      className="select-input-lg tabular-nums"
+                    >
+                      <option value="1">Stanine 1 (Very Low / PR 0–4)</option>
+                      <option value="2">Stanine 2 (Low / PR 5–11)</option>
+                      <option value="3">Stanine 3 (Below Average / PR 12–22)</option>
+                      <option value="4">Stanine 4 (Low Average / PR 23–39)</option>
+                      <option value="5">Stanine 5 (Average / PR 40–59)</option>
+                      <option value="6">Stanine 6 (High Average / PR 60–76)</option>
+                      <option value="7">Stanine 7 (Above Average / PR 77–88)</option>
+                      <option value="8">Stanine 8 (Superior / PR 89–95)</option>
+                      <option value="9">Stanine 9 (Very Superior / PR 96–100)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-grid-2col">
+                  {/* Test Date */}
+                  <div className="form-group">
+                    <label className="field-label">Examination Date *</label>
+                    <input
+                      type="date"
+                      value={inputScoreForm.testDate}
+                      onChange={(e) => setInputScoreForm({ ...inputScoreForm, testDate: e.target.value })}
+                      className="text-input"
+                      required
+                    />
+                  </div>
+
+                  {/* Test Type */}
+                  <div className="form-group">
+                    <label className="field-label">Test Battery *</label>
+                    <select
+                      value={inputScoreForm.examType}
+                      onChange={(e) => setInputScoreForm({ ...inputScoreForm, examType: e.target.value })}
+                      className="select-input"
+                    >
+                      <option value="Physical Paper Aptitude Battery">Physical Paper Aptitude Battery</option>
+                      <option value="SCMBT Freshman Entrance Exam (Legacy 80-Item)">SCMBT Freshman Entrance Exam (Legacy 80-Item)</option>
+                      <option value="Transferee Diagnostic Battery">Transferee Diagnostic Battery</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Remarks */}
+                <div className="form-group">
+                  <label className="field-label">Archival Notes / Justification</label>
+                  <textarea
+                    rows={2}
+                    value={inputScoreForm.remarks}
+                    onChange={(e) => setInputScoreForm({ ...inputScoreForm, remarks: e.target.value })}
+                    className="textarea-input"
+                    placeholder="Physical document reference or Room 102 archive volume..."
+                  />
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={() => setIsInputScoreModalOpen(false)}
+                >
+                  Cancel
+                </button>
+
+                <button type="submit" className="btn-primary-action">
+                  <Check size={14} />
+                  <span>Save Student Score</span>
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* =========================================================
+          MODAL 3: MANUAL INPUT FOR CORRECTION (FOR STUDENTS WITH SCORE)
+          ========================================================= */}
+      {isCorrectionModalOpen && activeStudent && (
+        <div className="unslop-modal-overlay" role="dialog" aria-modal="true">
+          <div className="unslop-modal-card correction-card">
+            <div className="modal-header">
+              <div className="modal-title-group">
+                <RotateCcw size={18} className="text-amber-600" />
+                <h3>Manual Score Correction &bull; {activeStudent.studentId}</h3>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setIsCorrectionModalOpen(false)}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCorrection}>
+              <div className="modal-body-scroll">
+                {/* Existing Record Notice */}
+                <div className="current-score-notice">
+                  <span className="notice-label">Currently Recorded Score:</span>
+                  <div className="notice-val">
+                    <strong className="tabular-nums">{activeStudent.score}%</strong>
+                    {activeStudent.stanine && <span>(Stanine {activeStudent.stanine})</span>}
+                    <span className="record-date">&bull; Recorded on {activeStudent.testDate || 'Prior Session'}</span>
+                  </div>
+                </div>
+
+                <div className="form-grid-2col">
+                  {/* New Score */}
+                  <div className="form-group">
+                    <label className="field-label">Corrected Score (0–100%) *</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      max="100"
+                      value={correctionForm.newScore}
+                      onChange={(e) => setCorrectionForm({ ...correctionForm, newScore: e.target.value })}
+                      placeholder="e.g. 84.0"
+                      className="text-input-lg tabular-nums"
+                      required
+                      autoFocus
+                    />
+                  </div>
+
+                  {/* New Stanine */}
+                  <div className="form-group">
+                    <label className="field-label">Corrected Stanine (1 to 9) *</label>
+                    <select
+                      value={correctionForm.newStanine}
+                      onChange={(e) => setCorrectionForm({ ...correctionForm, newStanine: e.target.value })}
+                      className="select-input-lg tabular-nums"
+                    >
+                      <option value="1">Stanine 1 (Very Low)</option>
+                      <option value="2">Stanine 2 (Low)</option>
+                      <option value="3">Stanine 3 (Below Average)</option>
+                      <option value="4">Stanine 4 (Low Average)</option>
+                      <option value="5">Stanine 5 (Average)</option>
+                      <option value="6">Stanine 6 (High Average)</option>
+                      <option value="7">Stanine 7 (Above Average)</option>
+                      <option value="8">Stanine 8 (Superior)</option>
+                      <option value="9">Stanine 9 (Very Superior)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Mandatory Audit Reason */}
+                <div className="form-group">
+                  <label className="field-label">Administrative Reason for Correction *</label>
+                  <textarea
+                    rows={3}
+                    value={correctionForm.reason}
+                    onChange={(e) => setCorrectionForm({ ...correctionForm, reason: e.target.value })}
+                    className="textarea-input"
+                    placeholder="Explain discrepancy (e.g. Typographical error during manual transcription from paper archive Form 137, re-scoring approved by Guidance Director)..."
+                    required
+                  />
+                  <span className="field-hint">Required for institutional auditing and transcript verification.</span>
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={() => setIsCorrectionModalOpen(false)}
+                >
+                  Cancel
+                </button>
+
+                <button type="submit" className="btn-primary-action warning">
+                  <Check size={14} />
+                  <span>Save Score Correction</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
