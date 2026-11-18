@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { 
   INITIAL_APTITUDE_REFERRALS, 
   CURRENT_STAFF_USER 
@@ -21,15 +21,31 @@ import {
   Printer,
   ArrowRight,
   ArrowLeft,
-  ClipboardList
+  ClipboardList,
+  GraduationCap,
+  UploadCloud,
+  FileCheck
 } from 'lucide-react';
 import './GuidanceAptitudeResults.css';
 
+const INITIAL_REFERRALS_WITH_DOCS = INITIAL_APTITUDE_REFERRALS.map((r) => ({
+  ...r,
+  uploadedDocument:
+    r.id === 'ref-003'
+      ? 'aptitude_battery_eval_tan.pdf'
+      : r.id === 'ref-004'
+      ? 'rpm_clinical_report_dizon.pdf'
+      : null,
+}));
+
 export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProceedToMigration }) {
   // Referrals dataset
-  const [referrals, setReferrals] = useState(INITIAL_APTITUDE_REFERRALS);
+  const [referrals, setReferrals] = useState(INITIAL_REFERRALS_WITH_DOCS);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [programFilter, setProgramFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [uploadTargetId, setUploadTargetId] = useState(null);
+  const fileInputRef = useRef(null);
 
   // Selected referral for encoding or view
   const [activeReferral, setActiveReferral] = useState(null);
@@ -66,18 +82,47 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
     setTimeout(() => setToastMessage(null), 3800);
   };
 
-  // Filtered Referrals
+  // Distinct Degree Programs for Filter Dropdown
+  const availablePrograms = useMemo(() => {
+    const progs = new Set(referrals.map((r) => r.targetProgram).filter(Boolean));
+    return Array.from(progs);
+  }, [referrals]);
+
+  // Filtered Referrals (Filtered by Status, Program, and Search Text)
   const filteredReferrals = useMemo(() => {
     return referrals.filter((item) => {
       const matchStatus = statusFilter === 'all' || item.referralStatus === statusFilter;
+      const matchProgram = programFilter === 'all' || item.targetProgram === programFilter;
       const matchSearch =
         item.applicantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.referralCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.applicationNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.targetProgram.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchStatus && matchSearch;
+      return matchStatus && matchProgram && matchSearch;
     });
-  }, [referrals, statusFilter, searchQuery]);
+  }, [referrals, statusFilter, programFilter, searchQuery]);
+
+  // Trigger Document Upload
+  const handleTriggerUpload = (referralId) => {
+    setUploadTargetId(referralId);
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  // Handle Document File Change
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file && uploadTargetId) {
+      setReferrals((prev) =>
+        prev.map((r) => (r.id === uploadTargetId ? { ...r, uploadedDocument: file.name } : r))
+      );
+      const student = referrals.find((r) => r.id === uploadTargetId);
+      showToast(`Document "${file.name}" uploaded for ${student?.applicantName || 'candidate'}.`, 'success');
+      e.target.value = '';
+      setUploadTargetId(null);
+    }
+  };
 
   // Open Schedule Modal
   const handleOpenScheduleModal = (referral) => {
@@ -298,6 +343,15 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
         </div>
       </div>
 
+      {/* Hidden File Input for Physical Evaluation Document Upload */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept=".pdf,.png,.jpg,.jpeg,application/pdf"
+        style={{ display: 'none' }}
+      />
+
       {/* Referral Intake Table Card */}
       <div className="guidance-card aptitude-table-card">
         <div className="card-header-bar">
@@ -318,6 +372,24 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="search-input-sm"
               />
+            </div>
+
+            {/* Degree Program Filter (Moved from table to filters) */}
+            <div className="filter-dropdown-sm">
+              <GraduationCap size={13} className="filter-icon" />
+              <select
+                value={programFilter}
+                onChange={(e) => setProgramFilter(e.target.value)}
+                className="filter-select-sm"
+                aria-label="Filter by Degree Program"
+              >
+                <option value="all">All Degree Programs</option>
+                {availablePrograms.map((prog) => (
+                  <option key={prog} value={prog}>
+                    {prog}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Status Filter */}
@@ -343,19 +415,17 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
             <table className="aptitude-intake-table">
               <thead>
                 <tr>
-                  <th style={{ width: '22%' }}>Applicant</th>
-                  <th style={{ width: '20%' }}>Degree Program</th>
-                  <th style={{ width: '15%' }}>Schedule</th>
-                  <th style={{ width: '16%' }}>Evaluation</th>
-                  <th style={{ width: '12%' }}>Recommendation</th>
-                  <th style={{ width: '10%' }}>Faculty</th>
-                  <th style={{ width: '15%', textAlign: 'right' }}>Actions</th>
+                  <th style={{ width: '28%' }}>Name</th>
+                  <th style={{ width: '24%' }}>Status Of Result</th>
+                  <th style={{ width: '16%' }}>For Upload</th>
+                  <th style={{ width: '16%' }}>Released / Restricted</th>
+                  <th style={{ width: '16%', textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredReferrals.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="empty-table-cell">
+                    <td colSpan={5} className="empty-table-cell">
                       <FileText size={28} className="text-slate-300" />
                       <p>No referrals found matching the selected filter criteria.</p>
                     </td>
@@ -365,130 +435,114 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                     const isEncoded = item.referralStatus === 'encoded' || item.referralStatus === 'released';
                     return (
                       <tr key={item.id} className={`table-row-${item.referralStatus}`}>
-                        {/* Applicant */}
+                        {/* 1. Name */}
                         <td className="candidate-cell">
                           <span className="cand-name">{item.applicantName}</span>
-                          <span className="cand-ref tabular-nums">{item.referralCode}</span>
+                          <span className="cand-ref tabular-nums">{item.referralCode} &bull; {item.applicationNumber}</span>
                         </td>
 
-                        {/* Program */}
-                        <td className="program-cell">
-                          <span className="prog-title">{item.targetProgram}</span>
-                          <span className="prog-strand">{item.shsStrand}</span>
-                        </td>
-
-                        {/* Schedule */}
-                        <td className="schedule-cell">
-                          {item.scheduledTestDate ? (
-                            <div className="sched-info">
-                              <span className="sched-date tabular-nums">{item.scheduledTestDate}</span>
-                              <span className="sched-session">
-                                {item.scheduledSession ? item.scheduledSession.split('(')[0].trim() : 'Testing Hall'}
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="status-chip chip-amber">Pending Visit</span>
-                          )}
-                        </td>
-
-                        {/* Evaluation Mode & Metrics */}
-                        <td className="metrics-cell">
+                        {/* 2. Status Of Result */}
+                        <td className="result-status-cell">
                           {isEncoded ? (
-                            (item.evaluationMode === 'mode_a' || item.evaluationMode === 'structured' || item.evaluationMode === 'comprehensive') ? (
-                              <div className="metric-preview-structured">
-                                <span className="metric-primary tabular-nums">
+                            <div className="result-status-lockup">
+                              {item.evaluationMode === 'mode_a' || item.evaluationMode === 'structured' || item.evaluationMode === 'comprehensive' ? (
+                                <span className="result-score-line tabular-nums">
                                   <strong>{item.percentileRank ?? 75}%</strong> PR &bull; Stanine {item.stanine ?? 6}
                                 </span>
-                                <span className="metric-secondary">
-                                  {item.qualitativeInterpretation ? item.qualitativeInterpretation.split('(')[0].trim() : 'Average'}
+                              ) : (
+                                <span className="result-score-line">
+                                  <strong>Clinical Report</strong> (Mode B)
                                 </span>
-                              </div>
-                            ) : (
-                              <div className="metric-preview-narrative">
-                                <span className="narrative-tag">Mode B: Clinical Report</span>
-                              </div>
-                            )
+                              )}
+                              <span className={`recommend-badge ${item.admissionRecommendation || 'recommended'}`}>
+                                {item.admissionRecommendation === 'recommended'
+                                  ? 'Recommended'
+                                  : item.admissionRecommendation === 'conditional'
+                                  ? 'Conditional'
+                                  : 'Not Recommended'}
+                              </span>
+                            </div>
+                          ) : item.referralStatus === 'scheduled' ? (
+                            <div className="result-status-lockup">
+                              <span className="status-chip chip-blue">Scheduled</span>
+                              <span className="sched-date-sub tabular-nums">{item.scheduledTestDate}</span>
+                            </div>
                           ) : (
-                            <span className="empty-dash">&mdash;</span>
+                            <span className="status-chip chip-amber">Pending Intake</span>
                           )}
                         </td>
 
-                        {/* Admission Recommendation */}
-                        <td className="recommendation-cell">
-                          {item.admissionRecommendation ? (
-                            <span className={`recommend-badge ${item.admissionRecommendation}`}>
-                              {item.admissionRecommendation === 'recommended'
-                                ? 'Recommended'
-                                : item.admissionRecommendation === 'conditional'
-                                ? 'Conditional'
-                                : 'Not Recommended'}
-                            </span>
+                        {/* 3. For Upload */}
+                        <td className="upload-cell">
+                          {item.uploadedDocument ? (
+                            <div className="doc-uploaded-box" title={item.uploadedDocument}>
+                              <span className="doc-uploaded-badge">
+                                <FileCheck size={13} className="text-emerald-600" />
+                                <span>Uploaded</span>
+                              </span>
+                              <span className="doc-filename-sub font-mono">{item.uploadedDocument}</span>
+                            </div>
                           ) : (
-                            <span className="empty-dash">&mdash;</span>
-                          )}
-                        </td>
-
-                        {/* Faculty Release Toggle */}
-                        <td className="release-cell">
-                          {isEncoded ? (
                             <button
                               type="button"
-                              className={`btn-faculty-toggle ${item.isReleasedToFaculty ? 'released' : 'restricted'}`}
-                              onClick={() => handleToggleFacultyRelease(item.id)}
-                              title={
-                                item.isReleasedToFaculty
-                                  ? 'Click to restrict from faculty class roster'
-                                  : 'Click to release to assigned faculty class roster'
-                              }
+                              className="btn-for-upload"
+                              onClick={() => handleTriggerUpload(item.id)}
+                              title="Upload physical scanned testing sheet"
                             >
-                              {item.isReleasedToFaculty ? (
-                                <>
-                                  <Unlock size={12} />
-                                  <span>Released</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Lock size={12} />
-                                  <span>Restricted</span>
-                                </>
-                              )}
+                              <UploadCloud size={13} />
+                              <span>For Upload</span>
                             </button>
-                          ) : (
-                            <span className="empty-dash">&mdash;</span>
                           )}
                         </td>
 
-                        {/* Actions */}
+                        {/* 4. Released / Restricted */}
+                        <td className="release-cell">
+                          <button
+                            type="button"
+                            className={`btn-release-pill ${item.isReleasedToFaculty ? 'released' : 'restricted'}`}
+                            onClick={() => handleToggleFacultyRelease(item.id)}
+                            title={
+                              item.isReleasedToFaculty
+                                ? 'Click to restrict from faculty class roster'
+                                : 'Click to release to assigned faculty class roster'
+                            }
+                          >
+                            {item.isReleasedToFaculty ? (
+                              <>
+                                <Unlock size={12} />
+                                <span>Released</span>
+                              </>
+                            ) : (
+                              <>
+                                <Lock size={12} />
+                                <span>Restricted</span>
+                              </>
+                            )}
+                          </button>
+                        </td>
+
+                        {/* 5. Actions */}
                         <td className="actions-cell" style={{ textAlign: 'right' }}>
                           <div className="action-buttons-group">
                             {isEncoded ? (
                               <>
                                 <button
                                   type="button"
-                                  className="btn-action-primary edit"
+                                  className="btn-action-primary view"
+                                  onClick={() => handleOpenViewModal(item)}
+                                  title="View Official Evaluation Sheet"
+                                >
+                                  <Eye size={13} />
+                                  <span>View</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  className="btn-action-ghost edit"
                                   onClick={() => handleOpenEncodingModal(item)}
                                   title="Edit Psychological Evaluation"
                                 >
                                   <Edit3 size={13} />
                                   <span>Edit</span>
-                                </button>
-
-                                <button
-                                  type="button"
-                                  className="btn-action-icon"
-                                  onClick={() => handleOpenScheduleModal(item)}
-                                  title="Reschedule Paper Test"
-                                >
-                                  <Calendar size={13} />
-                                </button>
-
-                                <button
-                                  type="button"
-                                  className="btn-action-icon"
-                                  onClick={() => handleOpenViewModal(item)}
-                                  title="View Official Evaluation Sheet"
-                                >
-                                  <Eye size={13} />
                                 </button>
                               </>
                             ) : (
@@ -502,10 +556,9 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                                   <Edit3 size={13} />
                                   <span>Encode</span>
                                 </button>
-
                                 <button
                                   type="button"
-                                  className="btn-action-ghost"
+                                  className="btn-action-ghost schedule"
                                   onClick={() => handleOpenScheduleModal(item)}
                                   title="Schedule Proctored Paper Test"
                                 >

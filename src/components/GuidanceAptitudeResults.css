@@ -395,13 +395,119 @@
 .status-chip.chip-amber {
   background-color: #fef3c7;
   color: #92400e;
+  border: 1px solid #fde68a;
 }
 
-/* Metric Cell */
-.metric-preview-structured {
+.status-chip.chip-blue {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+/* Status Of Result Cell */
+.result-status-lockup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.result-score-line {
+  font-size: 0.8125rem;
+  color: #042b4e;
+}
+
+.result-score-line strong {
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.sched-date-sub {
+  font-size: 0.6875rem;
+  color: #64748b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Upload Cell */
+.doc-uploaded-box {
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.doc-uploaded-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #065f46;
+}
+
+.doc-filename-sub {
+  font-size: 0.6875rem;
+  color: #64748b;
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-for-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.35rem 0.65rem;
+  background-color: #fffbeb;
+  border: 1px dashed #f59e0b;
+  color: #b45309;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-for-upload:hover {
+  background-color: #fef3c7;
+  border-color: #d97706;
+  color: #92400e;
+}
+
+/* Released / Restricted Pills */
+.btn-release-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.35rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-release-pill.released {
+  background-color: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+
+.btn-release-pill.released:hover {
+  background-color: #d1fae5;
+  border-color: #6ee7b7;
+}
+
+.btn-release-pill.restricted {
+  background-color: #f8fafc;
+  color: #64748b;
+  border-color: #cbd5e1;
+}
+
+.btn-release-pill.restricted:hover {
+  background-color: #f1f5f9;
+  color: #334155;
+  border-color: #94a3b8;
 }
 
 .metric-primary {
@@ -527,12 +633,14 @@
   transition: all 0.15s ease-in-out;
 }
 
-.btn-action-primary.encode {
+.btn-action-primary.encode,
+.btn-action-primary.view {
   background-color: #042b4e;
   color: #ffffff;
 }
 
-.btn-action-primary.encode:hover {
+.btn-action-primary.encode:hover,
+.btn-action-primary.view:hover {
   background-color: #063a69;
 }
 
