@@ -1,7 +1,7 @@
 /* ==========================================================================
-   SCMBT FACULTY CLASS ROSTER & APTITUDE SHEET (GATE 6)
+   SCMBT FACULTY CLASS ROSTER & ENROLLMENT SHEET (GATE 6)
    Tokens: Dark Navy #042B4E, Warm Amber #F98809, Slate #F8FAFC, High Contrast
-   CHED / MARINA CMO 67 Compliant Class Grading & Mentoring Sheet
+   CHED / MARINA CMO 67 Compliant Class Roster
    ========================================================================== */
 
 .faculty-roster-container {
@@ -155,31 +155,10 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #ffffff;
-  color: #042b4e;
-  border: 1px solid #cbd5e1;
-  padding: 9px 16px;
-  border-radius: 7px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btn-print-official:hover {
-  background: #f8fafc;
-  border-color: #94a3b8;
-  color: #021a30;
-}
-
-.btn-save-grades {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
   background: #042b4e;
   color: #ffffff;
   border: 1px solid #042b4e;
-  padding: 9px 18px;
+  padding: 9px 16px;
   border-radius: 7px;
   font-size: 13px;
   font-weight: 600;
@@ -188,13 +167,9 @@
   box-shadow: 0 1px 2px rgba(4, 43, 78, 0.2);
 }
 
-.btn-save-grades:hover:not(:disabled) {
+.btn-print-official:hover {
   background: #063968;
-}
-
-.btn-save-grades:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  border-color: #063968;
 }
 
 /* -------------------------------------------------------------
@@ -228,8 +203,8 @@
 }
 
 .metric-icon-box.navy { background: #eff6ff; color: #1e40af; }
+.metric-icon-box.blue { background: #e0f2fe; color: #0284c7; }
 .metric-icon-box.green { background: #ecfdf5; color: #047857; }
-.metric-icon-box.amber { background: #fffbeb; color: #b45309; }
 .metric-icon-box.purple { background: #faf5ff; color: #6b21a8; }
 
 .metric-content {
@@ -250,11 +225,6 @@
   font-size: 22px;
   font-weight: 700;
   color: #0f172a;
-  line-height: 1.1;
-}
-
-.metric-number.highlight-amber {
-  color: #b45309;
 }
 
 .metric-foot {
@@ -263,7 +233,7 @@
 }
 
 /* -------------------------------------------------------------
-   Table Controls & Search Filter
+   Controls & Filter Bar
    ------------------------------------------------------------- */
 .table-controls-card {
   display: flex;
@@ -277,10 +247,10 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #f1f5f9;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   padding: 4px;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
 }
 
 .filter-pill-btn {
@@ -300,41 +270,44 @@
 }
 
 .filter-pill-btn.active {
-  background: #ffffff;
-  color: #042b4e;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  background: #042b4e;
+  color: #ffffff;
 }
 
 .search-box {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
+  width: 280px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 30px 8px 34px;
   background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 7px;
-  padding: 7px 12px;
-  width: 260px;
+  font-size: 13px;
+  color: #0f172a;
+  outline: none;
+  transition: all 0.15s ease;
 }
 
-.search-box:focus-within {
+.search-input:focus {
   border-color: #042b4e;
   box-shadow: 0 0 0 2px rgba(4, 43, 78, 0.1);
 }
 
-.search-icon {
-  color: #94a3b8;
-}
-
-.search-input {
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 12.5px;
-  color: #0f172a;
-  width: 100%;
-}
-
 .search-clear {
+  position: absolute;
+  right: 10px;
   background: transparent;
   border: none;
   color: #94a3b8;
@@ -345,33 +318,35 @@
 }
 
 /* -------------------------------------------------------------
-   Main Roster Table
+   Main Roster Table (Ultra-Clean, Unslopped)
    ------------------------------------------------------------- */
 .roster-table-wrapper {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  border-radius: 12px;
+  overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
-  overflow-x: auto;
 }
 
 .roster-table {
   width: 100%;
   border-collapse: collapse;
-  text-align: left;
   font-size: 13px;
+  text-align: left;
 }
 
-.roster-table thead th {
+.roster-table thead {
   background: #042b4e;
   color: #ffffff;
-  font-weight: 600;
-  font-size: 11.5px;
+}
+
+.roster-table th {
+  padding: 13px 18px;
+  font-size: 11px;
+  font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 12px 14px;
   white-space: nowrap;
-  border-bottom: 2px solid #021a30;
 }
 
 .roster-table tbody tr {
@@ -383,29 +358,23 @@
   background-color: #f8fafc;
 }
 
-.roster-table tbody tr.row-advisory-alert {
-  background-color: #fffdfa;
-}
-
-.roster-table tbody tr.row-advisory-alert:hover {
-  background-color: #fefce8;
+.roster-table tbody tr:last-child {
+  border-bottom: none;
 }
 
 .roster-table td {
-  padding: 12px 14px;
+  padding: 15px 18px;
   vertical-align: middle;
 }
 
-.th-num, .td-num { width: 36px; text-align: center; color: #64748b; font-size: 12px; }
-.th-id, .td-id { width: 110px; font-weight: 600; color: #042b4e; }
-.th-name { min-width: 170px; }
-.th-entrance, .td-entrance { width: 100px; font-weight: 700; color: #042b4e; }
-.th-aptitude, .td-aptitude { width: 150px; }
-.th-advisory, .td-advisory { min-width: 190px; }
-.th-grade, .td-grade { width: 75px; text-align: center; }
-.th-weighted, .td-weighted { width: 85px; text-align: center; }
-.th-remarks, .td-remarks { width: 95px; }
-.th-action, .td-action { width: 90px; text-align: center; }
+.th-num, .td-num { width: 50px; text-align: center; }
+.th-id, .td-id { width: 130px; font-weight: 600; color: #042b4e; }
+.th-name { min-width: 190px; }
+.th-gender, .td-gender { width: 90px; text-align: center; }
+.th-section, .td-section { width: 140px; text-align: center; }
+.th-entrance, .td-entrance { width: 140px; text-align: center; }
+.th-aptitude, .td-aptitude { width: 140px; text-align: center; }
+.th-action, .td-action { width: 110px; text-align: center; }
 
 .cadet-name-block {
   display: flex;
@@ -422,159 +391,65 @@
   font-size: 11px;
 }
 
-/* Aptitude Tag Pill */
-.aptitude-tag-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #faf5ff;
-  border: 1px solid #e9d5ff;
-  border-radius: 5px;
-  padding: 2px 7px;
+.section-badge {
   font-size: 11.5px;
-}
-
-.stanine-part {
-  font-weight: 700;
-  color: #6b21a8;
-}
-
-.pr-part {
-  color: #7e22ce;
-  font-size: 11px;
-}
-
-.modeb-faculty-tag {
-  font-size: 11px;
   font-weight: 600;
-  color: #6b21a8;
-  background: #f3e8ff;
-  padding: 2px 6px;
+  background: #f1f5f9;
+  color: #334155;
+  padding: 3px 8px;
   border-radius: 4px;
-  border: 1px solid #e9d5ff;
+  border: 1px solid #e2e8f0;
 }
 
-.pending-apt-tag {
-  font-size: 11px;
+.td-entrance .score-val,
+.td-aptitude .score-val {
+  font-size: 14.5px;
+  font-weight: 700;
+  display: inline-block;
+  line-height: 1;
+}
+
+.td-entrance .score-val {
+  color: #042b4e;
+}
+
+.td-aptitude .score-val {
+  color: #581c87;
+}
+
+.pending-tag {
+  font-size: 11.5px;
   color: #94a3b8;
   font-style: italic;
 }
 
-/* Advisory Status Pills */
-.advisory-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+.modeb-letter-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b21a8;
+  background: #f3e8ff;
   padding: 3px 8px;
-  border-radius: 5px;
-  font-size: 11.5px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.advisory-pill.cleared {
-  background: #ecfdf5;
-  color: #047857;
-  border: 1px solid #a7f3d0;
-}
-
-.advisory-pill.mentoring {
-  background: #fffbeb;
-  color: #b45309;
-  border: 1px solid #fde68a;
-}
-
-.advisory-pill.math-review {
-  background: #fef2f2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
-}
-
-/* Grade Input Field */
-.grade-input {
-  width: 58px;
-  padding: 6px 4px;
-  border: 1px solid #cbd5e1;
-  border-radius: 5px;
-  font-size: 13px;
-  font-weight: 600;
-  text-align: center;
-  color: #0f172a;
-  outline: none;
-  background: #ffffff;
-  transition: all 0.15s ease;
-}
-
-.grade-input:focus {
-  border-color: #042b4e;
-  box-shadow: 0 0 0 2px rgba(4, 43, 78, 0.15);
-}
-
-/* Computed Grade Pill */
-.computed-grade-pill {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 5px;
-  font-size: 13px;
-  font-weight: 700;
-  min-width: 40px;
-  background: #f1f5f9;
-  color: #334155;
-}
-
-.computed-grade-pill.passed {
-  background: #ecfdf5;
-  color: #047857;
-  border: 1px solid #a7f3d0;
-}
-
-.computed-grade-pill.failed {
-  background: #fef2f2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
-}
-
-/* Remarks Tag */
-.remark-tag {
-  font-size: 11.5px;
-  font-weight: 600;
-  padding: 2px 8px;
   border-radius: 4px;
   display: inline-block;
+  border: 1px solid #e9d5ff;
 }
 
-.remark-tag.passed {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.remark-tag.failed {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.remark-tag.ongoing {
-  background: #f1f5f9;
-  color: #475569;
-}
-
-/* Advisory Action Button */
-.btn-advisory-open {
+.btn-details-action {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   background: #f8fafc;
   color: #042b4e;
   border: 1px solid #cbd5e1;
-  padding: 4px 8px;
-  border-radius: 5px;
-  font-size: 11.5px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.btn-advisory-open:hover {
+.btn-details-action:hover {
   background: #042b4e;
   color: #ffffff;
   border-color: #042b4e;
@@ -602,9 +477,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 14px 20px;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  border-top: 1px solid #e2e8f0;
   background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
   flex-wrap: wrap;
   gap: 12px;
 }
@@ -619,7 +495,7 @@
   background: #ffffff;
   color: #475569;
   border: 1px solid #cbd5e1;
-  padding: 7px 14px;
+  padding: 8px 14px;
   border-radius: 6px;
   font-size: 12.5px;
   font-weight: 600;
@@ -632,27 +508,8 @@
   color: #0f172a;
 }
 
-.btn-footer-save {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #042b4e;
-  color: #ffffff;
-  border: 1px solid #042b4e;
-  padding: 7px 16px;
-  border-radius: 6px;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btn-footer-save:hover {
-  background: #063968;
-}
-
 /* -------------------------------------------------------------
-   Modals Base
+   Modal Base & Dossier
    ------------------------------------------------------------- */
 .roster-modal-overlay {
   position: fixed;
@@ -669,12 +526,17 @@
   overscroll-behavior: contain;
 }
 
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .roster-modal-card {
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 720px;
+  max-width: 680px;
   max-height: 88vh;
   display: flex;
   flex-direction: column;
@@ -684,12 +546,16 @@
   margin: auto;
 }
 
-.roster-modal-card.print-preview-modal-card {
+.roster-modal-card.dossier-modal-card {
+  max-width: 780px;
+}
+
+.roster-modal-card.print-modal-card {
   max-width: 900px;
 }
 
 .modal-header {
-  padding: 16px 22px;
+  padding: 18px 24px;
   border-bottom: 1px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
@@ -704,18 +570,18 @@
 .modal-title-group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .modal-title-text {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   color: #042b4e;
   margin: 0;
 }
 
 .modal-subtitle-text {
-  font-size: 11.5px;
+  font-size: 12px;
   color: #64748b;
 }
 
@@ -736,14 +602,14 @@
 }
 
 .modal-body-scroll {
-  padding: 20px 22px;
+  padding: 24px;
   overflow-y: auto !important;
-  max-height: calc(88vh - 130px);
+  max-height: calc(88vh - 135px);
   min-height: 0;
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
   scrollbar-width: thin !important;
   scrollbar-color: #94a3b8 #f1f5f9 !important;
   overscroll-behavior: contain;
@@ -777,92 +643,93 @@
 }
 
 .modal-footer {
-  padding: 14px 22px;
+  padding: 16px 24px;
   border-top: 1px solid #e2e8f0;
   background: #f8fafc;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-shrink: 0;
   position: sticky;
   bottom: 0;
   z-index: 10;
 }
 
+.btn-cancel {
+  background: #ffffff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-cancel:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.btn-primary-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #042b4e;
+  color: #ffffff;
+  border: 1px solid #042b4e;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-primary-action:hover {
+  background: #063968;
+}
+
 /* -------------------------------------------------------------
-   Advisory Briefing Modal Elements
+   Dossier Brief Cards
    ------------------------------------------------------------- */
 .privacy-compliance-box {
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: 12px 14px;
+  padding: 12px 16px;
   display: flex;
-  gap: 10px;
-  font-size: 12px;
-  color: #1e3a8a;
-  line-height: 1.45;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .privacy-compliance-box strong {
   display: block;
   font-size: 12.5px;
+  color: #042b4e;
   margin-bottom: 2px;
 }
 
-.advisory-callout-card {
-  border-radius: 8px;
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.advisory-callout-card.cleared {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-}
-
-.advisory-callout-card.mentoring {
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-}
-
-.advisory-callout-card.needs_math_review {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-}
-
-.callout-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.callout-label {
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: #475569;
-}
-
-.callout-text {
+.privacy-compliance-box p {
   margin: 0;
-  font-size: 13px;
-  color: #1e293b;
-  line-height: 1.5;
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.45;
 }
 
 .brief-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
+  flex-shrink: 0;
+  width: 100%;
 }
 
 .brief-card-header {
-  padding: 10px 14px;
+  padding: 12px 18px;
   background: #f8fafc;
   border-bottom: 1px solid #e2e8f0;
   display: flex;
@@ -872,34 +739,47 @@
 
 .brief-card-header h4 {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 700;
   color: #042b4e;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-score-tag {
+  font-size: 12px;
+  color: #0284c7;
+  background: #e0f2fe;
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
 .brief-card-body {
-  padding: 14px 16px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.brief-card-body > * {
+  flex-shrink: 0;
 }
 
 .competency-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
 }
 
 .competency-chip {
-  background: #f8fafc;
+  background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border-radius: 7px;
   padding: 10px 12px;
   display: flex;
   flex-direction: column;
   gap: 6px;
-}
-
-.competency-chip.low {
-  border-color: #fca5a5;
-  background: #fff5f5;
 }
 
 .chip-top {
@@ -918,14 +798,10 @@
   color: #042b4e;
 }
 
-.competency-chip.low .chip-score {
-  color: #b91c1c;
-}
-
 .chip-progress-track {
   width: 100%;
-  height: 6px;
-  background: #e2e8f0;
+  height: 5px;
+  background: #f1f5f9;
   border-radius: 3px;
   overflow: hidden;
 }
@@ -936,18 +812,14 @@
   border-radius: 3px;
 }
 
-.chip-progress-fill.low {
-  background: #ef4444;
-}
-
 .aptitude-stat-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  background: #faf5ff;
+  border: 1px solid #e9d5ff;
+  border-radius: 8px;
+  padding: 12px 16px;
 }
 
 .stat-cell {
@@ -958,227 +830,211 @@
 
 .stat-label {
   font-size: 11px;
-  color: #64748b;
-  text-transform: uppercase;
   font-weight: 600;
+  color: #7e22ce;
+  text-transform: uppercase;
 }
 
 .stat-value {
-  font-size: 13.5px;
-  color: #0f172a;
-}
-
-.recommend-chip {
-  display: inline-block;
-  padding: 2px 7px;
-  border-radius: 4px;
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 700;
-  text-transform: capitalize;
-  width: fit-content;
+  color: #4c1d95;
 }
 
-.recommend-chip.recommended {
-  background: #d1fae5;
-  color: #065f46;
+.clinical-text-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.recommend-chip.conditional {
-  background: #fef3c7;
-  color: #92400e;
+.report-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
 }
 
-.mode-b-note-box {
+.report-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #1e293b;
   background: #faf5ff;
   border: 1px solid #e9d5ff;
   border-radius: 6px;
-  padding: 12px;
-  font-size: 12.5px;
-  color: #581c87;
+  padding: 10px 14px;
 }
 
-.mode-b-note-box strong {
-  display: block;
-  margin-bottom: 4px;
+.evaluator-signature-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #64748b;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 10px;
+}
+
+.empty-brief-note {
+  margin: 0;
+  font-size: 13px;
+  color: #94a3b8;
+  font-style: italic;
+  padding: 8px 0;
 }
 
 /* -------------------------------------------------------------
-   Official CHED / MARINA Bond Paper Printable Grading Sheet
+   Official Printable Bond Paper Sheet
    ------------------------------------------------------------- */
 .official-bond-sheet {
   background: #ffffff;
+  padding: 36px 40px;
   border: 1px solid #cbd5e1;
   border-radius: 4px;
-  padding: 32px 36px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  font-family: "Times New Roman", Times, serif, -apple-system, sans-serif;
+  font-family: "Times New Roman", Times, Georgia, serif;
   color: #000000;
 }
 
 .bond-sheet-header {
   display: flex;
   align-items: center;
-  gap: 18px;
-  border-bottom: 2px solid #000000;
+  gap: 20px;
+  border-bottom: 2px solid #042b4e;
   padding-bottom: 14px;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 }
 
 .sheet-crest-img {
-  width: 72px;
-  height: 72px;
+  width: 70px;
+  height: 70px;
   object-fit: contain;
 }
 
 .header-text-block {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
   text-align: center;
   flex: 1;
 }
 
 .inst-title {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: bold;
   margin: 0;
   letter-spacing: 0.04em;
+  color: #042b4e;
 }
 
 .inst-college {
-  font-size: 13.5px;
-  font-weight: 600;
-  margin: 0;
+  font-size: 12px;
+  font-weight: bold;
+  margin: 2px 0 0;
+  color: #334155;
 }
 
 .inst-address {
   font-size: 11px;
-  margin: 0;
-  color: #333333;
-}
-
-.doc-title-box {
-  margin-top: 6px;
-  background: #042b4e;
-  color: #ffffff;
-  padding: 3px 12px;
-  display: inline-block;
-  align-self: center;
+  margin: 2px 0 6px;
+  color: #64748b;
+  font-style: italic;
 }
 
 .doc-type-title {
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: inline-block;
+  background: #042b4e;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 2px 14px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .sheet-meta-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  font-size: 11.5px;
-  border-bottom: 1px solid #000000;
-  padding-bottom: 12px;
-  margin-bottom: 14px;
+  gap: 12px;
+  font-size: 12px;
   line-height: 1.5;
-}
-
-.sheet-meta-grid strong {
-  font-family: -apple-system, sans-serif;
-  font-weight: 600;
+  background: #f8fafc;
+  padding: 12px 16px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 18px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .sheet-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 11px;
+  font-size: 12px;
   margin-bottom: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .sheet-table th,
 .sheet-table td {
-  border: 1px solid #000000;
-  padding: 6px 8px;
+  border: 1px solid #cbd5e1;
+  padding: 7px 10px;
+  vertical-align: middle;
 }
 
 .sheet-table th {
   background: #f1f5f9;
   font-weight: 700;
-  text-align: center;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: #1e293b;
 }
 
-.sheet-remark {
+.sheet-official-badge {
+  font-size: 11px;
   font-weight: 700;
-  font-size: 10.5px;
+  color: #047857;
+  background: #ecfdf5;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #a7f3d0;
+  display: inline-block;
 }
-
-.sheet-remark.p { color: #047857; }
-.sheet-remark.f { color: #b91c1c; }
 
 .sheet-signature-strip {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 24px;
   margin-top: 36px;
-  padding-top: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 .sig-block {
   display: flex;
   flex-direction: column;
-  text-align: center;
+  gap: 3px;
+  font-size: 11px;
 }
 
 .sig-label {
-  font-size: 10.5px;
-  margin-bottom: 38px;
+  color: #64748b;
+  margin-bottom: 28px;
 }
 
 .sig-line {
-  border-top: 1px solid #000000;
+  border-bottom: 1px solid #000000;
   margin-bottom: 4px;
 }
 
 .sig-name {
+  color: #000000;
   font-size: 12px;
-  font-weight: 700;
 }
 
 .sig-title {
-  font-size: 10px;
-  color: #444444;
+  color: #475569;
 }
 
-/* Print CSS Rules */
-@media print {
-  body * {
-    visibility: hidden;
+@media (max-width: 768px) {
+  .faculty-roster-container {
+    padding: 16px;
   }
 
-  #printable-grading-sheet,
-  #printable-grading-sheet * {
-    visibility: visible;
-  }
-
-  #printable-grading-sheet {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-  }
-
-  .roster-modal-overlay,
-  .modal-header,
-  .modal-footer {
-    display: none !important;
-  }
-}
-
-@media (max-width: 900px) {
   .roster-header-card {
     flex-direction: column;
     align-items: flex-start;
@@ -1188,10 +1044,19 @@
     width: 100%;
   }
 
-  .roster-metrics-strip,
+  .btn-print-official {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .roster-metrics-strip {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .competency-grid,
+  .aptitude-stat-grid,
   .sheet-meta-grid,
-  .sheet-signature-strip,
-  .competency-grid {
+  .sheet-signature-strip {
     grid-template-columns: 1fr;
   }
 }
