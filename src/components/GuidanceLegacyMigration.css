@@ -924,8 +924,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 24px 16px;
   animation: modalFadeIn 0.2s ease-out;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 @keyframes modalFadeIn {
@@ -944,6 +946,8 @@
   flex-direction: column;
   overflow: hidden;
   border: 1px solid #cbd5e1;
+  position: relative;
+  margin: auto;
 }
 
 .unslop-modal-card.csv-modal-card,
@@ -954,8 +958,9 @@
 .unslop-modal-card form {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
+  max-height: calc(88vh - 65px);
   overflow: hidden;
 }
 
@@ -967,6 +972,9 @@
   align-items: center;
   background: #ffffff;
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .modal-title-group {
@@ -994,11 +1002,37 @@
 .modal-body-scroll {
   padding: 24px;
   overflow-y: auto !important;
+  max-height: calc(88vh - 135px);
   min-height: 0;
-  flex: 1;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  scrollbar-width: thin !important;
+  scrollbar-color: #94a3b8 #f1f5f9 !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-body-scroll::-webkit-scrollbar {
+  display: block !important;
+  width: 8px !important;
+  height: 8px !important;
+}
+
+.modal-body-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+  border-radius: 4px !important;
+}
+
+.modal-body-scroll::-webkit-scrollbar-thumb {
+  background-color: #94a3b8 !important;
+  border-radius: 4px !important;
+  border: 2px solid #f1f5f9 !important;
+}
+
+.modal-body-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: #64748b !important;
 }
 
 .modal-lead-text {
@@ -1416,6 +1450,9 @@
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 .btn-cancel {

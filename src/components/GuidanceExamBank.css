@@ -1157,8 +1157,12 @@
 
 .modal-body-scroll {
   padding: 1.25rem;
-  overflow-y: auto;
-  flex: 1;
+  overflow-y: auto !important;
+  max-height: calc(88vh - 135px);
+  flex: 1 1 auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-footer {
@@ -1169,6 +1173,10 @@
   padding: 0.85rem 1.25rem;
   background: #f8fafc;
   border-top: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 .btn-cancel {

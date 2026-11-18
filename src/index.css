@@ -74,6 +74,69 @@
   height: 0;
 }
 
+/* Explicit tactile scrollbars for modal forms, dialog bodies, and data containers */
+.modal-body-scroll,
+.form-body-scroll,
+.guidance-modal-card form,
+.unslop-modal-card form,
+.preview-table-container,
+.table-scroll-wrapper,
+.gate-steps-scroll,
+.prod-fullwidth-workspace {
+  scrollbar-width: thin !important;
+  scrollbar-color: #94a3b8 #f1f5f9 !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-body-scroll::-webkit-scrollbar,
+.form-body-scroll::-webkit-scrollbar,
+.guidance-modal-card form::-webkit-scrollbar,
+.unslop-modal-card form::-webkit-scrollbar,
+.preview-table-container::-webkit-scrollbar,
+.table-scroll-wrapper::-webkit-scrollbar,
+.gate-steps-scroll::-webkit-scrollbar,
+.prod-fullwidth-workspace::-webkit-scrollbar {
+  display: block !important;
+  width: 8px !important;
+  height: 8px !important;
+}
+
+.modal-body-scroll::-webkit-scrollbar-track,
+.form-body-scroll::-webkit-scrollbar-track,
+.guidance-modal-card form::-webkit-scrollbar-track,
+.unslop-modal-card form::-webkit-scrollbar-track,
+.preview-table-container::-webkit-scrollbar-track,
+.table-scroll-wrapper::-webkit-scrollbar-track,
+.gate-steps-scroll::-webkit-scrollbar-track,
+.prod-fullwidth-workspace::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+  border-radius: 4px !important;
+}
+
+.modal-body-scroll::-webkit-scrollbar-thumb,
+.form-body-scroll::-webkit-scrollbar-thumb,
+.guidance-modal-card form::-webkit-scrollbar-thumb,
+.unslop-modal-card form::-webkit-scrollbar-thumb,
+.preview-table-container::-webkit-scrollbar-thumb,
+.table-scroll-wrapper::-webkit-scrollbar-thumb,
+.gate-steps-scroll::-webkit-scrollbar-thumb,
+.prod-fullwidth-workspace::-webkit-scrollbar-thumb {
+  background-color: #94a3b8 !important;
+  border-radius: 4px !important;
+  border: 2px solid #f1f5f9 !important;
+}
+
+.modal-body-scroll::-webkit-scrollbar-thumb:hover,
+.form-body-scroll::-webkit-scrollbar-thumb:hover,
+.guidance-modal-card form::-webkit-scrollbar-thumb:hover,
+.unslop-modal-card form::-webkit-scrollbar-thumb:hover,
+.preview-table-container::-webkit-scrollbar-thumb:hover,
+.table-scroll-wrapper::-webkit-scrollbar-thumb:hover,
+.gate-steps-scroll::-webkit-scrollbar-thumb:hover,
+.prod-fullwidth-workspace::-webkit-scrollbar-thumb:hover {
+  background-color: #64748b !important;
+}
+
 html, body, #root {
   width: 100%;
   height: 100%;
