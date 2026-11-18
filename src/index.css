@@ -63,12 +63,19 @@
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Hide scrollbar for Chrome, Safari, Edge, Firefox while keeping elements scrollable */
+}
+
+/* Hide scrollbars only on the outer full-window application canvas */
+html, body, #root, .app-grey-page-wrapper, .prod-app-shell {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
-*::-webkit-scrollbar {
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#root::-webkit-scrollbar,
+.app-grey-page-wrapper::-webkit-scrollbar,
+.prod-app-shell::-webkit-scrollbar {
   display: none;
   width: 0;
   height: 0;

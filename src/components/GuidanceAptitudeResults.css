@@ -727,6 +727,11 @@
   -webkit-overflow-scrolling: touch;
 }
 
+.modal-body-scroll > * {
+  flex-shrink: 0;
+  width: 100%;
+}
+
 .modal-body-scroll::-webkit-scrollbar {
   display: block !important;
   width: 8px !important;

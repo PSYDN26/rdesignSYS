@@ -612,6 +612,8 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
+  flex-shrink: 0;
+  width: 100%;
 }
 
 .status-indicator-block {
@@ -673,6 +675,8 @@
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   overflow: hidden;
+  flex-shrink: 0;
+  width: 100%;
 }
 
 .dossier-card-header {
@@ -724,6 +728,10 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.dossier-card-body > * {
+  flex-shrink: 0;
 }
 
 .dossier-score-summary {
@@ -998,6 +1006,11 @@
   scrollbar-color: #94a3b8 #f1f5f9 !important;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+}
+
+.modal-body-scroll > * {
+  flex-shrink: 0;
+  width: 100%;
 }
 
 .modal-body-scroll::-webkit-scrollbar {
