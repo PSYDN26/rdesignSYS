@@ -14,8 +14,6 @@ import {
   AlertCircle,
   FileSpreadsheet,
   X,
-  ArrowRight,
-  ArrowLeft,
   Check,
   ShieldCheck,
   FileText,
@@ -25,7 +23,7 @@ import {
 } from 'lucide-react';
 import './GuidanceLegacyMigration.css';
 
-export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate6 }) {
+export default function GuidanceLegacyMigration() {
   // Master Student Dataset
   const [students, setStudents] = useState(INITIAL_MIGRATION_STUDENTS);
   const [searchQuery, setSearchQuery] = useState('');
@@ -789,28 +787,6 @@ export default function GuidanceLegacyMigration({ onBackToGate4, onProceedToGate
           <div className="footer-left text-slate-500 text-xs">
             Showing <strong className="tabular-nums">{filteredStudents.length}</strong> of{' '}
             <strong className="tabular-nums">{students.length}</strong> registered students
-          </div>
-
-          <div className="footer-right">
-            <button
-              type="button"
-              className="btn-nav-prev"
-              onClick={onBackToGate4}
-              title="Return to Gate 4: RPM Aptitude Encoding"
-            >
-              <ArrowLeft size={14} />
-              <span>Back to Gate 4</span>
-            </button>
-
-            <button
-              type="button"
-              className="btn-nav-next"
-              onClick={onProceedToGate6}
-              title="Proceed to Gate 6: Faculty Class Roster"
-            >
-              <span>Proceed to Gate 6</span>
-              <ArrowRight size={14} />
-            </button>
           </div>
         </div>
       </div>

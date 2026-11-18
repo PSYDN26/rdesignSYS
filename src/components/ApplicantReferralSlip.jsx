@@ -6,7 +6,6 @@ import {
   Clock,
   MapPin,
   CheckCircle2,
-  ArrowRight,
   ShieldCheck,
   Building,
   QrCode,
@@ -16,8 +15,7 @@ import {
 import './ApplicantReferralSlip.css';
 
 export default function ApplicantReferralSlip({
-  onBackToExam,
-  onProceedToAptitudeResults
+  onBackToExam
 }) {
   const referral = INITIAL_REFERRAL_SLIP;
   const [isCopied, setIsCopied] = useState(false);
@@ -332,25 +330,6 @@ export default function ApplicantReferralSlip({
             </span>
           </div>
         </div>
-      </div>
-
-      {/* Reviewer Bottom Action Bar (Non-printable) */}
-      <div className="reviewer-nav-bar no-print">
-        <div className="nav-info">
-          <span className="nav-step-badge">Gate 3 Deliverable</span>
-          <span className="nav-step-text">
-            Applicant Guidance Referral Slip generated. Once the applicant visits the Guidance Office, the Registered Psychometrician encodes the result in Gate 4.
-          </span>
-        </div>
-
-        <button
-          type="button"
-          className="btn-jump-gate"
-          onClick={onProceedToAptitudeResults}
-        >
-          <span>Preview Guidance Office: RPM Aptitude Results (Gate 4)</span>
-          <ArrowRight size={16} />
-        </button>
       </div>
     </div>
   );

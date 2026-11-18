@@ -126,30 +126,19 @@ export default function App() {
             <div className="prod-fullwidth-workspace">
               <ApplicantReferralSlip
                 onBackToExam={() => setActiveTab('applicant-exam')}
-                onProceedToAptitudeResults={() => setActiveTab('aptitude-results')}
               />
             </div>
           ) : activeTab === 'aptitude-results' ? (
             <div className="prod-fullwidth-workspace">
-              <GuidanceAptitudeResults
-                onBackToReferralSlip={() => setActiveTab('referral-slip')}
-                onProceedToMigration={() => {
-                  setActiveTab('legacy-migration');
-                }}
-              />
+              <GuidanceAptitudeResults />
             </div>
           ) : activeTab === 'legacy-migration' ? (
             <div className="prod-fullwidth-workspace">
-              <GuidanceLegacyMigration
-                onBackToGate4={() => setActiveTab('aptitude-results')}
-                onProceedToGate6={() => setActiveTab('faculty-roster')}
-              />
+              <GuidanceLegacyMigration />
             </div>
           ) : activeTab === 'faculty-roster' ? (
             <div className="prod-fullwidth-workspace">
-              <FacultyClassRoster
-                onBackToGate5={() => setActiveTab('legacy-migration')}
-              />
+              <FacultyClassRoster />
             </div>
           ) : activeTab === 'profile' ? (
             <div className="prod-touching-workspace">

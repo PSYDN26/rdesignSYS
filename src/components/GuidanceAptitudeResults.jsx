@@ -20,8 +20,6 @@ import {
   Check,
   Award,
   Printer,
-  ArrowRight,
-  ArrowLeft,
   ClipboardList,
   GraduationCap,
   Upload,
@@ -40,7 +38,7 @@ const INITIAL_REFERRALS_WITH_DOCS = INITIAL_APTITUDE_REFERRALS.map((r) => ({
       : null,
 }));
 
-export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProceedToMigration }) {
+export default function GuidanceAptitudeResults() {
   // Referrals dataset
   const [referrals, setReferrals] = useState(INITIAL_REFERRALS_WITH_DOCS);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -1273,36 +1271,6 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
         </div>
       )}
 
-      {/* Reviewer Bottom Action Bar */}
-      <div className="reviewer-nav-bar no-print">
-        <div className="nav-info">
-          <span className="nav-step-badge">Gate 4 Deliverable</span>
-          <span className="nav-step-text">
-            Guidance RPM Aptitude Results Encoding is active. Next in the roadmap is Gate 5: Guidance &amp; EVP Legacy Student Exam Migration.
-          </span>
-        </div>
-
-        <div className="reviewer-bar-actions" style={{ display: 'flex', gap: '0.75rem' }}>
-          <button
-            type="button"
-            className="btn-jump-gate"
-            onClick={onBackToReferralSlip}
-            title="Return to Gate 3 Referral Slip"
-          >
-            <ArrowLeft size={16} />
-            <span>Back to Gate 3 Slip</span>
-          </button>
-
-          <button
-            type="button"
-            className="btn-jump-gate"
-            onClick={onProceedToMigration}
-          >
-            <span>Preview Guidance &amp; EVP Migration (Gate 5)</span>
-            <ArrowRight size={16} />
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

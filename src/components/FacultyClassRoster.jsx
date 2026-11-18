@@ -256,7 +256,7 @@ const INITIAL_ROSTER_CADETS = [
   },
 ];
 
-export default function FacultyClassRoster({ onBackToGate5 }) {
+export default function FacultyClassRoster() {
   const [cadets] = useState(INITIAL_ROSTER_CADETS);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('ALL');
@@ -551,13 +551,6 @@ export default function FacultyClassRoster({ onBackToGate5 }) {
           Displaying <strong>{filteredCadets.length}</strong> of <strong>{cadets.length}</strong> official cadets enrolled in Section <strong>{courseInfo.section}</strong> &bull; SCMBT College of Maritime Education.
         </div>
         <div className="footer-right-buttons">
-          <button
-            type="button"
-            className="btn-back-gate5"
-            onClick={onBackToGate5}
-          >
-            &larr; Back to Gate 5 (Migration)
-          </button>
           <button
             type="button"
             className="btn-print-official"

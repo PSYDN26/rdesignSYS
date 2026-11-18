@@ -804,7 +804,7 @@ export default function ApplicantExamRunner({
                     className="btn-action-primary amber"
                     onClick={onNavigateToReferral}
                   >
-                    <span>View Official Guidance Referral Slip (Gate 3)</span>
+                    <span>View Official Guidance Referral Slip</span>
                     <ArrowRight size={17} />
                   </button>
                 </div>
