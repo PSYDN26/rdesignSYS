@@ -10,10 +10,11 @@ import EnterClassModal from './components/EnterClassModal';
 import StudentProfileForm from './components/StudentProfileForm';
 import GuidanceExamBank from './components/GuidanceExamBank';
 import ApplicantExamRunner from './components/ApplicantExamRunner';
+import ApplicantReferralSlip from './components/ApplicantReferralSlip';
 
 export default function App() {
-  // Navigation & View state - Active on Guidance Office Exam Bank & Setup
-  const [activeTab, setActiveTab] = useState('exam-bank');
+  // Navigation & View state - Active on Gate 3: Applicant Guidance Referral Slip
+  const [activeTab, setActiveTab] = useState('referral-slip');
   const [profileStep, setProfileStep] = useState(1);
   const [filter, setFilter] = useState('all');
   const [classes, setClasses] = useState([]);
@@ -114,11 +115,11 @@ export default function App() {
                 type="button"
                 className={`gate-step-btn ${activeTab === 'exam-bank' ? 'active current' : 'done'}`}
                 onClick={() => setActiveTab('exam-bank')}
-                title="Gate 1: Guidance Exam Bank & Setup (2-Tab Structure)"
+                title="Gate 1: Guidance Exam Bank & Setup"
               >
                 <span className="step-num">1</span>
                 <span className="step-name">Guidance: Exam Bank</span>
-                <span className="step-gate-tag current">Active Review</span>
+                <span className="step-gate-tag done-tag">Gate 1 [GO]</span>
               </button>
 
               <button
@@ -129,18 +130,18 @@ export default function App() {
               >
                 <span className="step-num">2</span>
                 <span className="step-name">Applicant: Exam Runner</span>
-                <span className="step-gate-tag">Gate 2</span>
+                <span className="step-gate-tag done-tag">Gate 2 [GO]</span>
               </button>
 
               <button
                 type="button"
-                className={`gate-step-btn ${activeTab === 'referral-slip' ? 'active' : 'locked'}`}
+                className={`gate-step-btn ${activeTab === 'referral-slip' ? 'active current' : 'done'}`}
                 onClick={() => setActiveTab('referral-slip')}
-                title="Gate 3: Unlocks upon Gate 2 Go confirmation"
+                title="Gate 3: Applicant Guidance Referral Slip (Active Review)"
               >
                 <span className="step-num">3</span>
                 <span className="step-name">Applicant: Referral Slip</span>
-                <span className="step-gate-tag">Gate 3</span>
+                <span className="step-gate-tag current">Active Review</span>
               </button>
 
               <button
@@ -192,6 +193,13 @@ export default function App() {
                   setActiveTab('profile');
                 }}
                 onBackToExamBank={() => setActiveTab('exam-bank')}
+              />
+            </div>
+          ) : activeTab === 'referral-slip' ? (
+            <div className="prod-fullwidth-workspace">
+              <ApplicantReferralSlip
+                onBackToExam={() => setActiveTab('applicant-exam')}
+                onProceedToAptitudeResults={() => setActiveTab('aptitude-results')}
               />
             </div>
           ) : activeTab === 'profile' ? (

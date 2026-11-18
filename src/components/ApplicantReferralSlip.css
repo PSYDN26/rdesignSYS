@@ -1,0 +1,814 @@
+/* ============================================================================
+   SCMBT APPLICANT GUIDANCE REFERRAL SLIP STYLES
+   Adhering to bond-paper-form-design and scmbt-design-system
+   ============================================================================ */
+
+.applicant-referral-canvas {
+  width: 100%;
+  padding: 1rem 1.25rem 4rem 1.25rem;
+  box-sizing: border-box;
+  background-color: transparent;
+  font-family: inherit;
+  color: #0f172a;
+}
+
+/* ========================================================
+   TOP INTERACTIVE TOOLBAR (Screen Only)
+   ======================================================== */
+.referral-top-toolbar {
+  max-width: 816px;
+  margin: 0 auto 1rem auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #042b4e;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.45rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-back-link:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.referral-status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.75rem;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #d97706;
+  animation: pulseAmber 1.5s infinite;
+}
+
+@keyframes pulseAmber {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.btn-action-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.45rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-action-outline:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.btn-action-primary-print {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1.15rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #042b4e;
+  border: 1px solid #042b4e;
+  border-radius: 0.45rem;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(4, 43, 78, 0.15);
+  transition: all 0.15s ease;
+}
+
+.btn-action-primary-print:hover {
+  background: #083c6c;
+}
+
+/* ========================================================
+   PHYSICAL BOND PAPER CONTAINER
+   Constrained to 8.5" document proportions (816px)
+   ======================================================== */
+.bond-paper-sheet {
+  max-width: 816px;
+  margin: 0 auto;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+  padding: 2.25rem 2.75rem;
+  box-sizing: border-box;
+}
+
+.bond-paper-inner-frame {
+  border: 1.5px solid #042b4e;
+  padding: 1.5rem 1.75rem;
+  border-radius: 4px;
+  position: relative;
+}
+
+/* Institutional Header */
+.institutional-doc-header {
+  display: grid;
+  grid-template-columns: 85px 1fr 115px;
+  gap: 1rem;
+  align-items: center;
+  padding-bottom: 1.15rem;
+  border-bottom: 2px solid #042b4e;
+  margin-bottom: 1.25rem;
+}
+
+.doc-logo-col {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.doc-crest-img {
+  width: 78px;
+  height: 78px;
+  object-fit: contain;
+}
+
+.doc-title-col {
+  text-align: center;
+}
+
+.doc-subhead-republic {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  margin-bottom: 0.15rem;
+}
+
+.doc-inst-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #042b4e;
+  letter-spacing: 0.03em;
+  margin: 0 0 0.15rem 0;
+  line-height: 1.25;
+}
+
+.doc-office-name {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #f98809;
+  letter-spacing: 0.04em;
+  margin: 0 0 0.45rem 0;
+}
+
+.doc-divider-line {
+  height: 1.5px;
+  background: #cbd5e1;
+  width: 60%;
+  margin: 0.35rem auto;
+}
+
+.doc-form-title {
+  font-size: 0.925rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: 0.04em;
+  margin: 0.35rem 0 0 0;
+}
+
+.doc-code-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.qr-box {
+  width: 64px;
+  height: 64px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  margin-bottom: 0.25rem;
+}
+
+.qr-icon {
+  color: #042b4e;
+}
+
+.doc-ref-number {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #042b4e;
+}
+
+.doc-control-number {
+  font-size: 0.62rem;
+  color: #64748b;
+  line-height: 1.2;
+}
+
+/* Directive Callout Banner */
+.directive-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: #fffbeb;
+  border: 1.5px solid #fde68a;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.directive-icon-col {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #fef3c7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.directive-text-col {
+  flex: 1;
+}
+
+.directive-text-col h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #92400e;
+  margin: 0 0 0.15rem 0;
+}
+
+.directive-text-col p {
+  font-size: 0.75rem;
+  color: #78350f;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.directive-badge-col {
+  flex-shrink: 0;
+}
+
+.badge-deadline {
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: #d97706;
+  color: #ffffff;
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* Section Blocks */
+.doc-section-block {
+  margin-bottom: 1.25rem;
+}
+
+.doc-section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid #cbd5e1;
+  margin-bottom: 0.75rem;
+}
+
+.sec-num {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #042b4e;
+}
+
+.sec-title {
+  font-size: 0.825rem;
+  font-weight: 800;
+  color: #042b4e;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+/* Metadata Grid */
+.doc-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem 1.25rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 0.85rem 1rem;
+}
+
+.meta-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.meta-lbl {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.meta-val {
+  font-size: 0.825rem;
+  color: #0f172a;
+}
+
+.doc-prose-text {
+  font-size: 0.78rem;
+  color: #334155;
+  line-height: 1.5;
+  margin: 0 0 0.75rem 0;
+}
+
+/* Attempt History Table */
+.doc-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  margin-bottom: 0.5rem;
+}
+
+.doc-history-table th {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  padding: 0.45rem 0.65rem;
+  text-align: left;
+  font-weight: 700;
+  color: #042b4e;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.doc-history-table td {
+  border: 1px solid #cbd5e1;
+  padding: 0.45rem 0.65rem;
+  color: #334155;
+}
+
+.table-outcome-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.1rem 0.45rem;
+  border-radius: 3px;
+}
+
+.table-outcome-tag.deficit {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Guidance Location & Checklist Box */
+.guidance-location-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.loc-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+}
+
+.loc-item strong {
+  display: block;
+  font-size: 0.75rem;
+  color: #042b4e;
+  margin-bottom: 0.15rem;
+}
+
+.loc-item p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.35;
+}
+
+.requirements-checklist {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+}
+
+.req-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #042b4e;
+  margin: 0 0 0.45rem 0;
+  text-transform: uppercase;
+}
+
+.req-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.75rem;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.req-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin-bottom: 0.25rem;
+}
+
+.req-bullet {
+  color: #f98809;
+  font-weight: 800;
+}
+
+/* Stepper Track */
+.admissions-milestone-track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+}
+
+.milestone-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.2rem;
+}
+
+.step-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+.milestone-step.done .step-circle {
+  background: #042b4e;
+  color: #ffffff;
+}
+
+.milestone-step.current .step-circle {
+  background: #f98809;
+  color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(249, 136, 9, 0.2);
+}
+
+.step-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #042b4e;
+}
+
+.step-status {
+  font-size: 0.62rem;
+  color: #64748b;
+}
+
+.current-tag {
+  color: #b45309;
+  font-weight: 700;
+}
+
+.step-connector {
+  flex: 1;
+  height: 2px;
+  background: #e2e8f0;
+  margin: 0 0.35rem 1rem 0.35rem;
+}
+
+.step-connector.done {
+  background: #042b4e;
+}
+
+/* Signatures Footer */
+.doc-signatures-footer {
+  display: grid;
+  grid-template-columns: 1fr 140px 1fr;
+  gap: 1rem;
+  align-items: end;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #cbd5e1;
+}
+
+.sig-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.sig-line {
+  width: 100%;
+  border-bottom: 1.5px solid #0f172a;
+  padding-bottom: 0.35rem;
+  margin-bottom: 0.35rem;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.sig-printed-name {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #042b4e;
+  text-transform: uppercase;
+}
+
+.sig-role-title {
+  font-size: 0.72rem;
+  color: #475569;
+}
+
+.sig-license {
+  font-size: 0.68rem;
+  color: #64748b;
+}
+
+.sig-candidate-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #042b4e;
+  text-transform: uppercase;
+}
+
+.sig-candidate-date {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.sig-caption {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.05em;
+}
+
+.middle-seal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.institutional-emboss-seal {
+  border: 2px dashed #042b4e;
+  border-radius: 50%;
+  width: 95px;
+  height: 95px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.25rem;
+  box-sizing: border-box;
+}
+
+.institutional-emboss-seal span {
+  font-size: 0.58rem;
+  font-weight: 800;
+  color: #042b4e;
+  letter-spacing: 0.04em;
+  margin-top: 0.15rem;
+}
+
+.seal-verified {
+  color: #f98809 !important;
+  font-size: 0.52rem !important;
+}
+
+/* Legal Footer */
+.doc-legal-footer {
+  margin-top: 1.25rem;
+  padding-top: 0.65rem;
+  border-top: 1px dotted #cbd5e1;
+  text-align: center;
+  font-size: 0.62rem;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+/* ========================================================
+   BOTTOM REVIEWER ACTION BAR (Screen Only)
+   ======================================================== */
+.reviewer-nav-bar {
+  max-width: 816px;
+  margin: 1.5rem auto 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.65rem;
+  padding: 0.85rem 1.25rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.nav-info {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.nav-step-badge {
+  background: #042b4e;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 0.35rem;
+  white-space: nowrap;
+}
+
+.nav-step-text {
+  font-size: 0.78rem;
+  color: #475569;
+  line-height: 1.4;
+}
+
+.btn-jump-gate {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1.15rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #042b4e;
+  border: 1px solid #042b4e;
+  border-radius: 0.45rem;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(4, 43, 78, 0.15);
+  transition: all 0.15s ease;
+}
+
+.btn-jump-gate:hover {
+  background: #083c6c;
+}
+
+/* ========================================================
+   PRINT STYLES FOR PRISTINE BOND PAPER OUTPUT
+   ======================================================== */
+@media print {
+  /* Hide all screen interface elements */
+  .no-print,
+  .prod-sidebar,
+  .prod-top-header,
+  .workflow-gate-banner,
+  .circle-bottom-nav,
+  header,
+  aside,
+  nav {
+    display: none !important;
+  }
+
+  body, html {
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .app-grey-page-wrapper,
+  .prod-app-shell,
+  .prod-stage-wrapper,
+  .prod-fullwidth-workspace {
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+  }
+
+  .applicant-referral-canvas {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .bond-paper-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .bond-paper-inner-frame {
+    border: 1.5px solid #000000 !important;
+    padding: 1.5rem !important;
+  }
+
+  /* Force print background colors for badges & tables */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .bond-paper-sheet {
+    padding: 1.25rem 1rem;
+  }
+
+  .institutional-doc-header {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .doc-meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .doc-signatures-footer {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .admissions-milestone-track {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .step-connector {
+    display: none;
+  }
+
+  .guidance-location-box {
+    grid-template-columns: 1fr;
+  }
+
+  .reviewer-nav-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

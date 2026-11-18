@@ -345,3 +345,38 @@ export const INITIAL_REFERRAL = {
     'Cellular phones, smartwatches, programmable calculators, and unauthorized materials are strictly prohibited inside the Testing Hall.',
   ],
 };
+
+// Initial Referral Slip Data (Gate 3)
+export const INITIAL_REFERRAL_SLIP = {
+  referralCode: 'REF-2026-00412',
+  formControlNumber: 'SCMBT-GUID-FORM-042 (REV.03)',
+  applicationNumber: 'APP-2026-00891',
+  applicantName: 'Juan Santos Dela Cruz',
+  contactNumber: '+63 917 842 1902',
+  email: 'j.delacruz@applicant.scmbt.edu.ph',
+  targetProgram: 'Bachelor of Science in Marine Transportation (BSMT)',
+  shsStrand: 'STEM - Pre-Baccalaureate Maritime',
+  dateIssued: '2026-11-17T09:30:00Z',
+  issuedByOfficer: 'Maria Elena Santos, RPM',
+  officerRole: 'Guidance Testing Officer',
+  officerLicense: 'PRC License No. 0048192',
+  referralReason: 'Exhaustion of authorized online examination attempts (3 of 3 attempts completed). Candidate requires comprehensive proctored written aptitude & psychological evaluation for maritime admissions endorsement.',
+  attemptsHistory: [
+    { attempt: 1, date: '2026-11-12', scorePct: 40.0, rawScore: '4/10', status: 'Failed' },
+    { attempt: 2, date: '2026-11-14', scorePct: 45.0, rawScore: '4.5/10', status: 'Failed' },
+    { attempt: 3, date: '2026-11-17', scorePct: 40.0, rawScore: '4/10', status: 'Failed (Final Retake)' },
+  ],
+  testingCenter: {
+    room: 'Guidance Testing Center (Room 204, 2nd Floor, Main Administration Building)',
+    officeHours: 'Monday to Friday, 8:00 AM – 5:00 PM',
+    contactDesk: 'guidance@scmbt.edu.ph / (02) 8876-1200 loc. 204',
+  },
+  instructions: [
+    'Report in person to the SCMBT Guidance Office within five (5) working days from the date of this referral.',
+    'Present this printed Referral Slip (with legible barcode/QR) and a valid Philippine Government or School ID.',
+    'Bring two (2) pieces 2x2 formal ID picture with white background and name tag.',
+    'Bring two (2) lead pencils (No. 2) and black ballpoint pens for the paper answer sheet.',
+    'The paper-and-pencil written aptitude test will be proctored by a licensed Registered Psychometrician (RPM) under RA 10029.',
+  ],
+  referralStatus: 'pending_visit', // 'pending_visit', 'scheduled', 'tested', 'encoded', 'released'
+};
