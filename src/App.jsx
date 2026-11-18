@@ -13,10 +13,11 @@ import ApplicantExamRunner from './components/ApplicantExamRunner';
 import ApplicantReferralSlip from './components/ApplicantReferralSlip';
 import GuidanceAptitudeResults from './components/GuidanceAptitudeResults';
 import GuidanceLegacyMigration from './components/GuidanceLegacyMigration';
+import FacultyClassRoster from './components/FacultyClassRoster';
 
 export default function App() {
-  // Navigation & View state - Active on Gate 5: Guidance & EVP Legacy Student Exam Migration
-  const [activeTab, setActiveTab] = useState('legacy-migration');
+  // Navigation & View state - Active on Gate 6: Faculty Class Roster & Aptitude Summary Sheet
+  const [activeTab, setActiveTab] = useState('faculty-roster');
   const [profileStep, setProfileStep] = useState(1);
   const [filter, setFilter] = useState('all');
   const [classes, setClasses] = useState([]);
@@ -159,24 +160,24 @@ export default function App() {
 
               <button
                 type="button"
-                className={`gate-step-btn ${activeTab === 'legacy-migration' ? 'active current' : 'pending'}`}
+                className={`gate-step-btn ${activeTab === 'legacy-migration' ? 'active current' : 'done'}`}
                 onClick={() => setActiveTab('legacy-migration')}
-                title="Gate 5: Guidance & EVP Legacy Student Exam Migration (Active Review)"
+                title="Gate 5: Guidance Legacy Migration (Completed & Approved)"
               >
                 <span className="step-num">5</span>
-                <span className="step-name">Guidance &amp; EVP: Migration</span>
-                <span className="step-gate-tag current">Active Review</span>
+                <span className="step-name">Guidance: Migration</span>
+                <span className="step-gate-tag done-tag">Gate 5 [GO]</span>
               </button>
 
               <button
                 type="button"
-                className={`gate-step-btn ${activeTab === 'faculty-roster' ? 'active' : 'locked'}`}
+                className={`gate-step-btn ${activeTab === 'faculty-roster' ? 'active current' : 'done'}`}
                 onClick={() => setActiveTab('faculty-roster')}
-                title="Gate 6: Unlocks upon Gate 5 Go confirmation"
+                title="Gate 6: Faculty Class Roster & Aptitude Summary (Active)"
               >
                 <span className="step-num">6</span>
                 <span className="step-name">Faculty: Roster Sheet</span>
-                <span className="step-gate-tag">Gate 6</span>
+                <span className="step-gate-tag current">Gate 6 [Active]</span>
               </button>
             </div>
           </div>
@@ -217,10 +218,13 @@ export default function App() {
             <div className="prod-fullwidth-workspace">
               <GuidanceLegacyMigration
                 onBackToGate4={() => setActiveTab('aptitude-results')}
-                onProceedToGate6={() => {
-                  alert('Gate 5 is currently under Go/No-Go review. Once approved, Gate 6 (Faculty Class Roster Aptitude Sheet) will be opened.');
-                  setActiveTab('faculty-roster');
-                }}
+                onProceedToGate6={() => setActiveTab('faculty-roster')}
+              />
+            </div>
+          ) : activeTab === 'faculty-roster' ? (
+            <div className="prod-fullwidth-workspace">
+              <FacultyClassRoster
+                onBackToGate5={() => setActiveTab('legacy-migration')}
               />
             </div>
           ) : activeTab === 'profile' ? (
