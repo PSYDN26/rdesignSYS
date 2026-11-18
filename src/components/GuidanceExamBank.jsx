@@ -297,16 +297,12 @@ export default function GuidanceExamBank() {
         </div>
       )}
 
-      {/* Page Header Banner */}
+      {/* Page Header Banner (Clean & Minimal) */}
       <header className="guidance-bank-header">
         <div className="header-meta">
-          <div className="dept-tag">
-            <span className="dept-dot"></span>
-            <span>SCMBT Guidance Testing Office &bull; Staff Administrator View</span>
-          </div>
           <h1 className="header-title">Entrance Examination Bank &amp; Setup</h1>
           <p className="header-subtitle">
-            Administered by Guidance Center Officers &bull; Author test items, manage item quotas, configure retake allowances, and set exam availability status.
+            Question repository and institutional testing configuration
           </p>
         </div>
 

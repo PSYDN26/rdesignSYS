@@ -121,8 +121,8 @@ export default function App() {
                 title="Gate 1: Guidance Exam Bank & Setup"
               >
                 <span className="step-num">1</span>
-                <span className="step-name">Guidance: Exam Bank</span>
-                <span className="step-gate-tag done-tag">Gate 1 [GO]</span>
+                <span className="step-name">Exam Bank</span>
+                <span className="step-gate-tag done-tag">[GO]</span>
               </button>
 
               <button
@@ -132,8 +132,8 @@ export default function App() {
                 title="Gate 2: Applicant Exam Runner"
               >
                 <span className="step-num">2</span>
-                <span className="step-name">Applicant: Exam Runner</span>
-                <span className="step-gate-tag done-tag">Gate 2 [GO]</span>
+                <span className="step-name">Exam Runner</span>
+                <span className="step-gate-tag done-tag">[GO]</span>
               </button>
 
               <button
@@ -143,41 +143,41 @@ export default function App() {
                 title="Gate 3: Applicant Guidance Referral Slip"
               >
                 <span className="step-num">3</span>
-                <span className="step-name">Applicant: Referral Slip</span>
-                <span className="step-gate-tag done-tag">Gate 3 [GO]</span>
+                <span className="step-name">Referral Slip</span>
+                <span className="step-gate-tag done-tag">[GO]</span>
               </button>
 
               <button
                 type="button"
                 className={`gate-step-btn ${activeTab === 'aptitude-results' ? 'active current' : 'done'}`}
                 onClick={() => setActiveTab('aptitude-results')}
-                title="Gate 4: RPM Aptitude Results Encoding (Approved)"
+                title="Gate 4: RPM Aptitude Results Encoding"
               >
                 <span className="step-num">4</span>
-                <span className="step-name">RPM: Aptitude Encoding</span>
-                <span className="step-gate-tag done-tag">Gate 4 [GO]</span>
+                <span className="step-name">Aptitude Encoding</span>
+                <span className="step-gate-tag done-tag">[GO]</span>
               </button>
 
               <button
                 type="button"
                 className={`gate-step-btn ${activeTab === 'legacy-migration' ? 'active current' : 'done'}`}
                 onClick={() => setActiveTab('legacy-migration')}
-                title="Gate 5: Guidance Legacy Migration (Completed & Approved)"
+                title="Gate 5: Guidance Legacy Migration"
               >
                 <span className="step-num">5</span>
-                <span className="step-name">Guidance: Migration</span>
-                <span className="step-gate-tag done-tag">Gate 5 [GO]</span>
+                <span className="step-name">Legacy Migration</span>
+                <span className="step-gate-tag done-tag">[GO]</span>
               </button>
 
               <button
                 type="button"
                 className={`gate-step-btn ${activeTab === 'faculty-roster' ? 'active current' : 'done'}`}
                 onClick={() => setActiveTab('faculty-roster')}
-                title="Gate 6: Faculty Class Roster & Aptitude Summary (Active)"
+                title="Gate 6: Faculty Class Roster"
               >
                 <span className="step-num">6</span>
-                <span className="step-name">Faculty: Roster Sheet</span>
-                <span className="step-gate-tag current">Gate 6 [Active]</span>
+                <span className="step-name">Class Roster</span>
+                <span className="step-gate-tag current">[Active]</span>
               </button>
             </div>
           </div>

@@ -255,7 +255,7 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
         <div className="header-meta">
           <h1 className="header-title">Written Aptitude Test Results</h1>
           <p className="header-subtitle">
-            Review psychometric referrals, record standardized battery or narrative evaluations, and manage faculty visibility.
+            Psychometric evaluation encoding and faculty visibility management
           </p>
         </div>
 
@@ -400,13 +400,12 @@ export default function GuidanceAptitudeResults({ onBackToReferralSlip, onProcee
                                   <strong>{item.percentileRank ?? 75}%</strong> PR &bull; Stanine {item.stanine ?? 6}
                                 </span>
                                 <span className="metric-secondary">
-                                  {item.qualitativeInterpretation ? item.qualitativeInterpretation.split('(')[0].trim() : 'Average'} &bull; Paragraph Encoded
+                                  {item.qualitativeInterpretation ? item.qualitativeInterpretation.split('(')[0].trim() : 'Average'}
                                 </span>
                               </div>
                             ) : (
                               <div className="metric-preview-narrative">
-                                <span className="narrative-tag">Mode B: Paragraph Only</span>
-                                <span className="narrative-sub">Clinical Report Encoded</span>
+                                <span className="narrative-tag">Mode B: Clinical Report</span>
                               </div>
                             )
                           ) : (
