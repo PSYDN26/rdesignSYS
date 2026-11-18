@@ -1,0 +1,364 @@
+/* ==========================================================================
+   SCMBT STUDENT PROFILE FORM STYLING
+   Compliant with SCMBT Design System, Bond Paper Form Design, and Unslop Heuristics
+   ========================================================================== */
+
+.profile-section-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Institutional Sub-Surface Group Block */
+.profile-block-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 0.15s ease;
+}
+
+.profile-block-card:focus-within {
+  border-color: #cbd5e1;
+}
+
+.profile-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #edf2f7;
+  padding-bottom: 8px;
+}
+
+.profile-block-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #042b4e;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.01em;
+}
+
+.profile-block-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+/* Section Header Banners (Monochrome Minimalist) */
+.profile-step-banner {
+  background: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  border-left: 3.5px solid #042b4e;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile-step-banner h2 {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.profile-step-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #042b4e;
+  background: #e2e8f0;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* Smart Auto-Copy Bar */
+.smart-copy-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-top: 2px;
+}
+
+.smart-copy-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  user-select: none;
+}
+
+.smart-copy-hint {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* Institutional Checkbox Item */
+.institutional-check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: #1e293b;
+  cursor: pointer;
+  user-select: none;
+}
+
+.institutional-check-item input[type="checkbox"] {
+  accent-color: #f98809;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.institutional-highlight-box {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  padding: 10px 14px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.institutional-highlight-box label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #92400e;
+  cursor: pointer;
+}
+
+/* Radio Pill Segmented Selector */
+.radio-pill-group {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.radio-pill-btn {
+  padding: 4px 14px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.radio-pill-btn.active {
+  background: #042b4e;
+  color: #ffffff;
+  border-color: #042b4e;
+}
+
+/* Document Upload Cards (Step 5) */
+.doc-uploads-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .doc-uploads-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.doc-upload-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all 0.15s ease;
+}
+
+.doc-upload-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.doc-upload-card.required {
+  border-left: 3px solid #f98809;
+}
+
+.doc-info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+
+.doc-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.doc-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doc-badge-required {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #b45309;
+  background: #fef3c7;
+  padding: 1px 5px;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.doc-badge-optional {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.doc-status-text {
+  font-size: 11px;
+  color: #059669;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.doc-status-text.empty {
+  color: #94a3b8;
+}
+
+.btn-doc-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #042b4e;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.btn-doc-upload:hover {
+  background: #042b4e;
+  color: #ffffff;
+  border-color: #042b4e;
+}
+
+.btn-doc-upload.uploaded {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #15803d;
+}
+
+/* Step Navigation Footer */
+.profile-step-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 16px;
+  margin-top: 8px;
+}
+
+.btn-step-prev {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-step-prev:hover {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #94a3b8;
+}
+
+.btn-step-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border-radius: 8px;
+  background: #042b4e;
+  color: #ffffff;
+  border: 1px solid #042b4e;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-left: auto;
+}
+
+.btn-step-next:hover {
+  background: #063a69;
+}
+
+.btn-step-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 24px;
+  border-radius: 8px;
+  background: #059669;
+  color: #ffffff;
+  border: 1px solid #059669;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-left: auto;
+}
+
+.btn-step-submit:hover {
+  background: #047857;
+}

@@ -5,8 +5,8 @@ import {
   User, 
   Users, 
   GraduationCap, 
-  BookOpen, 
-  FileCheck, 
+  MapPin, 
+  ShieldCheck, 
   Printer, 
   Clock 
 } from 'lucide-react';
@@ -19,11 +19,11 @@ export default function ProfileProgressSidebar({
   lastSaved = 'Just now'
 }) {
   const steps = [
-    { num: 1, title: 'Personal Information', icon: User, fields: 'Full Name, Birth, Address' },
-    { num: 2, title: 'Family Background', icon: Users, fields: 'Parents, Income & Guardian' },
-    { num: 3, title: 'Educational Background', icon: GraduationCap, fields: 'Schools, SHS Strand, GWA' },
-    { num: 4, title: 'Program & Enrollment', icon: BookOpen, fields: 'HEI Name, Degree & Year' },
-    { num: 5, title: 'Photo & Certification', icon: FileCheck, fields: '2x2 Photo & Signature' },
+    { num: 1, title: 'Personal Information', icon: User, fields: 'Full Name, Demographics, Health' },
+    { num: 2, title: 'Family Background', icon: Users, fields: 'Father, Mother & Guardian' },
+    { num: 3, title: 'Address Information', icon: MapPin, fields: 'Current, Permanent & Guardian' },
+    { num: 4, title: 'Educational Background', icon: GraduationCap, fields: 'Primary, Secondary, Higher Ed' },
+    { num: 5, title: 'Documents & Verification', icon: ShieldCheck, fields: '8 Required Docs & Digital Oath' },
   ];
 
   // Calculate percentage
