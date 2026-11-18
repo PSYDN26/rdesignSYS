@@ -836,6 +836,256 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* ========================================================
+   CATEGORY DISTRIBUTION & QUOTA TABLE STYLES
+   ======================================================== */
+.header-category-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.btn-add-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #042b4e;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-add-category:hover {
+  background: #f1f5f9;
+  border-color: #042b4e;
+}
+
+.quota-sum-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 0.35rem;
+}
+
+.quota-sum-badge.balanced {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.quota-sum-badge.unbalanced {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.section-note {
+  font-size: 0.8rem;
+  color: #475569;
+  margin: 0 0 0.85rem 0;
+  line-height: 1.45;
+}
+
+.category-quota-table {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.55rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.quota-table-head {
+  display: grid;
+  grid-template-columns: 2fr 85px 90px 105px 110px;
+  gap: 0.65rem;
+  background: #f8fafc;
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  letter-spacing: 0.04em;
+}
+
+.quota-table-body {
+  background: #ffffff;
+}
+
+.quota-row {
+  display: grid;
+  grid-template-columns: 2fr 85px 90px 105px 110px;
+  gap: 0.65rem;
+  padding: 0.75rem 0.85rem;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.quota-row:last-child {
+  border-bottom: none;
+}
+
+.col-cat {
+  display: flex;
+  flex-direction: column;
+}
+
+.cat-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.cat-desc {
+  font-size: 0.72rem;
+  color: #64748b;
+  line-height: 1.35;
+  margin-top: 0.15rem;
+}
+
+.col-quota {
+  display: flex;
+  align-items: center;
+}
+
+.quota-num-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #042b4e;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.45rem;
+  box-sizing: border-box;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.col-min {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pct-symbol {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.col-inv {
+  display: flex;
+  align-items: center;
+}
+
+.inventory-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.inventory-pill.sufficient {
+  background: #f1f5f9;
+  color: #042b4e;
+}
+
+.inventory-pill.deficit {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.col-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.btn-cat-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  padding: 0.3rem 0.55rem;
+  border-radius: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-cat-action:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.btn-cat-action.delete:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+/* Quota Progress Bar */
+.quota-progress-container {
+  margin-top: 0.85rem;
+}
+
+.quota-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-bottom: 0.35rem;
+}
+
+.quota-progress-track {
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.quota-progress-fill {
+  height: 100%;
+  transition: width 0.25s ease;
+}
+
+.bg-amber {
+  background-color: #f98809;
+}
+
+.bg-red {
+  background-color: #ef4444;
+}
+
+.validation-alert-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+  padding: 0.75rem 0.95rem;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 0.5rem;
+  font-size: 0.78rem;
+  color: #92400e;
+  line-height: 1.45;
+}
+
+.category-modal-card {
+  max-width: 620px;
+}
+
 /* Modals & Helpers */
 .guidance-modal-overlay {
   position: fixed;

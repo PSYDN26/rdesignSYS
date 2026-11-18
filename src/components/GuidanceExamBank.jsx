@@ -67,6 +67,10 @@ export default function GuidanceExamBank() {
   // State for new/edit question modal
   const [editingQuestion, setEditingQuestion] = useState(null);
   const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false);
+
+  // State for new/edit category modal
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   
   // Notification toast
   const [toastMessage, setToastMessage] = useState(null);
@@ -121,6 +125,65 @@ export default function GuidanceExamBank() {
     setCategories(prev =>
       prev.map(cat => (cat.id === categoryId ? { ...cat, minPassScore: val } : cat))
     );
+  };
+
+  // Open category modal for create or edit
+  const handleOpenCategoryModal = (cat = null) => {
+    if (cat) {
+      setEditingCategory({ ...cat });
+    } else {
+      setEditingCategory({
+        id: `cat-${Date.now().toString().slice(-6)}`,
+        name: '',
+        description: '',
+        officialQuota: 20,
+        demoQuota: 2,
+        minPassScore: 50.0,
+      });
+    }
+    setIsCategoryModalOpen(true);
+  };
+
+  // Save category (create or update)
+  const handleSaveCategory = (e) => {
+    e.preventDefault();
+    if (!editingCategory.name.trim()) {
+      alert('Please enter a category name.');
+      return;
+    }
+
+    setCategories(prev => {
+      const idx = prev.findIndex(c => c.id === editingCategory.id);
+      if (idx >= 0) {
+        const updated = [...prev];
+        updated[idx] = { ...editingCategory };
+        return updated;
+      }
+      return [...prev, { ...editingCategory }];
+    });
+
+    const isEdit = categories.some(c => c.id === editingCategory.id);
+    setIsCategoryModalOpen(false);
+    setEditingCategory(null);
+    showToast(`Category "${editingCategory.name}" ${isEdit ? 'updated' : 'added'} successfully.`, 'success');
+  };
+
+  // Delete category
+  const handleDeleteCategory = (categoryId) => {
+    const assignedCount = questions.filter(q => q.categoryId === categoryId).length;
+    if (assignedCount > 0) {
+      alert(`Cannot delete category: ${assignedCount} question(s) in the bank are assigned to this category. Please reassign or delete those questions first.`);
+      return;
+    }
+    if (categories.length <= 1) {
+      alert('Cannot delete: At least one category must exist in the examination.');
+      return;
+    }
+    const cat = categories.find(c => c.id === categoryId);
+    if (window.confirm(`Are you sure you want to delete category "${cat?.name || categoryId}"?`)) {
+      setCategories(prev => prev.filter(c => c.id !== categoryId));
+      showToast(`Category "${cat?.name || categoryId}" deleted.`, 'info');
+    }
   };
 
   // Filtered questions
@@ -745,28 +808,38 @@ export default function GuidanceExamBank() {
                 <Layers size={18} className="text-navy-900" />
                 <h2>Category Item Distribution &amp; Quotas</h2>
               </div>
-              <div className={`quota-sum-badge ${isQuotaBalanced ? 'balanced' : 'unbalanced'}`}>
-                {isQuotaBalanced ? (
-                  <>
-                    <CheckCircle2 size={14} />
-                    <span>Allocated: {currentAllocatedQuota} / {targetTotalQuota} items</span>
-                  </>
-                ) : (
-                  <>
-                    <AlertTriangle size={14} />
-                    <span>
-                      {quotaDifference > 0 
-                        ? `${quotaDifference} items remaining` 
-                        : `${Math.abs(quotaDifference)} items excess`}
-                    </span>
-                  </>
-                )}
+              <div className="header-category-actions">
+                <button
+                  type="button"
+                  className="btn-add-category"
+                  onClick={() => handleOpenCategoryModal()}
+                >
+                  <Plus size={15} />
+                  <span>Add Category</span>
+                </button>
+                <div className={`quota-sum-badge ${isQuotaBalanced ? 'balanced' : 'unbalanced'}`}>
+                  {isQuotaBalanced ? (
+                    <>
+                      <CheckCircle2 size={14} />
+                      <span>Allocated: {currentAllocatedQuota} / {targetTotalQuota} items</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle size={14} />
+                      <span>
+                        {quotaDifference > 0 
+                          ? `${quotaDifference} items remaining` 
+                          : `${Math.abs(quotaDifference)} items excess`}
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
             <div className="card-body">
               <p className="section-note">
-                Publishing requires the sum of all category quotas to equal exactly <strong>{targetTotalQuota}</strong>.
+                Publishing requires the sum of all category quotas to equal exactly <strong>{targetTotalQuota}</strong>. Add, edit, or remove categories to match your institutional curriculum.
               </p>
 
               <div className="category-quota-table">
@@ -775,6 +848,7 @@ export default function GuidanceExamBank() {
                   <span className="col-quota">Item Quota</span>
                   <span className="col-min">Min Pass %</span>
                   <span className="col-inv">Bank Inventory</span>
+                  <span className="col-actions">Actions</span>
                 </div>
 
                 <div className="quota-table-body">
@@ -818,6 +892,26 @@ export default function GuidanceExamBank() {
                           <span className={`inventory-pill ${isDeficit ? 'deficit' : 'sufficient'}`}>
                             {inBank} in bank
                           </span>
+                        </div>
+
+                        <div className="col-actions">
+                          <button
+                            type="button"
+                            className="btn-cat-action edit"
+                            onClick={() => handleOpenCategoryModal(cat)}
+                            title={`Edit ${cat.name}`}
+                          >
+                            <Edit3 size={14} />
+                            <span>Edit</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-cat-action delete"
+                            onClick={() => handleDeleteCategory(cat.id)}
+                            title={`Delete ${cat.name}`}
+                          >
+                            <Trash2 size={14} />
+                          </button>
                         </div>
                       </div>
                     );
@@ -1182,6 +1276,134 @@ export default function GuidanceExamBank() {
                 Close Preview
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================
+          MODAL 4: CATEGORY AUTHORING / EDITING DIALOG
+          ========================================================= */}
+      {isCategoryModalOpen && editingCategory && (
+        <div className="guidance-modal-overlay" role="dialog" aria-modal="true">
+          <div className="guidance-modal-card category-modal-card">
+            <div className="modal-header">
+              <div className="modal-title-group">
+                <Layers size={20} className="text-amber-500" />
+                <h3>
+                  {categories.some(c => c.id === editingCategory.id)
+                    ? `Edit Category: ${editingCategory.name}`
+                    : 'Add New Category'}
+                </h3>
+              </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => {
+                  setIsCategoryModalOpen(false);
+                  setEditingCategory(null);
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCategory}>
+              <div className="modal-body-scroll">
+                {/* Category Name */}
+                <div className="form-field-group">
+                  <label className="field-label">Category Name *</label>
+                  <input
+                    type="text"
+                    value={editingCategory.name}
+                    onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })}
+                    placeholder="e.g. Abstract & Inductive Reasoning"
+                    className="text-input"
+                    required
+                  />
+                  <span className="field-hint">The domain title displayed on question tags and test questionnaires.</span>
+                </div>
+
+                {/* Description */}
+                <div className="form-field-group">
+                  <label className="field-label">Scope &amp; Description</label>
+                  <textarea
+                    rows={3}
+                    value={editingCategory.description}
+                    onChange={(e) => setEditingCategory({ ...editingCategory, description: e.target.value })}
+                    placeholder="Brief description of the cognitive skills, knowledge areas, or nautical problems tested..."
+                    className="textarea-input"
+                  />
+                </div>
+
+                {/* Quotas & Minimum Passing Score */}
+                <div className="grid-3-cols">
+                  <div className="form-field-group">
+                    <label className="field-label">Official Quota (100 Items)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={editingCategory.officialQuota}
+                      onChange={(e) => setEditingCategory({
+                        ...editingCategory,
+                        officialQuota: Math.max(0, parseInt(e.target.value, 10) || 0)
+                      })}
+                      className="text-input"
+                    />
+                    <span className="field-hint">Items out of 100</span>
+                  </div>
+
+                  <div className="form-field-group">
+                    <label className="field-label">Demo Quota (10 Items)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="10"
+                      value={editingCategory.demoQuota}
+                      onChange={(e) => setEditingCategory({
+                        ...editingCategory,
+                        demoQuota: Math.max(0, parseInt(e.target.value, 10) || 0)
+                      })}
+                      className="text-input"
+                    />
+                    <span className="field-hint">Items out of 10</span>
+                  </div>
+
+                  <div className="form-field-group">
+                    <label className="field-label">Min Pass Benchmark (%)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="5"
+                      value={editingCategory.minPassScore}
+                      onChange={(e) => setEditingCategory({
+                        ...editingCategory,
+                        minPassScore: Math.min(100, Math.max(0, parseFloat(e.target.value) || 0))
+                      })}
+                      className="text-input"
+                    />
+                    <span className="field-hint">Standard: 50.0%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={() => {
+                    setIsCategoryModalOpen(false);
+                    setEditingCategory(null);
+                  }}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn-submit-save">
+                  Save Category
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
